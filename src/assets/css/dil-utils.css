@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap');
+
+/* */
+html {
+  --font-primary: "Libre Baskerville", sans-serif;
+  --font-secondary: "Barlow Semi Condensed", sans-serif;
+  --font-endp: "Cormorant Garamond", sans-serif;
+
+  --brown: #7B0C12;
+  --dark-grey: #343434;
+  --light-brown: #ad464b;
+  --light-brown-alt: #CC3E46;
+  --panel-bg-color: #ffffff;
+  --link-over-color: #CC3E46;
+
+  --desktop-content-width: 1270px;
+  --desktop-side-padding: calc(50% - 635px);
+  --tablet-side-padding: 40px;
+  --mobile-side-padding: 18px;
+  --column-gap-desktop: 48px;
+  --right-column-bottom-padding-desktop: 500px;
+  --right-column-bottom-padding-mobile: 200px;
+}
+
+body {
+  font-family: var(--font-primary);
+}

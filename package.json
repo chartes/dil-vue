@@ -10,7 +10,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.5.13"
+    "axios": "^1.9.0",
+    "bulma": "^1.0.3",
+    "jquery": "^3.7.1",
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
+    "slick-carousel": "^1.8.1",
+    "vis-network": "^9.1.9",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "vue-slick-carousel": "^1.0.6",
+    "vue3-carousel": "^0.15.0",
+    "vuetify": "^3.8.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

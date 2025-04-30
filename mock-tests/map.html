@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Brevet par Ville</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css" />
+
+  <style>
+    #map { height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+
+  <script>
+    const API_BASE = "https://dev.chartes.psl.eu/dil/api";
+    const PAGE_SIZE = 50;
+
+    const map = L.map('map').setView([46.5, 2.5], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap',
+      maxZoom: 19
+    }).addTo(map);
+
+    const clusterGroup = L.markerClusterGroup();
+    map.addLayer(clusterGroup);
+
+    async function fetchJSON(url) {
+      const res = await fetch(url);
+      return res.json();
+    }
+
+    async function fetchAllPatentIDs() {
+      const firstPage = await fetchJSON(`${API_BASE}/patents?page=1&size=${PAGE_SIZE}`);
+      const totalPages = firstPage.pages;
+      const allItems = [...firstPage.items];
+
+      for (let page = 2; page <= totalPages; page++) {
+        const data = await fetchJSON(`${API_BASE}/patents?page=${page}&size=${PAGE_SIZE}`);
+        allItems.push(...data.items);
+        console.log(`Page ${page}/${totalPages} chargée`);
+      }
+      return allItems;
+    }
+
+    async function fetchPatentDetailsInBatches(patents, batchSize = 20) {
+      const cityCounts = {};
+
+      for (let i = 0; i < patents.length; i += batchSize) {
+        const batch = patents.slice(i, i + batchSize);
+
+        const results = await Promise.allSettled(
+          batch.map(p => fetchJSON(`${API_BASE}/patents/patent/${p._id_dil}?html=false`))
+        );
+
+        for (const result of results) {
+          if (result.status === "fulfilled") {
+            const fullPatent = result.value;
+            const cityId = fullPatent.city_id;
+            if (!cityId) continue;
+
+            if (!cityCounts[cityId]) {
+              cityCounts[cityId] = {
+                count: 0,
+                patents: []
+              };
+            }
+
+            cityCounts[cityId].count += 1;
+            cityCounts[cityId].patents.push(fullPatent);
+          }
+        }
+
+        console.log(`Chargés : ${Math.min(i + batchSize, patents.length)}/${patents.length}`);
+      }
+
+      return cityCounts;
+    }
+
+    async function main() {
+      const basePatents = await fetchAllPatentIDs();
+      const cityCounts = await fetchPatentDetailsInBatches(basePatents);
+
+      for (const cityId of Object.keys(cityCounts)) {
+        try {
+          const cityData = await fetchJSON(`${API_BASE}/referential/cities/city/${cityId}`);
+          const coords = cityData.long_lat?.replace(/[()]/g, "").split(',').map(Number);
+          if (!coords) continue;
+
+          const lat = coords[1];
+          const lng = coords[0];
+          const nb = cityCounts[cityId].count;
+const imprimeurs = cityCounts[cityId].patents
+  .map(p => p.patent_relations)
+  .flat()
+  .filter(r => r && (r.type === "Titulaire" || r.type === "Imprimeur" || r.type === "Successeur"))
+  .map(r => `${r.firstnames ?? ''} ${r.lastname ?? ''}`.trim())
+  .filter((v, i, self) => v && self.indexOf(v) === i); // élimine doublons et vides
+
+
+          const radius = 5 + Math.log(nb) * 5;
+
+          const marker = L.circleMarker([lat, lng], {
+            radius,
+            color: 'blue',
+            fillColor: 'blue',
+            fillOpacity: 0.5
+          });
+
+          marker.bindPopup(`
+  <b>${cityData.label}</b><br/>
+  ${nb} brevet(s) enregistrés<br/>
+  ${imprimeurs.length > 0 ? `<b>Imprimeur(s):</b><br/>${imprimeurs.join("<br/>")}` : ""}
+`);
+
+          clusterGroup.addLayer(marker);
+        } catch (err) {
+          console.warn("Erreur chargement ville", cityId, err);
+        }
+      }
+
+      console.log("Carte générée !");
+    }
+
+    main();
+  </script>
+</body>
+</html>
