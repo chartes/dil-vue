@@ -25,18 +25,27 @@
 
       <!-- API + Connexion à droite -->
       <div class="d-flex align-center">
-        <v-btn class="api-btn mr-4">
+        <v-btn class="api-btn mr-4"
+               @click="goToWebsite(apiDocsUrl)">
           API <span class="api-btn-logo">{}</span>
         </v-btn>
-        <v-icon color="white" size="30" class="cursor-pointer" @click="$router.push('/login')">
+
+        <v-btn
+          class="api-btn"
+          @click="goToWebsite(adminUrl)">
+
+        <v-icon color="white" size="30" class="cursor-pointer">
           mdi-account-circle
         </v-icon>
+          </v-btn>
       </div>
     </v-container>
   </v-app-bar>
 </template>
 
 <script>
+import {mapState} from "vuex";
+
 export default {
   name: 'Header',
   data() {
@@ -49,7 +58,10 @@ export default {
     goToWebsite(url) {
       window.open(url, '_blank')
     }
-  }
+  },
+    computed : {
+    ...mapState(["apiDocsUrl", "adminUrl"]),
+  },
 }
 </script>
 

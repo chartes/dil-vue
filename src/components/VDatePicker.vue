@@ -214,15 +214,19 @@ export default {
       }
     },
     resetDate() {
-      this.year = ''
-      this.month = ''
-      this.day = ''
-      this.displayedDate = ''
-      this.$emit('update:dateMeta', {
-        date: '',
-        exact: false
-      })
-    },
+  this.year = null;
+  this.month = null;
+  this.day = null;
+  this.exactDate = false;
+  this.step = 'year';
+  this.menu = false;
+
+  this.$emit('update:dateMeta', {
+    date: '',
+    exact: false
+  });
+}
+
   },
 }
 </script>

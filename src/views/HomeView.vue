@@ -64,6 +64,7 @@
 import IntroText from '@/components/IntroText.vue'
 import PanelGallery from '@/components/PanelGallery.vue'
 import MetricsBar from '@/components/MetricsBar.vue'
+import {mapState} from "vuex";
 
 export default {
   name: 'HomeView',
@@ -75,7 +76,6 @@ export default {
   data() {
     return {
       quickSearch: '',
-      apiBase: 'http://127.0.0.1:9090/dil/api'
     }
   },
   methods: {
@@ -97,9 +97,6 @@ export default {
       });
     }
   },
-  mounted() {
-
-  }
 }
 </script>
 

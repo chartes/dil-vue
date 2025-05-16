@@ -1,5 +1,5 @@
 <template>
-  <div id="map" style="height: 100%; width: 100%"></div>
+  <div ref="mapContainer" class="leaflet-map"></div>
 </template>
 
 <script>
@@ -12,150 +12,192 @@ import 'leaflet.markercluster';
 export default {
   name: 'LeafletMap',
   props: {
-    apiBase: {
-      type: String,
-      required: true
-    }
+    apiBase: {type: String, required: true},
+    filters: {type: Object, default: () => ({})}
   },
   emits: ['selectCity'],
   data() {
     return {
       map: null,
       clusterGroup: null,
+      isReady: false
     };
   },
   mounted() {
+    this.$nextTick(() => {
     this.initMap();
     this.fetchCities();
+  });
   },
   methods: {
     initMap() {
-  this.map = L.map('map', {
-    attributionControl: false, // Enlève le petit "Leaflet"
-    zoomSnap: 0,
-    zoomDelta: 1
-  }).setView([46.5, 2.5], 6);
+      this.map = L.map(this.$refs.mapContainer, {
+        zoomSnap: 1, // pas besoin de fraction de zoom ici
+        zoomDelta: 1,
+        center: [46.5, 2.5],
+        zoom: 4,
+        minZoom: 5,
+        maxZoom: 15,
+        attributionControl: false
+      });
 
-  // Créer deux pane pour les couches IGN et OSM
-  this.map.createPane('IGN');
-  this.map.createPane('OSM');
-  this.map.getPane('OSM').style.zIndex = 250;
-  this.map.getPane('IGN').style.zIndex = 200;
+      this.map.setMaxBounds([
+        [41, -5], // Sud-Ouest
+        [51, 10]  // Nord-Est
+      ]);
 
-  // Couches IGN - Cassini et État-Major
-  const cassiniLayer = L.tileLayer(
-    'https://data.geopf.fr/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM' +
-    '&LAYER=BNF-IGNF_GEOGRAPHICALGRIDSYSTEMS.CASSINI&STYLE=normal&FORMAT=image/png' +
-    '&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}', {
-      pane: 'IGN',
-      minZoom: 6,
-      maxZoom: 14
-  });
+      // Création des panes
+      //this.map.createPane('IGN');
+      this.map.createPane('OSM');
+      this.map.getPane('OSM').style.zIndex = 250;
+      //this.map.getPane('IGN').style.zIndex = 200;
 
-  const etatMajorLayer = L.tileLayer(
-    'https://data.geopf.fr/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM' +
-    '&LAYER=GEOGRAPHICALGRIDSYSTEMS.ETATMAJOR40&STYLE=normal&FORMAT=image/jpeg' +
-    '&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}', {
-      pane: 'IGN',
-      minZoom: 6,
-      maxZoom: 15
-  });
+      // Couches IGN
+      /*const cassini = L.tileLayer(
+          'https://data.geopf.fr/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM&LAYER=BNF-IGNF_GEOGRAPHICALGRIDSYSTEMS.CASSINI&STYLE=normal&FORMAT=image/png&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
+          {pane: 'IGN', minZoom: 6, maxZoom: 14}
+      );*/
 
-  // Couche OSM
-  const osmLayer =  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; OpenStreetMap & CartoDB',
-  subdomains: 'abcd',
-  maxZoom: 19
-});
+      /*const etatMajor = L.tileLayer(
+          'https://data.geopf.fr/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM&LAYER=GEOGRAPHICALGRIDSYSTEMS.ETATMAJOR40&STYLE=normal&FORMAT=image/jpeg&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
+          {pane: 'IGN', minZoom: 6, maxZoom: 15}
+      );*/
 
-  osmLayer.addTo(this.map);
+      // Couche OSM
+      const osm = L.tileLayer(
+          'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+          {
+            attribution: '&copy; OpenStreetMap & CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19,
+            pane: 'OSM'
+          }
+      );
 
-  const baseMaps = {
-    "Plan actuel (OSM)": osmLayer,
-    "Carte de Cassini (XVIIIe)": cassiniLayer,
-    "Carte de l'État-Major (XIXe)": etatMajorLayer
-  };
+      osm.addTo(this.map);
 
-  L.control.layers(baseMaps, {}, { position: 'topright' }).addTo(this.map);
+      // Contrôle de couches
+      /* L.control.layers(
+           {
+             'Plan actuel (OSM)': osm,
+             //'Carte de Cassini (XVIIIe)': cassini,
+             //"Carte de l'État-Major (XIXe)": etatMajor
+           },
+           {},
+           {position: 'topright'}
+       ).addTo(this.map);*/
 
-  this.clusterGroup = L.markerClusterGroup({
-    showCoverageOnHover: false
-  });
+      // Cluster
+      this.clusterGroup = L.markerClusterGroup({
+        showCoverageOnHover: false
+      });
+      this.map.addLayer(this.clusterGroup);
+    },
+    centerOnCity(cityId) {
+      if (cityId === 0) {
+        this.map.setView([46.5, 2.5], 4, {animate: false});
+        return;
+      }
 
-  this.map.addLayer(this.clusterGroup);
-}
-,
-    async fetchCities() {
+
+      const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
+      if (marker) {
+        const latlng = marker.getLatLng();
+
+        // 👇 d'abord on fait un petit zoom-out sans popup
+        //this.map.setView(latlng, 7, {animate: false});
+
+        // 👇 puis zoom réel avec popup après un court délai
+        /* setTimeout(() => {
+           this.map.setView(latlng, 10, {animate: true});
+           marker.openPopup();
+         }, 100);*/
+      }
+    },
+
+    async fetchCities(filters = {}) {
       try {
-        const res = await fetch(`${this.apiBase}/map/places`);
+        console.log("fetchCities", filters);
+        const url = new URL(`${this.apiBase}/map/places`);
+
+        if (filters.patent_city_query && filters.patent_city_query.length > 0) {
+          filters.patent_city_query.forEach(cityId => {
+            url.searchParams.append("patent_city_query", cityId);
+          });
+        }
+
+        if (filters.patent_date_start) {
+          url.searchParams.append("patent_date_start", filters.patent_date_start);
+        }
+
+        if (filters.exact_patent_date_start) {
+          url.searchParams.append("exact_patent_date_start", "true");
+        }
+
+        const res = await fetch(url.toString());
         const cities = await res.json();
 
+        this.clusterGroup.clearLayers();
+
         cities.forEach(city => {
-          if (city.city_long_lat) {
-            //cityData.long_lat?.replace(/[()]/g, "").split(',').map(Number)
-            let coords = city.city_long_lat?.replace(/[()]/g, "").split(',').map(Number);
+          const rawCoords = city.city_long_lat?.replace(/[()]/g, '').split(',').map(Number);
+          if (!rawCoords || rawCoords.length !== 2 || rawCoords.some(isNaN)) return;
 
-            // Validation des coordonnées
-            if (
-                !Array.isArray(coords) ||
-                coords.length !== 2 ||
-                coords.some(c => isNaN(c)) ||
-                Math.abs(coords[0]) > 90 ||
-                Math.abs(coords[1]) > 180
-            ) {
-              console.warn(`Coordonnées invalides pour ${city.city_label}: ${city.city_long_lat}`);
-              return;
-            }
+          let [lat, lon] = rawCoords;
+          if (Math.abs(lat) < Math.abs(lon)) [lat, lon] = [lon, lat];
 
-            let lat = coords[0];
-            let lon = coords[1];
+          const nbPrinters = city.persons?.length || 1;
+          const radius = 5 + Math.log(nbPrinters) * 5;
 
-            // Correction automatique
-            if (Math.abs(lat) < Math.abs(lon)) {
-              [lat, lon] = [lon, lat];
-            }
+          const marker = L.circleMarker([lat, lon], {
+            radius,
+            color: 'blue',
+            fillColor: 'blue',
+            fillOpacity: 0.5,
+            cityId: city.city_dil
+          });
 
-            // Vérifie que c'est bien en France
-            if (
-                lat >= 41 && lat <= 51 &&
-                lon >= -5 && lon <= 10
-            ) {
-              const nbPrinters = city.printer_ids.length;
-              const radius = 5 + Math.log(nbPrinters) * 5;
-
-              const marker = L.circleMarker([lat, lon], {
-                radius,
-                color: 'blue',
-                fillColor: 'blue',
-                fillOpacity: 0.5
-              });
-
-              marker.bindPopup(`
-            <b>${city.city_label}</b><br/>
-            ${nbPrinters} imprimeur(s) lié(s)
-          `);
-
-              marker.on('click', () => {
-                this.$emit('selectCity', city.city_label);
-              });
-
-              this.clusterGroup.addLayer(marker);
-            } else {
-              console.warn(`Ville hors France ignorée : ${city.city_label} (${lat}, ${lon})`);
-            }
-          }
+          const popupHtml = `
+        <b>${city.city_label} (${city.city_dept_label})</b><br/>
+        ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
+      `;
+          marker.bindPopup(popupHtml);
+          marker.on('click', () => this.$emit('selectCity', city.city_dil));
+          this.clusterGroup.addLayer(marker);
         });
 
-      } catch (error) {
-        console.error("Erreur lors du chargement des villes :", error);
+      } catch (err) {
+        console.error("Erreur lors du chargement des villes :", err);
       }
+    }
+
+  },
+  watch: {
+    selectedPlaces: {
+      handler() {
+        this.fetchCities();
+      },
+      deep: true
+    },
+    filters: {
+      handler(newFilters) {
+        this.fetchCities(newFilters);
+      },
+      deep: true
+    },
+    patentDateStart() {
+      this.fetchCities();
     }
   }
 };
 </script>
 
 <style scoped>
-#map {
+.leaflet-map {
   height: 100%;
+  transition: opacity 0.5s ease;
+  border: 1px solid #EEEEEE;
+  border-top: 1px solid #ccc;
+  border-radius: 0px 0px 20px 20px;
 }
 </style>

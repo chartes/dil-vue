@@ -29,17 +29,25 @@
           class="input"
       />
       <ul v-if="showDropdown && searchQuery !== ''" class="autocomplete-list">
-        <template v-for="(terms, topic) in filteredTermsGrouped" :key="topic">
-          <li class="topic-header">{{ topic }}</li>
-          <li
-              v-for="term in terms"
-              :key="term.label"
-              @mousedown.prevent="handleTermSelection(term)"
-              class="autocomplete-item"
-          >
+
+        <li class="topic-header">Suggestions</li>
+        <li
+            v-for="term in terms"
+            :key="term.id"
+            @mousedown.prevent="handleTermSelection(term)"
+            class="autocomplete-item"
+        >
+          <div class="term-label">
             {{ term.label }}
-          </li>
-        </template>
+            <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
+          </div>
+          <div class="term-patents" v-if="term.total_patents_if_selected">
+            {{ term.total_patents_if_selected }} brevet{{ term.total_patents_if_selected > 1 ? 's' : '' }}
+            –
+            {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
+          </div>
+        </li>
+
       </ul>
     </div>
 
@@ -49,8 +57,8 @@
         <span class="active-tags-labels">filtres actifs</span>
       </span>
       <div class="tags">
-        <span v-for="term in selectedTerms" :key="term.label" class="tag">
-          {{ term.label }}
+        <span v-for="term in selectedTerms" :key="term.id" class="tag">
+          {{ term.label }} <span class="term-department">({{ term.department_label_fr }})</span>
           <button @click="removeTerm(term)">✖</button>
         </span>
       </div>
@@ -59,13 +67,19 @@
     <p v-if="isLoading">Chargement des données...</p>
 
     <VDatePicker
-        @update:dateMeta="onUpdateDate"
-    />
+  ref="datePicker"
+  @update:dateMeta="onUpdateDate"
+/>
 
     <!-- Bouton RESET GLOBAL -->
-    <div v-if="hasActiveFilters" class="reset-global-container">
+    <div v-if="hasActiveFilters || activateResetBtn" class="reset-global-container">
       <v-btn color="error" outlined small @click="onResetAll">
+        <span v-if="hasActiveFilters">
         Réinitialiser tous les filtres
+        </span>
+        <span v-else>
+        Réinitialiser les Résultats
+        </span>
       </v-btn>
     </div>
 
@@ -76,6 +90,7 @@
 </template>
 
 <script>
+import {mapState} from 'vuex';
 import VDatePicker from "./VDatePicker.vue";
 
 export default {
@@ -85,12 +100,13 @@ export default {
   },
   props: {
     title: {type: String, default: 'Facette'},
-    apiUrl: {type: String, required: true},
+    /*apiUrl: {type: String, required: true},*/
     filterType: {type: String, required: true},
     reset: {type: Boolean, default: false},
     initialSelectedIds: {type: Array, default: () => []},
     showIndexLink: {type: Boolean, default: false},
     indexUrl: {type: String, default: ''},
+    activateResetBtn: {type: Boolean, default: false},
   },
   data() {
     return {
@@ -119,6 +135,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['apiUrl']),
     hasActiveFilters() {
       return this.selectedTerms.length > 0 || this.personSearchQuery.length > 0 || this.selectedDate !== '';
     },
@@ -138,7 +155,7 @@ export default {
       handler(newValue) {
         this.$emit('update:selectedTerms', {
           type: this.filterType,
-          terms: newValue.map(t => t.label),
+          terms: newValue,
         })
       },
       deep: true,
@@ -165,9 +182,7 @@ export default {
   },
   methods: {
     onResetAll() {
-      // 🔥 Reset local
       this.selectedTerms = [];
-      this.personSearchQuery = '';
       this.searchQuery = '';
       this.selectedDate = '';
       this.tempPickedDate = null;
@@ -178,23 +193,48 @@ export default {
       this.pickerDate = '';
       this.displayedDate = '';
 
-      this.$emit('resetAllFacets'); // 🚀 Demande au parent de tout resetter
+       this.personSearchQuery = '';
+      this.$emit('update:extraSearch', ''); // ➔ reset complet dans le parent (ListView)
+
+      // ✅ Forcer l’émission des mises à jour pour le parent
+      this.$emit('update:dateFilter', {
+        type: this.filterType,
+        date: ""
+      });
+      this.$emit('update:exactMatch', {
+        type: this.filterType,
+        exact: false
+      });
+      this.$refs.datePicker.resetDate();
+      this.$emit('resetAllFacets');
+
+      this.$emit('update:selectedTerms', {
+        type: this.filterType,
+        terms: [],
+      });
     },
     async fetchTerms() {
       try {
         this.isLoading = true;
 
-        const response = await fetch(`${this.apiUrl}?q=${this.searchQuery}`);
+        const selectedIds = this.selectedTerms.map(term => term.id || term.id_dil);
+        const selectedParams = selectedIds.map(id => `selected=${id}`).join('&');
+        const url = `${this.apiUrl}/places/autocomplete?q=${this.searchQuery}&${selectedParams}`;
+
+        const response = await fetch(url);
         const data = await response.json();
 
-        // Ici, data est déjà un tableau [{ id, label }, { id, label }, ...]
         this.terms = data;
         this.groupTerms();
-
         this.isLoading = false;
       } catch (error) {
         console.error('Erreur lors de la récupération des termes :', error);
         this.isLoading = false;
+      }
+    },
+    addExternalTerm(term) {
+      if (!this.selectedTerms.find(t => t.label === term.label)) {
+        this.selectedTerms.push(term);
       }
     },
     onUpdateDate({date, exact}) {
@@ -248,6 +288,7 @@ export default {
       this.menu = true;
     },
     groupTerms() {
+      console.log(this.terms)
       this.filteredTermsGrouped = this.terms.reduce((acc, term) => {
         const topic = term.topic || 'Résultats'
         if (!acc[topic]) acc[topic] = []
@@ -274,9 +315,8 @@ export default {
       this.showDropdown = true
     },
     addTerm(term) {
-      console.log(this.selectedTerms, term.label)
       if (!this.selectedTerms.find(t => t.label === term.label)) {
-        this.selectedTerms.push(term)
+        this.selectedTerms.push(term);
       }
     },
     removeTerm(term) {
@@ -503,5 +543,21 @@ input[type="text"]::placeholder {
   font-family: var(--font-secondary);
 }
 
+.term-label {
+  font-weight: 500;
+}
+
+.term-department {
+  font-size: 0.9em;
+  color: #777;
+  margin-left: 5px;
+}
+
+.term-patents {
+  font-size: 0.85em;
+  color: #777;
+  margin-left: 5px;
+  margin-top: 2px;
+}
 
 </style>

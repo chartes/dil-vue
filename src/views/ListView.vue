@@ -12,30 +12,49 @@
       <!-- COLONNE FACETTES -->
       <v-col cols="12" md="3" v-show="showFacets">
         <FacetFilter
+            ref="facetFilter"
             title="Ville du brevet"
-            :apiUrl="`${apiBase}/places/autocomplete`"
             filterType="places"
+            :activateResetBtn="facetResetBtn"
             @update:selectedTerms="onUpdateFacets"
             @update:dateFilter="onUpdateDate"
             @update:extraSearch="onExtraSearchChange"
             @resetAllFacets="onResetAll"
         />
+        <p>{{ facetResetBtn }}</p>
+        <p>{{displayContext}}</p>
       </v-col>
 
       <!-- TABLEAU ET CARTE -->
       <v-col :cols="showFacets ? 9 : 12">
         <!-- BOUTON POUR LA CARTE -->
-        <v-btn icon @click="showMap = !showMap" class="mb-1 map-btn">
+        <v-btn icon @click="toggleMap" class="mb-1 map-btn">
           <v-icon>{{ showMap ? 'mdi-chevron-up' : 'mdi-map' }}</v-icon>
         </v-btn>
 
+        <v-expand-transition appear v-if="showMap">
+          <v-toolbar flat>
+            <v-toolbar-title>
+              Carte des imprimeurs-lithographes
+            </v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+        </v-expand-transition>
+
         <!-- PLACEHOLDER CARTE -->
         <v-expand-transition>
-          <div v-show="showMap" class="mb-4"
-               style="height: 500px; background: #f3f3f3; display: flex; align-items: center; justify-content: center;">
+          <div v-if="showMap" class="mb-4" style="height: 500px;">
+            <!-- carte visible seulement après le déploiement -->
+
             <LeafletMap
-                v-show="showMap"
-                :apiBase="apiBase"
+                v-if="showMapContent"
+                ref="leaflet"
+                :apiBase="apiUrl"
+                :filters="{
+        patent_city_query: selectedFacets.places.map(p => p.id || p.id_dil),
+        patent_date_start: selectedFacets.date,
+        exact_patent_date_start: selectedFacets.date_exact || false
+      }"
                 @selectCity="onCitySelected"
             />
           </div>
@@ -83,7 +102,7 @@
           <template #top>
             <v-toolbar flat>
               <v-toolbar-title> {{ totalItems }}
-                {{ pluralize('personne', totalItems) }}
+                {{ pluralize('imprimeur', totalItems) }}-{{ pluralize('lithographe', totalItems) }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
             </v-toolbar>
@@ -201,8 +220,8 @@
                         </li>
                       </ul>
 
-                      <hr class="my-4 sep-quote" v-if="item.highlight"/>
-                      <div v-if="item.highlight" class="highlighted-quote mb-4" v-html="item.highlight"></div>
+                      <hr v-if="item.highlight && displayContext" class="my-4 sep-quote"/>
+                      <div v-if="item.highlight && displayContext" class="highlighted-quote mb-4" v-html="item.highlight"></div>
 
 
                     </div>
@@ -273,6 +292,7 @@
 </template>
 
 <script>
+import {mapState} from 'vuex';
 import FacetFilter from '@/components/FacetFilter.vue';
 import LeafletMap from '@/components/VLeafletMap.vue';
 
@@ -289,9 +309,11 @@ export default {
       totalItems: 0,
       imprimeurs: [],
       infoSearchQuery: '',
-
+      showMapContent: false,
       searchHeadInfo: '',
+      facetResetBtn: false,
       searchExtraInfo: '',
+      displayContext:true,
       filteredIds: {
         head: [],    // Résultats sur head info uniquement (nom/prénom)
         extra: [],   // Résultats sur extra info uniquement (content / highlight)
@@ -301,13 +323,13 @@ export default {
       searchQuery: '',
       typeSearch: 'only_head_info',
       loading: false,
-      apiBase: 'http://127.0.0.1:9090/dil/api',
       sortDesc: false, // pour le tri
       showFacets: true,
       selectedFacets: {
         places: [],
         date: ""
       },
+      placesCacheFacets: 0,
       showMap: false,
       expandedRows: [],
       headers: [
@@ -318,6 +340,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(["apiUrl"]),
     pageCount() {
       return Math.ceil(this.totalItems / this.itemsPerPage);
     }
@@ -326,6 +349,9 @@ export default {
     onSearchChange() {
       this.page = 1;
       this.fetchImprimeurs();
+    },
+    triggerChildReset() {
+      this.$refs.facetFilter.onResetAll();
     },
     onHeadSearchChange() {
       const query = this.searchHeadInfo.toLowerCase();
@@ -350,28 +376,41 @@ export default {
       }
     },
     onResetAll() {
-      console.log("Reset global déclenché");
+      this.facetResetBtn = false;
+      this.selectedTerms = [];
+      this.personSearchQuery = '';
+      this.searchQuery = '';
+      this.selectedDate = '';
+      this.tempPickedDate = null;
+      this.exactMatch = false;
+      this.showDropdown = false;
 
-      // 🧹 Vider tous les champs de recherche
-      this.searchHeadInfo = '';
-      this.searchExtraInfo = '';
-      this.infoSearchQuery = '';
-
-      // 🧹 Réinitialiser les filtres de facettes
-      this.selectedFacets = {places: [], date: "", date_exact: false};
-
-      // 🧹 Réinitialiser les résultats filtrés
+      this.selectedFacets = {
+        places: [],
+        date: "",
+        date_exact: false
+      };
       this.filteredIds = {head: [], extra: [], joint: []};
-
-      // 🧹 Page 1
       this.page = 1;
 
-      // 🧹 Vider base temporaire si tu veux (optionnel)
-      if (this.imprimeursBase) {
-        this.imprimeursBase = [];
-      }
+      this.pickerDate = '';
+      this.displayedDate = '';
 
-      // 🚀 Recharge tout à zéro
+      // ✅ Forcer l'émission des événements liés aux dates
+      this.$emit('update:dateFilter', {
+        type: this.filterType,
+        date: ""
+      });
+
+      this.$emit('update:exactMatch', {
+        type: this.filterType,
+        exact: false
+      });
+
+//this.$refs.facetFilter.selectedTerms = [];
+
+//this.$refs.facetFilter.onResetAll();
+      this.$emit('resetAllFacets');
       this.fetchImprimeurs();
     },
     computeJointResults() {
@@ -391,10 +430,16 @@ export default {
         this.imprimeurs = [];
       }
 
+      console.log(this.filteredIds.extra.length)
+      if (this.filteredIds.extra.length > 0) {
+        this.displayContext = true;
+      }
+
       this.totalItems = this.imprimeurs.length;
     },
     async onExtraSearchChange(value) {
       this.searchExtraInfo = value;
+      this.displayContext = true;
       this.page = 1;
 
       if (!value) {
@@ -414,19 +459,21 @@ export default {
       params.append('search', value);
       params.append('mode', 'extra_info');
       if (this.selectedFacets.date) {
-          params.append('patent_date_start', this.selectedFacets.date);
-        }
-        if (this.selectedFacets.date_exact) {
-          params.append('exact_patent_date_start', this.selectedFacets.date_exact);
-        }
-        if (this.selectedFacets.places && this.selectedFacets.places.length > 0) {
-          this.selectedFacets.places.forEach(term => {
-            params.append('patent_city_query', term);
-          });
-        }
+        params.append('patent_date_start', this.selectedFacets.date);
+      }
+      if (this.selectedFacets.date_exact) {
+        params.append('exact_patent_date_start', this.selectedFacets.date_exact);
+      }
+      console.log("places", this.selectedFacets.places)
+      if (this.selectedFacets.places && this.selectedFacets.places.length > 0) {
+        this.selectedFacets.places.forEach(term => {
+          console.log("term", term)
+          params.append('patent_city_query', term.id_dil);
+        });
+      }
 
       try {
-        const res = await fetch(`${this.apiBase}/persons?${params.toString()}`);
+        const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`);
         const data = await res.json();
 
         if (Array.isArray(data.items)) {
@@ -457,11 +504,37 @@ export default {
       const regex = new RegExp(`(${escapedQuery})`, 'gi');
       return text.replace(regex, '<mark>$1</mark>');
     },
-    onCitySelected(cityLabel) {
-      if (!this.selectedFacets.places.includes(cityLabel)) {
-        this.selectedFacets.places.push(cityLabel);
+    async onCitySelected(cityId) {
+      console.log(cityId)
+      const facetFilter = this.$refs.facetFilter;
+
+      // Vérifie si le terme est déjà dans les facettes sélectionnées
+      if (this.selectedFacets.places.some(p => p.id === cityId)) return;
+
+      try {
+        const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`);
+        if (!res.ok) throw new Error("Erreur API");
+        const data = await res.json();
+
+        const term = {
+          id: data._id_dil,
+          label: data.label,
+          department_label_fr: data.insee_fr_department_label,
+        };
+
+        // Ajoute à la facette
+        this.selectedFacets.places.push(term);
+
+        // Informe le composant enfant
+        if (typeof facetFilter.addExternalTerm === 'function') {
+          facetFilter.addExternalTerm(term);
+        }
+
         this.page = 1;
         this.fetchImprimeurs();
+
+      } catch (err) {
+        console.error("Erreur lors de la récupération de la ville :", err);
       }
     },
     onClearHeadSearch() {
@@ -484,15 +557,15 @@ export default {
         params.append('sort', this.sortDesc ? 'desc' : 'asc');
 
         if (this.typeSearch === 'all' && this.searchHeadInfo) {
-  params.append('search', this.searchHeadInfo);
-  params.append('mode', 'all');
-} else if (this.searchExtraInfo) {
-  params.append('search', this.searchExtraInfo);
-  params.append('mode', 'extra_info');
-} else if (this.searchHeadInfo) {
-  params.append('search', this.searchHeadInfo);
-  params.append('mode', 'head_info');
-}
+          params.append('search', this.searchHeadInfo);
+          params.append('mode', 'all');
+        } else if (this.searchExtraInfo) {
+          params.append('search', this.searchExtraInfo);
+          params.append('mode', 'extra_info');
+        } else if (this.searchHeadInfo) {
+          params.append('search', this.searchHeadInfo);
+          params.append('mode', 'head_info');
+        }
 
         if (this.selectedFacets.date) {
           params.append('patent_date_start', this.selectedFacets.date);
@@ -502,11 +575,12 @@ export default {
         }
         if (this.selectedFacets.places && this.selectedFacets.places.length > 0) {
           this.selectedFacets.places.forEach(term => {
-            params.append('patent_city_query', term);
+            console.log(term)
+            const value = typeof term === 'object' ? term.id : term;
+            params.append('patent_city_query', value);
           });
         }
-
-        const res = await fetch(`${this.apiBase}/persons?${params.toString()}`);
+        const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`);
         const data = await res.json();
         console.log(data)
         this.imprimeurs = data.items;
@@ -536,7 +610,7 @@ export default {
       if (this.details[id]) return;
       try {
         console.log("Chargement des détails pour l'ID :", id);
-        const res = await fetch(`${this.apiBase}/persons/person/${id}?html=false`);
+        const res = await fetch(`${this.apiUrl}/persons/person/${id}?html=false`);
 
         if (!res.ok) {
           throw new Error('Erreur de réseau');
@@ -561,6 +635,19 @@ export default {
       this.page = 1;
       this.fetchImprimeurs();
     },
+    toggleMap() {
+      this.showMap = !this.showMap;
+
+      if (this.showMap) {
+        // attends la fin de l’animation d’expansion (~300ms)
+        setTimeout(() => {
+          this.showMapContent = true;
+        }, 300);
+      } else {
+        // retire la carte immédiatement
+        this.showMapContent = false;
+      }
+    },
     onExpandChange(newExpanded) {
       const newlyExpanded = newExpanded.filter(
           id => !this.expandedRows.includes(id)
@@ -569,9 +656,20 @@ export default {
       newlyExpanded.forEach(id => this.loadDetails(id));
     },
     onUpdateFacets({type, terms}) {
+      if (this.showMap && this.$refs.leaflet && terms.length > 0) {
+        if (terms.length > this.placesCacheFacets) {
+          const cityId = terms[terms.length - 1].id || terms[terms.length - 1].id_dil;
+          this.$refs.leaflet.centerOnCity(cityId);
+        }
+      }
+      if (terms.length === 0 && this.showMap) {
+        this.$refs.leaflet.centerOnCity(0);
+      }
       this.selectedFacets[type] = terms;
       this.page = 1;
-      this.fetchImprimeurs(); // mise à jour des résultats
+      this.placesCacheFacets = terms.length;
+      this.fetchImprimeurs();
+
     },
     onUpdateDate({date, exact}) {
       console.log("OUD:: ", date, exact)
@@ -579,10 +677,58 @@ export default {
       this.selectedFacets["date_exact"] = exact;
       this.page = 1;
       this.fetchImprimeurs(); // mise à jour des résultats
+      if (this.showMap && this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
+        this.$refs.leaflet.fetchCities({
+          patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
+          patent_date_start: this.selectedFacets.date,
+          exact_patent_date_start: this.selectedFacets.date_exact || false
+        });
+      }
 
     }
   },
   watch: {
+    'selectedFacets.places': {
+      handler(newTerms, oldTerms) {
+        console.log('il y a un changement dans les facettes', newTerms, oldTerms);
+        const oldIds = oldTerms.map(t => t.id || t.id_dil);
+        const newIds = newTerms.map(t => t.id || t.id_dil);
+
+        const added = newIds.find(id => !oldIds.includes(id));
+
+        if (added && this.showMap && this.$refs.leaflet && this.$refs.leaflet.centerOnCity) {
+          this.$refs.leaflet.centerOnCity(added);
+        }
+      },
+      deep: true
+    },
+    showFacets(val) {
+      console.log("showFacets changed:", val);
+      // attend que le DOM ait fini d'ajuster la mise en page
+      this.$nextTick(() => {
+        if (this.$refs.leaflet && this.$refs.leaflet.map) {
+          this.$refs.leaflet.map.invalidateSize();
+          // changer la taille de la carte
+          this.$refs.leaflet.map.setView([48.8566, 2.3522], 5); // Paris par défaut
+        }
+      });
+    },
+    showMap(val) {
+      this.$nextTick(() => {
+        if (val && this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
+          setTimeout(() => {
+            if (this.$refs.leaflet && this.$refs.leaflet.map) {
+              this.$refs.leaflet.map.invalidateSize();
+            }
+          }, 200); // ou 300 ms
+          this.$refs.leaflet.fetchCities({
+            patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
+            patent_date_start: this.selectedFacets.date,
+            exact_patent_date_start: this.selectedFacets.date_exact || false
+          });
+        }
+      });
+    },
     page() {
       this.fetchImprimeurs();
     }
@@ -591,18 +737,29 @@ export default {
     const openMap = this.$route.query.map;
     if (openMap === 'open') {
       this.showMap = true;
+      // on attend la fin de l’animation d’expansion (~300ms)
+      setTimeout(() => {
+        this.showMapContent = true;
+      }, 300);
     }
-  const searchFromRoute = this.$route.query.search;
-  const mode = this.$route.query.mode;
+    const searchFromRoute = this.$route.query.search;
+    const mode = this.$route.query.mode;
 
-  if (searchFromRoute) {
-    this.searchHeadInfo = searchFromRoute;
-    this.searchExtraInfo = mode === 'all' ? searchFromRoute : '';
-    this.typeSearch = mode || 'only_head_info';
+
+    if (searchFromRoute) {
+      this.searchHeadInfo = searchFromRoute;
+      this.searchExtraInfo = mode === 'all' ? searchFromRoute : '';
+      this.typeSearch = mode || 'only_head_info';
+      this.facetResetBtn = true;
+      if (searchFromRoute !== '') {
+        this.displayContext = false;
+      }
+    }
+
+    this.fetchImprimeurs();
+    this.searchHeadInfo = '';
+
   }
-
-  this.fetchImprimeurs();
-}
 };
 </script>
 
