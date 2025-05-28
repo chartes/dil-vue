@@ -1,61 +1,62 @@
 <template>
-  <v-container fluid class="imprimeurs-container">
-    <v-row>
+  <v-container fluid class="imprimeurs-container ">
+
+    <!-- BOUTONS HAUT : Facettes + Carte -->
+    <v-row class="align-center justify-space-between mb-2">
       <!-- BOUTON AFFICHAGE FACETTES -->
-      <v-col cols="12">
-        <div class="mb-2 btn-facets" @click="showFacets = !showFacets">
-          <v-icon v-if="showFacets" class="icon-close-facet facet-control">mdi-close</v-icon>
-          <span v-else class="display-facet-label facet-control">Afficher les facettes</span>
+      <v-col cols="auto">
+        <div class="btn-facets" @click="showFacets = !showFacets">
+          <v-icon v-if="showFacets" class="icon-close-facet facet-control" style="z-index: 3000 !important;">mdi-close</v-icon>
+          <span v-else class="display-facet-label facet-control" style="z-index: 3000 !important;">Afficher les facettes</span>
         </div>
       </v-col>
+
+      <!-- BOUTON CARTE -->
+      <v-col cols="auto">
+        <v-btn icon @click="toggleMap" class="map-btn">
+          <v-icon>{{ showMap ? 'mdi-chevron-up' : 'mdi-map' }}</v-icon>
+        </v-btn>
+      </v-col>
+    </v-row>
+
+    <!-- LIGNE PRINCIPALE -->
+    <v-row>
 
       <!-- COLONNE FACETTES -->
       <v-col cols="12" md="3" v-show="showFacets">
         <FacetFilter
-            ref="facetFilter"
-            title="Ville du brevet"
-            filterType="places"
-            :activateResetBtn="facetResetBtn"
-            @update:selectedTerms="onUpdateFacets"
-            @update:dateFilter="onUpdateDate"
-            @update:extraSearch="onExtraSearchChange"
-            @resetAllFacets="onResetAll"
+          ref="facetFilter"
+          title="Ville du brevet"
+          filterType="places"
+          :activateResetBtn="facetResetBtn"
+          @update:selectedTerms="onUpdateFacets"
+          @update:dateFilter="onUpdateDate"
+          @update:extraSearch="onExtraSearchChange"
+          @resetAllFacets="onResetAll"
         />
-        <p>{{ facetResetBtn }}</p>
-        <p>{{displayContext}}</p>
       </v-col>
 
-      <!-- TABLEAU ET CARTE -->
-      <v-col :cols="showFacets ? 9 : 12">
-        <!-- BOUTON POUR LA CARTE -->
-        <v-btn icon @click="toggleMap" class="mb-1 map-btn">
-          <v-icon>{{ showMap ? 'mdi-chevron-up' : 'mdi-map' }}</v-icon>
-        </v-btn>
-
+      <!-- COLONNE CONTENU PRINCIPAL (carte + tableau) -->
+      <v-col :cols="showFacets ? 9 : 12" class="table-wrapper">
+        <!-- TRANSITION CARTE -->
         <v-expand-transition appear v-if="showMap">
           <v-toolbar flat>
-            <v-toolbar-title>
-              Carte des imprimeurs-lithographes
-            </v-toolbar-title>
+            <v-toolbar-title>Carte des imprimeurs-lithographes</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-expand-transition>
 
-        <!-- PLACEHOLDER CARTE -->
+        <!-- CONTENU CARTE -->
         <v-expand-transition>
           <div v-if="showMap" class="mb-4" style="height: 500px;">
-            <!-- carte visible seulement après le déploiement -->
-
             <LeafletMap
-                v-if="showMapContent"
-                ref="leaflet"
-                :apiBase="apiUrl"
-                :filters="{
-        patent_city_query: selectedFacets.places.map(p => p.id || p.id_dil),
-        patent_date_start: selectedFacets.date,
-        exact_patent_date_start: selectedFacets.date_exact || false
-      }"
-                @selectCity="onCitySelected"
+              v-if="showMapContent"
+              ref="leaflet"
+              :apiBase="apiUrl"
+              :cityQuery="selectedFacets.places.map(p => p.id || p.id_dil)"
+              :date="selectedFacets.date"
+              :exact="selectedFacets.date_exact || false"
+              @selectCity="onCitySelected"
             />
           </div>
         </v-expand-transition>
@@ -71,7 +72,7 @@
             item-value="_id_dil"
             show-expand
             fixed-header
-            class="elevation-1"
+            class="elevation-1 table-data"
             :expanded.sync="expandedRows"
             @update:expanded="onExpandChange"
         >
@@ -109,14 +110,14 @@
             <div class="footer-controls d-flex align-center justify-space-between pa-4">
               <v-text-field
                   v-model="searchHeadInfo"
-                  label="Recherche nom et/ou prénom"
+                  label="Rechercher par nom et/ou prénom(s)"
                   dense
                   hide-details
-                  style="max-width: 300px"
+                  style="max-width: 500px"
                   @input="onHeadSearchChange"
                   @click:clear="onClearHeadSearch"
                   clearable
-                  prepend-inner-icon="mdi-magnify"
+                  color="var(--light-brown)"
               />
 
               <!-- Pagination complète -->
@@ -168,7 +169,7 @@
           <template #item.lastname="{ item }">
             <div class="table-cell-item table-cell-name">
               <router-link icon :to="`/detail/${item._id_dil}`" :title="`Voir la fiche de ${item.lastname}`"
-                           class="mb-3">
+                           class="mb-3 name-table-label">
                 <span>{{ item.lastname }}</span>
               </router-link>
             </div>
@@ -221,7 +222,8 @@
                       </ul>
 
                       <hr v-if="item.highlight && displayContext" class="my-4 sep-quote"/>
-                      <div v-if="item.highlight && displayContext" class="highlighted-quote mb-4" v-html="item.highlight"></div>
+                      <div v-if="item.highlight && displayContext" class="highlighted-quote mb-4"
+                           v-html="item.highlight"></div>
 
 
                     </div>
@@ -313,7 +315,7 @@ export default {
       searchHeadInfo: '',
       facetResetBtn: false,
       searchExtraInfo: '',
-      displayContext:true,
+      displayContext: true,
       filteredIds: {
         head: [],    // Résultats sur head info uniquement (nom/prénom)
         extra: [],   // Résultats sur extra info uniquement (content / highlight)
@@ -370,7 +372,7 @@ export default {
         this.computeJointResults();
       } else {
         // Cas classique : reset tout
-        this.selectedFacets = {places: [], date: "", date_exact: false};
+        //this.selectedFacets = {places: [], date: "", date_exact: false};
         this.page = 1;
         this.fetchImprimeurs();
       }
@@ -639,12 +641,22 @@ export default {
       this.showMap = !this.showMap;
 
       if (this.showMap) {
-        // attends la fin de l’animation d’expansion (~300ms)
         setTimeout(() => {
           this.showMapContent = true;
+
+          // ✅ Appelle fetchCities sur le composant Leaflet si dispo
+          this.$nextTick(() => {
+            if (this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
+              this.$refs.leaflet.fetchCities({
+                patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
+                patent_date_start: this.selectedFacets.date,
+                exact_patent_date_start: this.selectedFacets.date_exact || false
+              });
+            }
+          });
+
         }, 300);
       } else {
-        // retire la carte immédiatement
         this.showMapContent = false;
       }
     },
@@ -764,6 +776,13 @@ export default {
 </script>
 
 <style scoped>
+.table-data {
+  margin-top: -10px;
+}
+.v-row.mb-2 {
+  margin-bottom: 0 !important;
+}
+
 .btn-facets {
   font-size: 1.4rem;
   color: var(--brown);
@@ -779,12 +798,7 @@ export default {
   font-size: 1rem;
 }
 
-.display-facet-label:hover {
-  border-bottom: 2px dotted var(--brown);
-  padding-bottom: 10px;
-  transition: 0.3s;
-  cursor: pointer;
-}
+
 
 
 /* Style général du header */
@@ -947,6 +961,60 @@ export default {
   background-color: var(--brown);
   margin: 20px 0;
 }
+
+.btn-facets {
+  font-size: 1.4rem;
+  color: var(--brown);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.icon-close-facet {
+  font-size: 1.9rem;
+}
+
+.display-facet-label {
+  position: relative;
+  font-size: 1rem;
+  cursor: pointer;
+  color: var(--brown);
+}
+
+.display-facet-label::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background-color: var(--brown);
+  transition: width 0.2s ease-out;
+}
+
+.display-facet-label:hover::after {
+  width: 100%;
+}
+
+.map-btn {
+  color: var(--brown);
+  z-index:1000
+}
+
+.name-table-label {
+  color: #333333;
+  transition: color 0.2s ease;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.name-table-label:hover {
+  color: #555;
+  text-decoration: none;
+}
+
 
 
 </style>

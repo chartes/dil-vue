@@ -14,14 +14,7 @@
     >
 
       <template #activator="{ props }">
-        <v-checkbox
-            v-model="exactDate"
-            label="Date exacte"
-            density="compact"
-            hide-details
-            class="exact-date-checkbox"
-            v-if="this.day"
-        />
+
         <v-text-field
             class="date-picker-facet"
             v-bind="props"
@@ -41,7 +34,19 @@
             </v-icon>
           </template>
         </v-text-field>
+        <v-checkbox
+            v-model="exactDate"
+            density="compact"
+            hide-details
+            class="exact-date-checkbox"
+            v-if="this.day"
+        >
+          <template #label>
+            <span class="date-exact-label">Date exacte</span>
+          </template>
+        </v-checkbox>
       </template>
+
       <v-card>
         <!-- YEAR PICKER -->
         <v-date-picker-years
@@ -214,18 +219,19 @@ export default {
       }
     },
     resetDate() {
-  this.year = null;
-  this.month = null;
-  this.day = null;
-  this.exactDate = false;
-  this.step = 'year';
-  this.menu = false;
+      this.year = "";
+      this.month = "";
+      this.day = "";
+      this.step = 'year';
+      this.menu = false;
+      this.exactDate = false;
 
-  this.$emit('update:dateMeta', {
-    date: '',
-    exact: false
-  });
-}
+      // Déclenche bien l'événement avec date vide
+      this.$emit('update:dateMeta', {
+        date: '',
+        exact: false
+      });
+    }
 
   },
 }
@@ -233,46 +239,18 @@ export default {
 
 <style scoped>
 .date-picker-container {
-  margin-top: 12px;
+  margin-top: 20px;
 }
 
-.advanced_search_header {
-  font-family: var(--font-secondary);
-  font-weight: 400;
-  font-size: 18px;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
-.v-text-field.date-picker-facet {
-  font-family: var(--font-secondary);
-  font-size: 16px;
-  background-color: var(--panel-bg-color);
-  padding: 0 !important;
-  margin: 0 !important;
-  line-height: 1.2;
-  border: none !important;
-}
-
-.v-text-field.date-picker-facet .v-input__control {
-  min-height: 10px;
-  padding: 0 8px;
-}
-
-.v-text-field.date-picker-facet .v-field__input {
-  padding: 0;
-}
 
 .cursor-pointer {
   cursor: pointer;
 }
+
 .title {
-  font-family: var(--font-secondary);
   font-weight: 400;
-  font-size: 18px;
-  margin-left: -9px;
+  font-size: 15px;
 }
 
 .v-icon--start {
@@ -280,10 +258,20 @@ export default {
   font-size: 30px;
 }
 
+
 .exact-date-checkbox {
-  margin-top: 0;
-  margin-bottom: 0;
-  font-family: var(--font-secondary);
+  margin-right: 10px;
+  margin-top: -10px;
+  color: black;
+  font-weight: 400;
   font-size: 0.95rem;
 }
+
+.date-exact-label {
+  font-size: 0.95rem;
+  color: #363636;
+  font-weight: 400;
+  margin-right: 10px;
+}
+
 </style>

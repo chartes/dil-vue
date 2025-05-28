@@ -1,27 +1,26 @@
 <template>
-  <div class="panel-gallery-container d-flex justify-center align-center">
+  <div class="panel-gallery-container">
     <v-hover
-        v-for="(panel, i) in panels"
-        :key="i"
-        v-slot="{ isHovering, props }"
-    >
-      <v-card
-  v-bind="props"
-  class="panel-card"
-  elevation="8"
+  v-for="(panel, i) in panels"
+  :key="i"
+  v-slot="{ isHovering, props }"
 >
-        <router-link :to="panel.router" class="panel-card-link">
-  <div
-    class="image-wrapper"
-    :style="getImageStyle(panel, isHovering)"
-  ></div>
-  <div class="overlay" :class="{ active: isHovering }">
-    <p class="panel-card-label">{{ panel.label }}</p>
-  </div>
-          </router-link>
-</v-card>
-
-    </v-hover>
+  <v-card
+    v-bind="props"
+    class="panel-card"
+    elevation="8"
+  >
+    <router-link :to="panel.router" class="panel-card-link">
+      <div
+        class="image-wrapper"
+        :style="getImageStyle(panel, isMobile ? false : isHovering)"
+      ></div>
+      <div class="overlay" :class="{ active: isMobile || isHovering }">
+        <p class="panel-card-label">{{ panel.label }}</p>
+      </div>
+    </router-link>
+  </v-card>
+</v-hover>
   </div>
 </template>
 
@@ -64,7 +63,12 @@ export default {
       backgroundPosition: panel.position,
       transform: `scale(${zoom})`,
     }
-  }
+  },
+    computed: {
+      isMobile() {
+        return window.innerWidth <= 960
+      }
+    }
 }
 
 }
@@ -74,29 +78,33 @@ export default {
 <style scoped>
 
 .panel-gallery-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 40px 80px;
-  width: 100%;
-}
-
-.panel-card {
-  width: 100%;
-  height: 80vh;
   position: relative;
-  overflow: hidden;
+  display: flex;
+  justify-content: flex-start;
+  gap: 24px;
+  margin-top: 40px;
+  margin-left: 40px;
+  padding-right: 20px;
+  margin-right: 0;
+width: 100%;
+  z-index: 2;
+}
+.panel-card {
+  flex: 1 1 calc(34% - 16px);
+  height: 80vh;
+  max-width: 100%;
   border-radius: 10px;
+  overflow: hidden;
   transition: transform 0.4s ease;
-  background: none !important;
-  z-index: 10 ;
-  margin: 0 30px 10px 0 !important;
+  margin: 0;
 }
 
 .panel-card:hover {
   cursor: pointer;
 }
-
+.panel-card {
+  background-color: #ddd; /* ← ajoute un fond visible même sans image */
+}
 .image-wrapper {
   width: 100%;
   height: 100%;
@@ -124,6 +132,7 @@ export default {
   justify-content: center;
   padding: 30px;
   z-index: 1;
+  border-radius: 10px;
 }
 
 .overlay.active {
@@ -154,16 +163,79 @@ export default {
   text-align: right;
 }
 
-@media (max-width: 960px) {
+@media screen and (max-width: 1300px) {
   .panel-gallery-container {
-    flex-direction: column;
-    gap: 15px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    z-index:1000;
+    margin-left: 30px;
+
   }
 
   .panel-card {
-    width: 100% !important;
-    height: 60vh;
+    flex: 1 1 calc(100% - 16px);
+    height: 40vh;
+    z-index:1000;
+    width: 100%;
+    max-width: 95%;
+      pointer-events: auto;
+   filter: none;
+  }
+
+  .overlay {
+    transform: translateY(0%) !important;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .overlay.active {
+    transform: translateY(0%) !important;
+  }
+
+  .panel-card-label {
+    text-align: center;
+    bottom: 15px;
   }
 }
+
+
+@media screen and (max-width: 950px) {
+  .panel-gallery-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    z-index:1000;
+    margin-left: 0;
+
+  }
+
+  .panel-card {
+    flex: 1 1 calc(100% - 16px);
+    height: 40vh;
+    z-index:1000;
+    width: 100%;
+    max-width: 95%;
+      pointer-events: auto;
+   filter: none;
+  }
+
+  .overlay {
+    transform: translateY(0%) !important;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .overlay.active {
+    transform: translateY(0%) !important;
+  }
+
+  .panel-card-label {
+    text-align: center;
+    bottom: 15px;
+  }
+}
+
+
 
 </style>

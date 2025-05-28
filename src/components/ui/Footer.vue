@@ -1,5 +1,5 @@
 <template>
-  <v-footer class="footer" padless>
+  <v-footer class="footer d-flex align-center justify-center ga-2 flex-wrap flex-grow-1 py-3" padless>
     <v-container class="py-6 container-footer">
       <!-- Logos partenaires -->
       <v-row class="justify-space-between align-center mb-4">

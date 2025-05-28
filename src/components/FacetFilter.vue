@@ -6,60 +6,77 @@
         @input="onPersonSearchInput"
         @click:clear="onClearPersonSearch"
         class="search-bar"
-        label="Rechercher dans les informations"
-        prepend-inner-icon="mdi-magnify"
-        outlined
+        label="Rechercher dans les notices"
         hide-details
-        single-line
         clearable
+        dense
+        color="var(--light-brown)"
     />
-
-
-    <span :class="['advanced_search_header', headerClass]">
-      {{ title }}
-    </span>
-
-    <div class="search-bar">
-      <input
-          type="text"
+    <div class="date-picker-container">
+      <span class="advanced_search_header">
+        <v-icon start class="v-icon--start">mdi-map-marker</v-icon>
+        <span class="title">{{ title }}</span>
+      </span>
+      <v-text-field
           v-model="searchQuery"
+          ref="autocompleteInput"
+          @input="onSearchQueryInput"
           :placeholder="placeholder"
-          @focus="showDropdown = true"
-          @input="fetchTerms"
-          class="input"
+          class="search-bar"
+          :label="placeholder"
+          outlined
+          hide-details
+          single-line
+          clearable
+          color="var(--light-brown)"
+          @click:clear="searchQuery = ''"
       />
-      <ul v-if="showDropdown && searchQuery !== ''" class="autocomplete-list">
 
-        <li class="topic-header">Suggestions</li>
-        <li
-            v-for="term in terms"
-            :key="term.id"
-            @mousedown.prevent="handleTermSelection(term)"
-            class="autocomplete-item"
-        >
-          <div class="term-label">
-            {{ term.label }}
-            <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
-          </div>
-          <div class="term-patents" v-if="term.total_patents_if_selected">
-            {{ term.total_patents_if_selected }} brevet{{ term.total_patents_if_selected > 1 ? 's' : '' }}
-            –
-            {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
-          </div>
-        </li>
-
-      </ul>
+      <div
+          v-if="showDropdown && searchQuery !== ''"
+          class="autocomplete-list"
+          :style="autocompleteStyle"
+      >
+        <ul>
+          <li class="topic-header">Suggestions</li>
+          <li
+              v-for="term in terms"
+              :key="term.id"
+              @mousedown.prevent="handleTermSelection(term)"
+              class="autocomplete-item"
+          >
+            <div class="term-label">
+              {{ term.label }}
+              <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
+            </div>
+            <div class="term-patents" v-if="term.total_patents_if_selected">
+              {{ term.total_patents_if_selected }} brevet{{ term.total_patents_if_selected > 1 ? 's' : '' }}
+              –
+              {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
 
     <div class="selected-terms" v-if="selectedTerms.length > 0">
       <span class="active-tags">
-        <button @click="selectedTerms = []" class="active-tags-delete-btn">x</button>
-        <span class="active-tags-labels">filtres actifs</span>
+        <button @click="selectedTerms = []" class="active-tags-delete-btn">
+          <v-icon>
+            mdi-close
+          </v-icon>
+        </button>
+        <span class="active-tags-labels">Filtres actifs</span>
       </span>
       <div class="tags">
         <span v-for="term in selectedTerms" :key="term.id" class="tag">
           {{ term.label }} <span class="term-department">({{ term.department_label_fr }})</span>
-          <button @click="removeTerm(term)">✖</button>
+          <button @click="removeTerm(term)">
+            <v-icon color="#9B1A24" size="15">
+              mdi-close
+            </v-icon>
+
+          </button>
         </span>
       </div>
     </div>
@@ -67,20 +84,22 @@
     <p v-if="isLoading">Chargement des données...</p>
 
     <VDatePicker
-  ref="datePicker"
-  @update:dateMeta="onUpdateDate"
-/>
+        ref="datePicker"
+        @update:dateMeta="onUpdateDate"
+    />
 
     <!-- Bouton RESET GLOBAL -->
     <div v-if="hasActiveFilters || activateResetBtn" class="reset-global-container">
-      <v-btn color="error" outlined small @click="onResetAll">
-        <span v-if="hasActiveFilters">
-        Réinitialiser tous les filtres
-        </span>
-        <span v-else>
-        Réinitialiser les Résultats
-        </span>
-      </v-btn>
+      <v-btn
+  color="error"
+  class="reset-results-btn"
+  outlined
+  small
+  @click="onResetAll"
+  title="Rafraîchir les résultats"
+>
+  <v-icon class="reset-icon">mdi-replay</v-icon>
+</v-btn>
     </div>
 
 
@@ -130,7 +149,14 @@ export default {
       currentMonth: '',
       selectedDate: '',
       currentDay: '',
-      exactMatch: false
+      exactMatch: false,
+      autocompleteStyle: {
+        top: '0px',
+        left: '0px',
+        width: '90%',
+        position: 'absolute',
+        zIndex: 1000
+      }
 
     }
   },
@@ -193,7 +219,9 @@ export default {
       this.pickerDate = '';
       this.displayedDate = '';
 
-       this.personSearchQuery = '';
+      this.$refs.datePicker.resetDate();
+
+      this.personSearchQuery = '';
       this.$emit('update:extraSearch', ''); // ➔ reset complet dans le parent (ListView)
 
       // ✅ Forcer l’émission des mises à jour pour le parent
@@ -211,6 +239,33 @@ export default {
       this.$emit('update:selectedTerms', {
         type: this.filterType,
         terms: [],
+      });
+    },
+    onSearchQueryInput() {
+      this.showDropdown = true;
+      this.fetchTerms();
+      this.updateAutocompletePosition();
+    },
+    updateAutocompletePosition() {
+      this.$nextTick(() => {
+        const inputEl = this.$refs.autocompleteInput?.$el?.querySelector('input');
+        const listEl = this.$el.querySelector('.autocomplete-list');
+
+        if (inputEl && listEl) {
+          const rect = inputEl.getBoundingClientRect();
+          const containerRect = this.$el.getBoundingClientRect();
+
+          this.autocompleteStyle = {
+            position: 'absolute',
+            top: `${rect.bottom - containerRect.top}px`,
+            left: `${rect.left - containerRect.left}px`,
+            zIndex: 1000,
+            backgroundColor: 'white',
+            border: '1px solid #ddd',
+            maxHeight: '300px',
+            overflowY: 'auto'
+          };
+        }
       });
     },
     async fetchTerms() {
@@ -339,27 +394,15 @@ export default {
 </script>
 
 <style scoped>
-.facet-filter-container {
-  max-width: 600px;
-  margin: 0 auto;
-  font-family: Arial, sans-serif;
-  background-color: var(--panel-bg-color);
-  border-top: 12px solid #ffffff;
-  padding-top: 20px;
-  padding-left: 25px;
-  padding-right: 25px;
-  padding-bottom: 20px;
-}
 
-.search-bar {
+.facet-filter-container {
   position: relative;
-  margin-bottom: 20px;
-  box-sizing: border-box;
-  clear: both;
-  font-size: 1rem;
-  text-align: inherit;
-  padding-left: 0;
-  padding-top: 20px;
+  margin-top: 50px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
 }
 
 input[type="text"] {
@@ -372,7 +415,6 @@ input[type="text"] {
 }
 
 input[type="text"]::placeholder {
-  font-family: var(--font-secondary);
   font-size: 22px;
   font-weight: 400;
   color: #B4B4B4;
@@ -447,16 +489,8 @@ input[type="text"]::placeholder {
 }
 
 
-.advanced_search_header {
-  font-family: var(--font-secondary);
-  font-weight: 400;
-  font-size: 18px;
-  padding-left: 35px;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
 .search-header-terms {
+  z-index: 2;
   background: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMzAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0iIzZENzI3OCIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTEuOTY2IDEzLjY0YzMuNzcgMCA2LjgyLTMuMDUgNi44Mi02LjgyIDAtMy43Ny0zLjA1LTYuODItNi44Mi02LjgyLTMuNzcgMC02LjgyIDMuMDUtNi44MiA2LjgyIDAgMy43NyAzLjA1IDYuODIgNi44MiA2LjgyTTIzLjkzIDI0LjgyYy0yLjAxLTMuNzItNS4xNDQtOC41OTYtMTEuOTY0LTguNTk2UzIuMDEzIDIxLjA5OSAwIDI0LjgxOWMzLjIwNSAzLjc5OSA2Ljc5NCA1LjEyNyAxMS45NjYgNS4xMjcgNS4xNyAwIDguNzYtMS4zMzggMTEuOTY1LTUuMTI3Ii8+PC9nPjwvc3ZnPg==) 0 no-repeat;
 }
 
@@ -468,29 +502,67 @@ input[type="text"]::placeholder {
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  margin-top: 10px;
+  gap: 10px;
+  font-size: 0.9em;
+  font-weight: 500;
+  border-radius: 5px;
+  padding: 5px 10px;
+  background-color: #f4f4f4;
+  color: #333;
+
 }
 
 .active-tags-delete-btn {
-  background: #EFEFEF;
-  border: none;
-  border-radius: 9999px;
-  color: #6E6E6E;
-  font-size: 0.75em;
-  margin-right: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  background-color: #7B0C12;
   width: 20px;
   height: 20px;
+  font-size: 0.8em;
+  line-height: 20px;
+  text-align: center;
+  color: #ffffff;
+  border-radius: 90px;
 }
 
-.active-tags-labels {
-  font-family: var(--font-secondary);
-  font-size: 0.75em;
-  font-weight: 400;
+.active-tags-delete-btn:hover {
+  background-color: #9B1A24;
 }
+
+.reset-global-container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center; /* Centrage horizontal */
+  align-items: center;
+}
+
+.reset-results-btn {
+  background-color: #BEBEBE !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+  font-size: 1.8em !important;
+  border-radius: 50% !important;
+  width: 1px !important;
+  height: 60px !important;
+  padding: 0 !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* rotate icon */
+.reset-icon {
+  transform: rotate(-50deg);
+}
+
+.reset-results-btn:hover {
+  background-color: #7B0C12 !important;
+}
+
+
+
+
+
 
 @media (max-width: 768px) {
   .facet-filter-container {
@@ -515,33 +587,6 @@ input[type="text"]::placeholder {
   }
 }
 
-.index-link {
-  font-family: var(--font-secondary);
-  font-weight: 400;
-  font-size: 18px;
-  text-decoration: none;
-  color: #6E6E6E;
-  /* align on right */
-  float: right;
-}
-
-.index-link:hover {
-  transition: 0.3s;
-  color: var(--light-brown);
-
-}
-
-.date-picker-facet {
-  height: 60%;
-  border: none;
-  border-bottom: solid 1px var(--light-brown);
-  border-radius: 0;
-  padding: 10px !important;
-  line-height: 1.2 !important;
-  background-color: var(--panel-bg-color) !important;
-  color: var(--light-brown) !important;
-  font-family: var(--font-secondary);
-}
 
 .term-label {
   font-weight: 500;
@@ -559,5 +604,38 @@ input[type="text"]::placeholder {
   margin-left: 5px;
   margin-top: 2px;
 }
+
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.title {
+  font-weight: 400;
+  font-size: 15px;
+}
+
+
+.date-picker-container {
+  margin-top: 20px;
+}
+
+
+.v-icon--start {
+  color: #6D7277;
+  font-size: 30px;
+}
+
+
+.reset-global-container {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.reset-global-container v-btn {
+  font-size: 0.8em;
+  padding: 5px 10px;
+}
+
 
 </style>

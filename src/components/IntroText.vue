@@ -21,7 +21,7 @@
         </p>
       </div>
     </v-col>
-    <v-col cols="12" md="6" class="left-section">
+    <v-col cols="12" md="6" class="right-section">
       <div class="intro-block">
         <h3 class="my-2 subtitle d-flex align-center">
           <v-icon class="mr-2" color="var(--light-brown-alt)">mdi-magnify</v-icon>
@@ -63,29 +63,36 @@ export default {
 </script>
 
 <style scoped>
-.intro-block {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 3rem 2rem 0 2rem;
+.home-container {
+  align-items: stretch;
 }
-.left-section {
+
+.left-section,
+.right-section {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* ou center si tu veux centrer verticalement */
+  justify-content: flex-start;
   height: 100%;
 }
 
+.intro-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 3rem 2rem 0 2rem;
+}
+
+
 .subtitle {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: bold;
-  min-height: 3rem; /* <— force une hauteur identique */
   display: flex;
   align-items: center;
 }
 
 .text-intro {
-  font-size: 0.90rem;
+  font-size: 1.2rem;
   line-height: 1.7;
 }
 

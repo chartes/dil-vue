@@ -21,9 +21,7 @@
       <v-col cols="12" md="9" class="content-col">
         <div class="section-content">
           <h2>{{ currentContent.title }}</h2>
-          <p v-for="(paragraph, i) in currentContent.content" :key="i">
-            {{ paragraph }}
-          </p>
+          <span v-html="currentContent.content"> </span>
         </div>
       </v-col>
     </v-row>
@@ -31,6 +29,10 @@
 </template>
 
 <script>
+import UsagePage from '@/pages/usage.html?raw';
+import ContactPage from '@/pages/contact.html?raw';
+import LegalPage from '@/pages/legal.html?raw';
+
 export default {
   name: 'InfoView',
   data() {
@@ -44,23 +46,15 @@ export default {
       sections: {
         usage: {
           title: "Mode d'emploi",
-          content: [
-            "Utilisez la barre de recherche pour retrouver un imprimeur, une ville ou une date.",
-            "Vous pouvez également consulter les notices ou utiliser la carte interactive pour naviguer par géographie."
-          ]
+          content: UsagePage
         },
         contact: {
           title: "Contact",
-          content: [
-            "Pour toute question ou suggestion, vous pouvez contacter l’équipe du projet à l’adresse : contact@imprimeurs19.fr",
-          ]
+          content: ContactPage
         },
         legal: {
           title: "Mentions légales",
-          content: [
-            "Ce site est hébergé par l’École nationale des chartes.",
-            "Les données sont mises à disposition sous licence ouverte. Consultez la page des mentions légales pour en savoir plus."
-          ]
+          content: LegalPage
         }
       }
     }
@@ -77,14 +71,21 @@ export default {
       handler(section) {
         if (this.sections[section]) {
           this.activeSection = section;
+          window.scrollTo(0, 0);
         }
       }
     }
+  },
+  mounted() {
+    window.scrollTo(0, 0);
   }
 }
 </script>
 
 <style scoped>
+
+
+
 .info-page-container {
   min-height: 80vh;
   padding-top: 30px;
@@ -126,6 +127,13 @@ export default {
   font-size: 1.6rem;
   color: var(--brown);
   margin-bottom: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  border-bottom: 2px solid var(--light-brown-alt);
+  padding-bottom: 10px;
+  margin-top: 0;
+  text-transform: uppercase;
+  margin-left: 10px;
 }
 
 .section-content p {

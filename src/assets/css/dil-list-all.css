@@ -1,0 +1,245 @@
+/* 🌐 VARIABLES GLOBALES (à mettre dans un fichier principal, par ex. variables.css) */
+:root {
+  --font-secondary: "Arial", sans-serif;
+  --light-brown: #8B6F47;
+  --brown: #5A3E26;
+  --panel-bg-color: #f9f9f9;
+}
+
+/* 🌍 STYLES GLOBAUX POUR TOUS LES COMPOSANTS */
+body, .facet-filter-container, .table-cell-item, .pagination-controls {
+  font-family: var(--font-secondary);
+  font-size: 1rem;
+  color: #333;
+}
+
+.v-btn {
+  font-family: var(--font-secondary);
+  font-size: 0.9rem;
+  text-transform: none;
+}
+
+/* ===========================================================
+   🧩 ListView.vue
+=========================================================== */
+
+.imprimeurs-container {
+  padding: 1rem;
+}
+
+.table-cell-item {
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.table-cell-name {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.table-cell-firstname {
+  color: #555;
+  font-style: italic;
+}
+
+.table-cell-patents {
+  text-align: center;
+  font-weight: bold;
+}
+
+.table-expanded-container {
+  background-color: #fafafa;
+  border-top: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.expand-icon {
+  font-size: 28px;
+  transition: transform 0.3s ease;
+  color: var(--brown);
+}
+
+.expand-icon.expanded {
+  transform: rotate(180deg);
+}
+
+.expanded-patent-list {
+  padding-left: 1rem;
+  font-size: 1.05rem;
+  color: #555;
+  list-style: none;
+  margin: 0;
+}
+
+.title-expanded-patent-list {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.highlighted-quote {
+  padding-left: 2rem;
+  font-size: 1.2rem;
+  color: #444;
+  font-style: italic;
+  position: relative;
+}
+
+.highlighted-quote::before {
+  content: "“";
+  font-size: 2rem;
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--brown);
+}
+
+.highlighted-quote mark {
+  background-color: #fff34d;
+  color: #000;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: bold;
+}
+
+/* Responsive pour ListView */
+@media (max-width: 960px) {
+  .v-col.md\:3 {
+    order: -1 !important;
+    width: 100% !important;
+  }
+  .v-col[cols='12']:not(.md\:3) {
+    width: 100% !important;
+  }
+
+  .footer-controls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .v-data-table thead th,
+  .v-data-table tbody td,
+  .table-cell-item {
+    font-size: 0.95rem;
+  }
+
+  .leaflet-map {
+    height: 400px !important;
+  }
+}
+
+/* ===========================================================
+   🧩 FacetFilter.vue
+=========================================================== */
+
+.facet-filter-container {
+  background-color: var(--panel-bg-color);
+  border-top: 10px solid white;
+  border-radius: 8px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar {
+  margin-bottom: 1rem;
+}
+
+input[type="text"] {
+  border: none;
+  border-bottom: 1px solid var(--light-brown);
+  padding: 10px;
+  width: 100%;
+}
+
+input::placeholder {
+  font-size: 1rem;
+  color: #aaa;
+}
+
+.autocomplete-list {
+  background: white;
+  border: 1px solid #ddd;
+  max-height: 300px;
+  overflow-y: auto;
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+}
+
+.autocomplete-item {
+  padding: 0.5rem;
+  cursor: pointer;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0f0f0;
+}
+
+.selected-terms .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 0.5rem;
+}
+
+.tag {
+  background: #e0e0e0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+}
+
+.tag button {
+  margin-left: 0.5rem;
+  background: none;
+  border: none;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* ===========================================================
+   🧩 VDatePicker.vue
+=========================================================== */
+
+.date-picker-container {
+  margin-top: 1rem;
+}
+
+.date-picker-facet {
+  background-color: var(--panel-bg-color);
+  font-family: var(--font-secondary);
+  font-size: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--light-brown);
+}
+
+.v-text-field.date-picker-facet .v-input__control {
+  min-height: 10px;
+  padding: 0 8px;
+}
+
+.v-icon--start {
+  color: #6D7277;
+  font-size: 24px;
+}
+
+.exact-date-checkbox {
+  font-size: 0.9rem;
+  margin-top: 0;
+}
+
+/* ===========================================================
+   🧩 VLeafletMap.vue
+=========================================================== */
+
+.leaflet-map {
+  height: 100%;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  transition: opacity 0.5s ease;
+}

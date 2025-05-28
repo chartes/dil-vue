@@ -1,11 +1,11 @@
 <template>
   <v-container fluid class="home-container">
-    <v-row align="center" class="row-container">
+    <v-row align="center" class="row-container" no-gutters wrap>
       <!-- Colonne gauche -->
       <v-col cols="12" md="6" class="left-section">
         <h1 class="title-home text-center">
-          Dictionnaire des imprimeurs-lithographes du XIX<sup>e</sup> siècle
-        </h1>
+          Dictionnaire des <span class="nowrap">imprimeurs-lithographes</span> <span class="nowrap">du XIX<sup>e</sup> siècle</span>
+</h1>
 
         <v-text-field
             v-model="quickSearch"
@@ -22,13 +22,15 @@
           <!-- SLOT pour le bouton -->
           <template #append-inner>
             <v-btn
-                icon
-                @click="goToList"
-                class="btn-quick-search d-flex align-center justify-center"
-                title="Rechercher"
-            >
-              <v-icon>mdi-arrow-right</v-icon>
-            </v-btn>
+  class="btn-quick-search"
+  variant="text"
+  size="small"
+  icon
+  @click="goToList"
+  title="Rechercher"
+>
+  <v-icon size="25">mdi-arrow-right</v-icon>
+</v-btn>
           </template>
         </v-text-field>
 
@@ -45,8 +47,8 @@
       </v-col>
 
       <!-- Colonne droite -->
-      <v-col cols="12" md="6">
-        <PanelGallery/>
+      <v-col cols="12" md="6" class="d-flex justify-end pr-0">
+        <PanelGallery />
       </v-col>
     </v-row>
   </v-container>
@@ -76,6 +78,7 @@ export default {
   data() {
     return {
       quickSearch: '',
+      isMobile: window.innerWidth <= 960
     }
   },
   methods: {
@@ -102,8 +105,11 @@ export default {
 
 <style src="@/assets/css/dil-utils.css"></style>
 <style scoped>
+.row-container {
+  flex-wrap: wrap;
+}
 .home-container {
-  padding-top: 5px;
+  padding-top: 10px;
   padding-bottom: 60px;
   min-height: calc(100vh - 65px); /* si la navbar fait 65px */
   display: flex;
@@ -113,23 +119,25 @@ export default {
 
 .left-section {
   background: linear-gradient(#f7f7f7cc, #f7f7f7 11.94%, #f7f7f7 100%, #fcfcfc 0);
-  border-radius: 10px 0 0 10px;
-  padding: 120px 40px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+  border-radius: 10px 0 0 10px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   position: relative;
   z-index: 1;
-  margin-left: 20px; /* étend vers la gauche */
-  margin-right: -90px; /* étend vers la droite */
+  flex: 0 1 48%;
+  margin-top:30px;
+  margin-left: 20px; /* marge à gauche pour l'espacement */
 }
 
 .title-home {
-  font-weight: bold;
-  margin-bottom: 30px;
-  font-size: clamp(1.2rem, 2vw + 0.5rem, 1.35rem); /* ↔️ Ajuste entre 1.2rem et 2rem */
-  line-height: 1.2;
+  margin-bottom: 50px;
+  margin-top: 50px;
+      font-size: 36px;
+    font-weight: 700;
+    line-height: 55px;
   text-align: center;
   white-space: normal; /* autorise le retour à la ligne si nécessaire sur mobile */
 }
@@ -141,7 +149,7 @@ export default {
 
 .btn-about-home-page {
   width: fit-content;
-  margin: 30px auto;
+  margin: 40px auto;
   padding: 8px 16px;
   font-size: 0.9rem;
   border-radius: 5px;
@@ -150,16 +158,7 @@ export default {
 }
 
 
-.left-section::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: -600px;
-  width: 410px; /* ajuste selon l'effet voulu */
-  height: 100%;
-  background: inherit; /* reprend le même fond que .left-section */
-  z-index: 0; /* reste derrière le texte */
-}
+
 
 
 
@@ -184,13 +183,52 @@ export default {
 }
 
 
-@media (max-width: 960px) {
+@media screen and (max-width: 1300px) {
   .left-section {
+    padding: 60px 20px;
+    margin-left: 0; /* annule l'extension vers la gauche */
+    margin-right: 0; /* annule l'extension vers la droite */
     border-radius: 10px;
+    margin-top:50px;
   }
 
-  .btn-about-home-page {
+  .title-home {
+    font-size: clamp(1.2rem, 4vw + 0.5rem, 1.35rem); /* ↔️ Ajuste entre 1.2rem et 2rem */
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .search-bar {
     width: 90%;
+    margin-bottom: 10px;
+  }
+}
+.nowrap {
+  white-space: nowrap;
+}
+
+.btn-quick-search {
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  background-color: var(--light-brown);
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.btn-quick-search:hover {
+  background-color: var(--brown);
+}
+
+@media screen and (max-width: 960px) {
+  .left-section {
+    width: 100%;
+    flex: 0 0 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* centre le contenu horizontalement */
+    text-align: center;
   }
 }
 </style>

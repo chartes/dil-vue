@@ -12,8 +12,10 @@ import 'leaflet.markercluster';
 export default {
   name: 'LeafletMap',
   props: {
-    apiBase: {type: String, required: true},
-    filters: {type: Object, default: () => ({})}
+    apiBase: String,
+    cityQuery: Array,
+    date: String,
+    exact: Boolean
   },
   emits: ['selectCity'],
   data() {
@@ -25,11 +27,28 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-    this.initMap();
-    this.fetchCities();
-  });
+      this.initMap();
+      this.fetchCities(
+        {
+          patent_city_query: this.cityQuery,
+          patent_date_start: this.date,
+          exact_patent_date_start: this.exact
+        }
+      ).then(() => {
+        this.isReady = true;
+      }
+      );
+    });
   },
   methods: {
+    updateMap() {
+      if (!this.map) return;
+      this.fetchCities({
+        patent_city_query: this.cityQuery,
+        patent_date_start: this.date,
+        exact_patent_date_start: this.exact
+      });
+    },
     initMap() {
       this.map = L.map(this.$refs.mapContainer, {
         zoomSnap: 1, // pas besoin de fraction de zoom ici
@@ -173,22 +192,25 @@ export default {
 
   },
   watch: {
-    selectedPlaces: {
+    cityQuery: {
       handler() {
-        this.fetchCities();
+        if (this.map) this.updateMap();
       },
-      deep: true
+      immediate: true
     },
-    filters: {
-      handler(newFilters) {
-        this.fetchCities(newFilters);
+    date: {
+      handler() {
+        if (this.map) this.updateMap();
       },
-      deep: true
+      immediate: true
     },
-    patentDateStart() {
-      this.fetchCities();
+    exact: {
+      handler() {
+        if (this.map) this.updateMap();
+      },
+      immediate: true
     }
-  }
+  },
 };
 </script>
 
