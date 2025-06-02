@@ -22,7 +22,7 @@ const routes = [
         component: ListView
     },
     {
-        path: '/info',
+        path: '/information',
         name: 'info',
         component: InfoView
     },

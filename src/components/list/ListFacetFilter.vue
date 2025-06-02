@@ -1,6 +1,5 @@
 <template>
   <div class="facet-filter-container">
-    <!-- add a v-text field to search a person -->
     <v-text-field
         v-model="personSearchQuery"
         @input="onPersonSearchInput"
@@ -31,7 +30,6 @@
           color="var(--light-brown)"
           @click:clear="searchQuery = ''"
       />
-
       <div
           v-if="showDropdown && searchQuery !== ''"
           class="autocomplete-list"
@@ -58,7 +56,6 @@
         </ul>
       </div>
     </div>
-
     <div class="selected-terms" v-if="selectedTerms.length > 0">
       <span class="active-tags">
         <button @click="selectedTerms = []" class="active-tags-delete-btn">
@@ -80,15 +77,11 @@
         </span>
       </div>
     </div>
-
     <p v-if="isLoading">Chargement des données...</p>
-
     <VDatePicker
         ref="datePicker"
         @update:dateMeta="onUpdateDate"
     />
-
-    <!-- Bouton RESET GLOBAL -->
     <div v-if="hasActiveFilters || activateResetBtn" class="reset-global-container">
       <v-btn
   color="error"
@@ -101,16 +94,12 @@
   <v-icon class="reset-icon">mdi-replay</v-icon>
 </v-btn>
     </div>
-
-
   </div>
-
-
 </template>
 
 <script>
-import {mapState} from 'vuex';
-import VDatePicker from "./VDatePicker.vue";
+import {mapState} from "vuex";
+import VDatePicker from "@/components/VDatePicker.vue";
 
 export default {
   name: 'FacetFilter',
@@ -119,7 +108,6 @@ export default {
   },
   props: {
     title: {type: String, default: 'Facette'},
-    /*apiUrl: {type: String, required: true},*/
     filterType: {type: String, required: true},
     reset: {type: Boolean, default: false},
     initialSelectedIds: {type: Array, default: () => []},
@@ -135,11 +123,11 @@ export default {
       personSearchResults: [],
       filteredTermsGrouped: {},
       selectedTerms: [],
-      tempPickedDate: null, // pour sélectionner sans valider tout de suite
+      tempPickedDate: null,
       isLoading: false,
       showDropdown: false,
-      pickedDate: null,       // ex: "1846-03-06"
-      displayedDate: '',      // affiché dans le champ
+      pickedDate: null,
+      displayedDate: '',
       minDate: '1780-01-01',
       maxDate: '1910-12-31',
       menu: false,
@@ -214,17 +202,13 @@ export default {
       this.tempPickedDate = null;
       this.exactMatch = false;
       this.showDropdown = false;
-
-      // 🧹 Reset visuel date picker
       this.pickerDate = '';
       this.displayedDate = '';
 
       this.$refs.datePicker.resetDate();
 
       this.personSearchQuery = '';
-      this.$emit('update:extraSearch', ''); // ➔ reset complet dans le parent (ListView)
-
-      // ✅ Forcer l’émission des mises à jour pour le parent
+      this.$emit('update:extraSearch', '');
       this.$emit('update:dateFilter', {
         type: this.filterType,
         date: ""
@@ -311,7 +295,6 @@ export default {
       try {
         this.isLoading = true;
 
-        // ⚡ Correction ici : apiBase n'existe pas => utilise apiUrl
         const url = new URL(this.apiUrl.replace('/places/autocomplete', '/persons'));
         url.searchParams.append('search_extra', this.personSearchQuery);
 
@@ -386,9 +369,6 @@ export default {
       this.$emit('update:extraSearch', ''); // ➔ reset complet dans le parent (ListView)
     }
 
-  },
-  mounted() {
-    //this.fetchTerms()
   },
 }
 </script>
@@ -531,7 +511,7 @@ input[type="text"]::placeholder {
 .reset-global-container {
   margin-top: 20px;
   display: flex;
-  justify-content: center; /* Centrage horizontal */
+  justify-content: center;
   align-items: center;
 }
 
@@ -558,11 +538,6 @@ input[type="text"]::placeholder {
 .reset-results-btn:hover {
   background-color: #7B0C12 !important;
 }
-
-
-
-
-
 
 @media (max-width: 768px) {
   .facet-filter-container {
@@ -636,6 +611,5 @@ input[type="text"]::placeholder {
   font-size: 0.8em;
   padding: 5px 10px;
 }
-
 
 </style>

@@ -1,6 +1,5 @@
 <template>
   <v-container fluid class="detail-view" width="125rem">
-    <!-- Retour liste -->
     <v-row class="mb-4">
       <v-col cols="12" class="text-left">
         <v-btn @click="$router.push('/list')" class="btn-back-list">
@@ -9,8 +8,6 @@
         </v-btn>
       </v-col>
     </v-row>
-
-    <!-- Personne trouvée -->
     <template v-if="person">
       <v-row>
         <v-col cols="12">
@@ -38,15 +35,12 @@
           </v-card>
         </v-col>
       </v-row>
-
-      <!-- Brevets -->
       <v-row v-for="(patent, i) in person.patents" :key="patent._id_dil" class="mt-8">
         <v-col cols="12">
           <v-card outlined elevation="4" class="pa-6">
-            <v-card-title class="patent-title d-flex justify-space-between align-center" @click="togglePatent(i)"
-                          style="cursor: pointer;">
+            <v-card-title class="patent-title d-flex justify-space-between align-center" @click="togglePatent(i)">
               <div>Brevet n°{{ i + 1 }}</div>
-              <div class="d-flex align-center" style="gap: 1rem;">
+              <div class="d-flex align-center card-sub-container">
                 <div class="patent-meta">
                   {{ formatDate(patent.date_start) }}
                   <v-icon small class="mx-1">mdi-chevron-right</v-icon>
@@ -96,8 +90,6 @@
       </v-row>
 
     </template>
-
-    <!-- Chargement -->
     <template v-else>
       <v-row justify="center" class="my-12">
         <v-col cols="12" class="text-center">
@@ -111,7 +103,7 @@
 
 <script>
 import axios from 'axios'
-import ImageCarousel from '@/components/VImageCarousel.vue'
+import ImageCarousel from '@/components/detail/DetailImageCarousel.vue'
 
 export default {
   name: "DetailView",
@@ -154,7 +146,6 @@ export default {
           imagesRes.data.patent_images.map(pi => [pi.patent_id, pi.images])
       );
 
-      // Toutes les cartes sont fermées au départ
       this.expandedPatents = [];
     },
     groupRelations(relations) {
@@ -187,7 +178,6 @@ export default {
 </script>
 
 <style scoped>
-/* Titres */
 .card-title {
   font-size: 2rem;
   font-weight: bold;
@@ -206,18 +196,17 @@ export default {
   color: #333;
 }
 
-/* Contenu */
 .section-text, .card-text {
   font-size: 1.2rem;
   color: #444;
   line-height: 1.6;
 }
 
-/* Métadonnées brevet */
 .patent-title {
   font-size: 1.3rem;
   font-weight: 600;
   color: #333;
+  cursor: pointer;
 }
 
 .patent-meta {
@@ -225,14 +214,12 @@ export default {
   color: #666;
 }
 
-/* Listes */
 .list-subheader {
   font-size: 1.3rem;
   font-weight: bold;
   color: #555;
 }
 
-/* Liens */
 .link-person {
   color: var(--primary);
   cursor: pointer;
@@ -242,7 +229,6 @@ export default {
   text-decoration: underline;
 }
 
-/* Bouton retour */
 .btn-back-list {
   background-color: var(--brown);
   color: white;
@@ -256,9 +242,12 @@ export default {
   text-transform: none;
 }
 
-/* Texte de chargement */
 .loading-text {
   font-size: 1.4rem;
   color: #666;
+}
+
+.card-sub-container {
+  gap: 1rem;
 }
 </style>

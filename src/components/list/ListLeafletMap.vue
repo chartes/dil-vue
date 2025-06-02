@@ -51,7 +51,7 @@ export default {
     },
     initMap() {
       this.map = L.map(this.$refs.mapContainer, {
-        zoomSnap: 1, // pas besoin de fraction de zoom ici
+        zoomSnap: 1,
         zoomDelta: 1,
         center: [46.5, 2.5],
         zoom: 4,
@@ -61,28 +61,12 @@ export default {
       });
 
       this.map.setMaxBounds([
-        [41, -5], // Sud-Ouest
-        [51, 10]  // Nord-Est
+        [41, -5],
+        [51, 10]
       ]);
-
-      // Création des panes
-      //this.map.createPane('IGN');
       this.map.createPane('OSM');
       this.map.getPane('OSM').style.zIndex = 250;
-      //this.map.getPane('IGN').style.zIndex = 200;
 
-      // Couches IGN
-      /*const cassini = L.tileLayer(
-          'https://data.geopf.fr/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM&LAYER=BNF-IGNF_GEOGRAPHICALGRIDSYSTEMS.CASSINI&STYLE=normal&FORMAT=image/png&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
-          {pane: 'IGN', minZoom: 6, maxZoom: 14}
-      );*/
-
-      /*const etatMajor = L.tileLayer(
-          'https://data.geopf.fr/wmts?REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0&TILEMATRIXSET=PM&LAYER=GEOGRAPHICALGRIDSYSTEMS.ETATMAJOR40&STYLE=normal&FORMAT=image/jpeg&TILECOL={x}&TILEROW={y}&TILEMATRIX={z}',
-          {pane: 'IGN', minZoom: 6, maxZoom: 15}
-      );*/
-
-      // Couche OSM
       const osm = L.tileLayer(
           'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
           {
@@ -95,18 +79,6 @@ export default {
 
       osm.addTo(this.map);
 
-      // Contrôle de couches
-      /* L.control.layers(
-           {
-             'Plan actuel (OSM)': osm,
-             //'Carte de Cassini (XVIIIe)': cassini,
-             //"Carte de l'État-Major (XIXe)": etatMajor
-           },
-           {},
-           {position: 'topright'}
-       ).addTo(this.map);*/
-
-      // Cluster
       this.clusterGroup = L.markerClusterGroup({
         showCoverageOnHover: false
       });
@@ -122,15 +94,6 @@ export default {
       const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
       if (marker) {
         const latlng = marker.getLatLng();
-
-        // 👇 d'abord on fait un petit zoom-out sans popup
-        //this.map.setView(latlng, 7, {animate: false});
-
-        // 👇 puis zoom réel avec popup après un court délai
-        /* setTimeout(() => {
-           this.map.setView(latlng, 10, {animate: true});
-           marker.openPopup();
-         }, 100);*/
       }
     },
 

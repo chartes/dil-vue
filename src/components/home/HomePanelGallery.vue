@@ -1,26 +1,26 @@
 <template>
   <div class="panel-gallery-container">
     <v-hover
-  v-for="(panel, i) in panels"
-  :key="i"
-  v-slot="{ isHovering, props }"
->
-  <v-card
-    v-bind="props"
-    class="panel-card"
-    elevation="8"
-  >
-    <router-link :to="panel.router" class="panel-card-link">
-      <div
-        class="image-wrapper"
-        :style="getImageStyle(panel, isMobile ? false : isHovering)"
-      ></div>
-      <div class="overlay" :class="{ active: isMobile || isHovering }">
-        <p class="panel-card-label">{{ panel.label }}</p>
-      </div>
-    </router-link>
-  </v-card>
-</v-hover>
+        v-for="(panel, i) in panels"
+        :key="i"
+        v-slot="{ isHovering, props }"
+    >
+      <v-card
+          v-bind="props"
+          class="panel-card"
+          elevation="8"
+      >
+        <router-link :to="panel.router" class="panel-card-link">
+          <div
+              class="image-wrapper"
+              :style="getImageStyle(panel, isMobile ? false : isHovering)"
+          ></div>
+          <div class="overlay" :class="{ active: isMobile || isHovering }">
+            <p class="panel-card-label">{{ panel.label }}</p>
+          </div>
+        </router-link>
+      </v-card>
+    </v-hover>
   </div>
 </template>
 
@@ -31,23 +31,23 @@ export default {
     return {
       panels: [
         {
-          image: new URL('@/assets/images/lautrec.jpg', import.meta.url).href,
+          image: new URL('@/assets/images/carrousel_imgs/lautrec.jpg', import.meta.url).href,
           label: "Consulter",
-          router: { path: '/list' },
+          router: {path: '/list'},
           position: '77%',
           zoom: '1'
         },
         {
-          image: new URL('@/assets/images/bnf_simple.jpg', import.meta.url).href,
+          image: new URL('@/assets/images/carrousel_imgs/bnf_simple.jpg', import.meta.url).href,
           label: "Mode d'emploi",
-          router: { path: '/info', query: { section: "usage" } },
+          router: {path: '/information', query: {section: "usage"}},
           position: 'center',
           zoom: '1'
         },
         {
-          image: new URL('@/assets/images/imprimeur-lito.jpg', import.meta.url).href,
+          image: new URL('@/assets/images/carrousel_imgs/imprimeur-lito.jpg', import.meta.url).href,
           label: 'Carte interactive',
-          router: { path: '/list', query: { map: "open" } },
+          router: {path: '/list', query: {map: "open"}},
           position: '16%',
           zoom: '1.13'
         }
@@ -55,21 +55,21 @@ export default {
     }
   },
   methods: {
-  getImageStyle(panel, isHovering) {
-    const baseZoom = parseFloat(panel.zoom || '1')
-    const zoom = isHovering ? baseZoom * 1.05 : baseZoom
-    return {
-      backgroundImage: `url(${panel.image})`,
-      backgroundPosition: panel.position,
-      transform: `scale(${zoom})`,
-    }
-  },
+    getImageStyle(panel, isHovering) {
+      const baseZoom = parseFloat(panel.zoom || '1')
+      const zoom = isHovering ? baseZoom * 1.05 : baseZoom
+      return {
+        backgroundImage: `url(${panel.image})`,
+        backgroundPosition: panel.position,
+        transform: `scale(${zoom})`,
+      }
+    },
     computed: {
       isMobile() {
         return window.innerWidth <= 960
       }
     }
-}
+  }
 
 }
 
@@ -86,9 +86,10 @@ export default {
   margin-left: 40px;
   padding-right: 20px;
   margin-right: 0;
-width: 100%;
+  width: 100%;
   z-index: 2;
 }
+
 .panel-card {
   flex: 1 1 calc(34% - 16px);
   height: 80vh;
@@ -102,9 +103,11 @@ width: 100%;
 .panel-card:hover {
   cursor: pointer;
 }
+
 .panel-card {
-  background-color: #ddd; /* ← ajoute un fond visible même sans image */
+  background-color: #ddd;
 }
+
 .image-wrapper {
   width: 100%;
   height: 100%;
@@ -115,7 +118,7 @@ width: 100%;
 }
 
 .image-wrapper.zoomed {
-  transform: scale(1.05); /* zoom léger */
+  transform: scale(1.05);
 }
 
 .overlay {
@@ -124,7 +127,7 @@ width: 100%;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   transform: translateY(100%);
   transition: transform 0.3s ease;
   display: flex;
@@ -169,7 +172,7 @@ width: 100%;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    z-index:1000;
+    z-index: 1000;
     margin-left: 30px;
 
   }
@@ -177,11 +180,11 @@ width: 100%;
   .panel-card {
     flex: 1 1 calc(100% - 16px);
     height: 40vh;
-    z-index:1000;
+    z-index: 1000;
     width: 100%;
     max-width: 95%;
-      pointer-events: auto;
-   filter: none;
+    pointer-events: auto;
+    filter: none;
   }
 
   .overlay {
@@ -206,7 +209,7 @@ width: 100%;
     flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
-    z-index:1000;
+    z-index: 1000;
     margin-left: 0;
 
   }
@@ -214,11 +217,11 @@ width: 100%;
   .panel-card {
     flex: 1 1 calc(100% - 16px);
     height: 40vh;
-    z-index:1000;
+    z-index: 1000;
     width: 100%;
     max-width: 95%;
-      pointer-events: auto;
-   filter: none;
+    pointer-events: auto;
+    filter: none;
   }
 
   .overlay {
@@ -235,7 +238,4 @@ width: 100%;
     bottom: 15px;
   }
 }
-
-
-
 </style>

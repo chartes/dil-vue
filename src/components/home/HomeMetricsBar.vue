@@ -40,7 +40,7 @@ export default {
   },
 
   animateCount(key, target) {
-    const duration = 0; // 1 seconde
+    const duration = 0;
     const start = 0;
     const startTime = performance.now();
 
@@ -48,12 +48,11 @@ export default {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
       this[key] = Math.floor(progress * target);
-      /* augment size of metric with css */
 
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
-        this[key] = target; // Assure que la valeur finale est exacte
+        this[key] = target;
       }
     };
 
@@ -80,7 +79,7 @@ export default {
   color: #6c6c6c;
   font-weight: 500;
   letter-spacing: 1px;
-  height: 1.5rem; /* 👈 fixe la hauteur */
+  height: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -92,8 +91,8 @@ export default {
   color: var(--light-brown-alt);
   margin-top: 4px;
   line-height: 1;
-  min-width: 180px; /* évite les sauts de largeur */
-  height: 3rem; /* fixe la hauteur du bloc numérique */
+  min-width: 180px;
+  height: 3rem;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -1,13 +1,34 @@
 <template>
   <v-container fluid class="home-container">
     <v-row align="center" class="row-container" no-gutters wrap>
-      <!-- Colonne gauche -->
       <v-col cols="12" md="6" class="left-section">
         <h1 class="title-home text-center">
           Dictionnaire des <span class="nowrap">imprimeurs-lithographes</span> <span class="nowrap">du XIX<sup>e</sup> siècle</span>
-</h1>
+        </h1>
 
-        <v-text-field
+        <div class="btn-group-home">
+  <v-btn
+      class="btn-home"
+      color="transparent"
+      elevation="0"
+      to="list"
+      title="Consulter"
+  >
+    Consulter
+  </v-btn>
+
+  <v-btn
+      class="btn-home"
+      color="transparent"
+      elevation="0"
+      title="En savoir plus"
+      @click="scrollToIntro"
+  >
+    En savoir plus
+  </v-btn>
+</div>
+
+        <!--<v-text-field
             v-model="quickSearch"
             class="search-bar"
             label="Recherche rapide"
@@ -19,36 +40,26 @@
             @keyup.enter="goToList"
             color="var(--light-brown)"
         >
-          <!-- SLOT pour le bouton -->
           <template #append-inner>
             <v-btn
-  class="btn-quick-search"
-  variant="text"
-  size="small"
-  icon
-  @click="goToList"
-  title="Rechercher"
->
-  <v-icon size="25">mdi-arrow-right</v-icon>
-</v-btn>
+                class="btn-quick-search"
+                variant="text"
+                size="small"
+                icon
+                @click="goToList"
+                title="Rechercher"
+            >
+              <v-icon size="25">mdi-arrow-right</v-icon>
+            </v-btn>
           </template>
-        </v-text-field>
+        </v-text-field>-->
 
         <MetricsBar/>
 
-        <v-btn
-            class="btn-about-home-page"
-            color="transparent"
-            elevation="0"
-            @click="scrollToIntro"
-        >
-          En savoir plus
-        </v-btn>
-      </v-col>
 
-      <!-- Colonne droite -->
+      </v-col>
       <v-col cols="12" md="6" class="d-flex justify-end pr-0">
-        <PanelGallery />
+        <PanelGallery/>
       </v-col>
     </v-row>
   </v-container>
@@ -61,12 +72,10 @@
   </v-container>
 </template>
 
-
 <script>
-import IntroText from '@/components/IntroText.vue'
-import PanelGallery from '@/components/PanelGallery.vue'
-import MetricsBar from '@/components/MetricsBar.vue'
-import {mapState} from "vuex";
+import IntroText from '@/components/home/HomeIntroText.vue'
+import PanelGallery from '@/components/home/HomePanelGallery.vue'
+import MetricsBar from '@/components/home/HomeMetricsBar.vue'
 
 export default {
   name: 'HomeView',
@@ -92,7 +101,7 @@ export default {
       if (!this.quickSearch) return;
 
       this.$router.push({
-        name: 'list', //  le nom de ta route si différent
+        name: 'list',
         query: {
           search: this.quickSearch,
           mode: 'all'
@@ -108,10 +117,11 @@ export default {
 .row-container {
   flex-wrap: wrap;
 }
+
 .home-container {
   padding-top: 10px;
   padding-bottom: 60px;
-  min-height: calc(100vh - 65px); /* si la navbar fait 65px */
+  min-height: calc(100vh - 65px);
   display: flex;
   align-items: center;
 }
@@ -128,23 +138,42 @@ export default {
   position: relative;
   z-index: 1;
   flex: 0 1 48%;
-  margin-top:30px;
-  margin-left: 20px; /* marge à gauche pour l'espacement */
+  margin-top: 30px;
+  margin-left: 20px;
 }
 
 .title-home {
   margin-bottom: 50px;
   margin-top: 50px;
-      font-size: 36px;
-    font-weight: 700;
-    line-height: 55px;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 55px;
   text-align: center;
-  white-space: normal; /* autorise le retour à la ligne si nécessaire sur mobile */
+  white-space: normal;
 }
 
 .search-bar {
   width: 100%;
   margin: 0 auto 20px;
+}
+
+.btn-group-home {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto 40px;
+}
+
+.btn-home {
+  flex: 1;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: 2px solid black;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .btn-about-home-page {
@@ -156,11 +185,6 @@ export default {
   border: 2px solid black;
   text-transform: uppercase;
 }
-
-
-
-
-
 
 .v-text-field.search-bar {
   width: 70%;
@@ -186,14 +210,14 @@ export default {
 @media screen and (max-width: 1300px) {
   .left-section {
     padding: 60px 20px;
-    margin-left: 0; /* annule l'extension vers la gauche */
-    margin-right: 0; /* annule l'extension vers la droite */
+    margin-left: 0;
+    margin-right: 0;
     border-radius: 10px;
-    margin-top:50px;
+    margin-top: 50px;
   }
 
   .title-home {
-    font-size: clamp(1.2rem, 4vw + 0.5rem, 1.35rem); /* ↔️ Ajuste entre 1.2rem et 2rem */
+    font-size: clamp(1.2rem, 4vw + 0.5rem, 1.35rem);
     text-align: center;
     margin-bottom: 20px;
   }
@@ -203,6 +227,7 @@ export default {
     margin-bottom: 10px;
   }
 }
+
 .nowrap {
   white-space: nowrap;
 }
@@ -227,8 +252,28 @@ export default {
     flex: 0 0 100%;
     display: flex;
     flex-direction: column;
-    align-items: center; /* centre le contenu horizontalement */
+    align-items: center;
     text-align: center;
   }
+}
+
+@media screen and (max-width: 600px) {
+  .btn-group-home {
+    flex-direction: column;
+  }
+
+  .btn-home {
+    width: 100%;
+  }
+}
+
+.btn-to-list {
+  width: fit-content;
+  margin: 20px auto;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: 2px solid black;
+  text-transform: uppercase;
 }
 </style>

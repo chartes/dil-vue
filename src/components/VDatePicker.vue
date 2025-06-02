@@ -48,7 +48,7 @@
       </template>
 
       <v-card>
-        <!-- YEAR PICKER -->
+
         <v-date-picker-years
             v-if="step === 'year'"
             :min="minDate"
@@ -57,7 +57,6 @@
             @update:model-value="onYearSelect"
         />
 
-        <!-- MONTH PICKER -->
         <v-date-picker-months
             v-if="step === 'month'"
             v-model="monthIndex"
@@ -67,7 +66,6 @@
             @update:model-value="onMonthSelect"
         />
 
-        <!-- DATE PICKER -->
         <v-date-picker-month
             v-if="step === 'date'"
             :v-model="day"
@@ -161,7 +159,6 @@ export default {
             this.year +
             (this.month ? `-${String(this.month).padStart(2, '0')}` : '') +
             (this.day ? `-${String(this.day).padStart(2, '0')}` : '')
-        //this.$emit('update:modelValue', iso)
         this.$emit('update:dateMeta', {
           date: iso,
           exact: this.exactDate
@@ -171,7 +168,6 @@ export default {
           date: '',
           exact: false
         })
-        //this.$emit('update:modelValue', '')
       }
     },
   },
@@ -211,7 +207,6 @@ export default {
     goBack() {
       if (this.step === 'date') {
         this.step = 'month'
-        //this.month = this.month - 1
         this.day = ''
       } else if (this.step === 'month') {
         this.step = 'year'
@@ -225,8 +220,6 @@ export default {
       this.step = 'year';
       this.menu = false;
       this.exactDate = false;
-
-      // Déclenche bien l'événement avec date vide
       this.$emit('update:dateMeta', {
         date: '',
         exact: false

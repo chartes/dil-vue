@@ -1,28 +1,19 @@
 <template>
   <v-container fluid class="imprimeurs-container ">
-
-    <!-- BOUTONS HAUT : Facettes + Carte -->
     <v-row class="align-center justify-space-between mb-2">
-      <!-- BOUTON AFFICHAGE FACETTES -->
       <v-col cols="auto">
         <div class="btn-facets" @click="showFacets = !showFacets">
-          <v-icon v-if="showFacets" class="icon-close-facet facet-control" style="z-index: 3000 !important;">mdi-close</v-icon>
-          <span v-else class="display-facet-label facet-control" style="z-index: 3000 !important;">Afficher les facettes</span>
+          <v-icon v-if="showFacets" class="icon-close-facet facet-control">mdi-close</v-icon>
+          <span v-else class="display-facet-label facet-control">Afficher les facettes</span>
         </div>
       </v-col>
-
-      <!-- BOUTON CARTE -->
       <v-col cols="auto">
         <v-btn icon @click="toggleMap" class="map-btn">
           <v-icon>{{ showMap ? 'mdi-chevron-up' : 'mdi-map' }}</v-icon>
         </v-btn>
       </v-col>
     </v-row>
-
-    <!-- LIGNE PRINCIPALE -->
     <v-row>
-
-      <!-- COLONNE FACETTES -->
       <v-col cols="12" md="3" v-show="showFacets">
         <FacetFilter
           ref="facetFilter"
@@ -35,20 +26,15 @@
           @resetAllFacets="onResetAll"
         />
       </v-col>
-
-      <!-- COLONNE CONTENU PRINCIPAL (carte + tableau) -->
       <v-col :cols="showFacets ? 9 : 12" class="table-wrapper">
-        <!-- TRANSITION CARTE -->
         <v-expand-transition appear v-if="showMap">
           <v-toolbar flat>
             <v-toolbar-title>Carte des imprimeurs-lithographes</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
         </v-expand-transition>
-
-        <!-- CONTENU CARTE -->
         <v-expand-transition>
-          <div v-if="showMap" class="mb-4" style="height: 500px;">
+          <div v-if="showMap" class="mb-4 show-map-container">
             <LeafletMap
               v-if="showMapContent"
               ref="leaflet"
@@ -60,8 +46,6 @@
             />
           </div>
         </v-expand-transition>
-
-        <!-- TABLEAU -->
         <v-data-table
             :headers="headers"
             :items="imprimeurs"
@@ -76,10 +60,6 @@
             :expanded.sync="expandedRows"
             @update:expanded="onExpandChange"
         >
-
-          <!-- En-tête du tableau -->
-
-
           <template v-for="header in headers" :key="header.key" v-slot:[`header.${header.key}`]="{ column }">
             <thead class="header">
             <tr v-if="header.key === 'lastname'">
@@ -95,10 +75,7 @@
                 {{ column.title }}
               </th>
             </tr>
-
-
             </thead>
-
           </template>
           <template #top>
             <v-toolbar flat>
@@ -113,23 +90,19 @@
                   label="Rechercher par nom et/ou prénom(s)"
                   dense
                   hide-details
-                  style="max-width: 500px"
+                  class="search-head-info-input"
                   @input="onHeadSearchChange"
                   @click:clear="onClearHeadSearch"
                   clearable
                   color="var(--light-brown)"
               />
-
-              <!-- Pagination complète -->
-              <div class="pagination-controls d-flex align-center" style="gap: 10px;">
+              <div class="pagination-controls d-flex align-center">
                 <v-btn icon :disabled="page <= 1" @click="goToPage(1)" title="Première page">
                   <v-icon>mdi-page-first</v-icon>
                 </v-btn>
-
                 <v-btn icon :disabled="page <= 1" @click="page--" title="Page précédente">
                   <v-icon>mdi-chevron-left</v-icon>
                 </v-btn>
-
                 <v-text-field
                     v-model.number="page"
                     type="number"
@@ -137,35 +110,27 @@
                     :max="pageCount"
                     dense
                     hide-details
-                    style="width: 70px;"
+                    class="search-page-input"
                     @keydown.enter="fetchImprimeurs"
                     @click:clear="onClearSearch"
                     title="Aller à la page"
                 ></v-text-field>
                 <span>/ {{ pageCount }}</span>
-
                 <v-btn icon :disabled="page >= pageCount" @click="page++" title="Page suivante">
                   <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
-
                 <v-btn icon :disabled="page >= pageCount" @click="goToPage(pageCount)" title="Dernière page">
                   <v-icon>mdi-page-last</v-icon>
                 </v-btn>
               </div>
             </div>
           </template>
-
-          <!-- si aucune données disponible -->
           <template #no-data>
             <div class="text-center-no-data">
               <v-icon large>mdi-alert-circle</v-icon>
               <p>Aucune donnée disponible.</p>
             </div>
           </template>
-
-
-          <!-- Slot pour la colonne des actions -->
-
           <template #item.lastname="{ item }">
             <div class="table-cell-item table-cell-name">
               <router-link icon :to="`/detail/${item._id_dil}`" :title="`Voir la fiche de ${item.lastname}`"
@@ -174,19 +139,16 @@
               </router-link>
             </div>
           </template>
-
           <template #item.firstnames="{ item }">
             <div class="table-cell-item table-cell-firstname">
               {{ item.firstnames }}
             </div>
           </template>
-
           <template #item.total_patents="{ item }">
             <div class="table-cell-item table-cell-patents">
               {{ item.total_patents }}
             </div>
           </template>
-
           <template #item.data-table-expand="{ item }">
             <v-icon
                 class="expand-icon transition-icon"
@@ -195,8 +157,6 @@
               mdi-chevron-down
             </v-icon>
           </template>
-
-          <!-- Slot pour les détails extensibles -->
           <template #expanded-row="{ item, columns }">
             <tr>
               <td :colspan="columns.length" class="pa-4 table-expanded-container">
@@ -230,6 +190,9 @@
 
                     <div v-else>
                       Aucun brevet disponible.
+                      <hr v-if="item.highlight && displayContext" class="my-4 sep-quote"/>
+                      <div v-if="item.highlight && displayContext" class="highlighted-quote mb-4"
+                           v-html="item.highlight"></div>
                     </div>
 
                   </div>
@@ -237,24 +200,18 @@
               </td>
             </tr>
           </template>
-
-
-          <!-- Slot pour le footer avec la pagination -->
           <template #bottom>
             <div class="footer-controls d-flex align-center justify-space-between pa-4">
-              <!-- Sélecteur du nombre d'éléments par page -->
               <v-select
                   v-model="itemsPerPage"
                   :items="[10, 50, 100]"
                   label="Éléments par page"
                   dense
                   hide-details
-                  style="max-width: 200px"
+                  class="items-per-page-select"
                   @update:modelValue="onItemsPerPageChange"
               ></v-select>
-
-              <!-- Pagination complète -->
-              <div class="pagination-controls d-flex align-center" style="gap: 10px;">
+              <div class="pagination-controls d-flex align-center">
                 <v-btn icon :disabled="page <= 1" @click="goToPage(1)" title="Première page">
                   <v-icon>mdi-page-first</v-icon>
                 </v-btn>
@@ -262,8 +219,6 @@
                 <v-btn icon :disabled="page <= 1" @click="page--" title="Page précédente">
                   <v-icon>mdi-chevron-left</v-icon>
                 </v-btn>
-
-                <!-- Numéros de page -->
                 <v-text-field
                     v-model.number="page"
                     type="number"
@@ -271,7 +226,7 @@
                     :max="pageCount"
                     dense
                     hide-details
-                    style="width: 70px;"
+                    class="search-page-input"
                     @keydown.enter="fetchImprimeurs"
                     title="Aller à la page"
                 ></v-text-field>
@@ -295,8 +250,8 @@
 
 <script>
 import {mapState} from 'vuex';
-import FacetFilter from '@/components/FacetFilter.vue';
-import LeafletMap from '@/components/VLeafletMap.vue';
+import FacetFilter from '@/components/list/ListFacetFilter.vue';
+import LeafletMap from '@/components/list/ListLeafletMap.vue';
 
 export default {
   name: 'ListView',
@@ -325,7 +280,7 @@ export default {
       searchQuery: '',
       typeSearch: 'only_head_info',
       loading: false,
-      sortDesc: false, // pour le tri
+      sortDesc: false,
       showFacets: true,
       selectedFacets: {
         places: [],
@@ -359,7 +314,6 @@ export default {
       const query = this.searchHeadInfo.toLowerCase();
 
       if (this.searchExtraInfo) {
-        // Cas : extra_search est actif -> filtrage dans la base
         const matchingHead = this.imprimeursBase
             .filter(person =>
                 (person.lastname && person.lastname.toLowerCase().includes(query)) ||
@@ -371,8 +325,6 @@ export default {
 
         this.computeJointResults();
       } else {
-        // Cas classique : reset tout
-        //this.selectedFacets = {places: [], date: "", date_exact: false};
         this.page = 1;
         this.fetchImprimeurs();
       }
@@ -398,7 +350,6 @@ export default {
       this.pickerDate = '';
       this.displayedDate = '';
 
-      // ✅ Forcer l'émission des événements liés aux dates
       this.$emit('update:dateFilter', {
         type: this.filterType,
         date: ""
@@ -409,15 +360,11 @@ export default {
         exact: false
       });
 
-//this.$refs.facetFilter.selectedTerms = [];
-
-//this.$refs.facetFilter.onResetAll();
       this.$emit('resetAllFacets');
       this.fetchImprimeurs();
     },
     computeJointResults() {
       if (this.searchExtraInfo && this.searchHeadInfo) {
-        // ➔ Si les deux recherches sont actives ➔ intersection
         this.filteredIds.joint = this.filteredIds.head.filter(id =>
             this.filteredIds.extra.includes(id)
         );
@@ -425,10 +372,8 @@ export default {
             this.filteredIds.joint.includes(person._id_dil)
         );
       } else if (this.searchExtraInfo) {
-        // ➔ Seulement facettes extra actives
         this.imprimeurs = this.imprimeursBase;
       } else {
-        // ➔ Plus rien : cas rare
         this.imprimeurs = [];
       }
 
@@ -445,15 +390,13 @@ export default {
       this.page = 1;
 
       if (!value) {
-        // 🧹 Si l'utilisateur a vidé la recherche ➔ reset complet
         this.filteredIds.extra = [];
         this.searchExtraInfo = '';
         this.computeJointResults();
-        this.fetchImprimeurs(); // 🔥 recharge la liste normale
+        this.fetchImprimeurs();
         return;
       }
 
-      // 🔎 Sinon, recherche normalement
       const params = new URLSearchParams();
       params.append('page', this.page);
       params.append('size', this.itemsPerPage);
@@ -494,10 +437,9 @@ export default {
       }
     },
     onClearSearch() {
-      this.searchHeadInfo = '';  // 🖊️ C'est searchHeadInfo qu'on doit vider, pas searchTerm
-      this.filteredIds.head = [];  // 🧹 Vide la partie head (plus de filtrage sur nom/prénom)
+      this.searchHeadInfo = '';
+      this.filteredIds.head = [];
 
-      // On recalcule les résultats :
       this.computeJointResults();
     },
     highlightText(text) {
@@ -510,7 +452,6 @@ export default {
       console.log(cityId)
       const facetFilter = this.$refs.facetFilter;
 
-      // Vérifie si le terme est déjà dans les facettes sélectionnées
       if (this.selectedFacets.places.some(p => p.id === cityId)) return;
 
       try {
@@ -524,10 +465,8 @@ export default {
           department_label_fr: data.insee_fr_department_label,
         };
 
-        // Ajoute à la facette
         this.selectedFacets.places.push(term);
 
-        // Informe le composant enfant
         if (typeof facetFilter.addExternalTerm === 'function') {
           facetFilter.addExternalTerm(term);
         }
@@ -644,7 +583,6 @@ export default {
         setTimeout(() => {
           this.showMapContent = true;
 
-          // ✅ Appelle fetchCities sur le composant Leaflet si dispo
           this.$nextTick(() => {
             if (this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
               this.$refs.leaflet.fetchCities({
@@ -688,7 +626,7 @@ export default {
       this.selectedFacets["date"] = date;
       this.selectedFacets["date_exact"] = exact;
       this.page = 1;
-      this.fetchImprimeurs(); // mise à jour des résultats
+      this.fetchImprimeurs();
       if (this.showMap && this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
         this.$refs.leaflet.fetchCities({
           patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
@@ -716,12 +654,10 @@ export default {
     },
     showFacets(val) {
       console.log("showFacets changed:", val);
-      // attend que le DOM ait fini d'ajuster la mise en page
       this.$nextTick(() => {
         if (this.$refs.leaflet && this.$refs.leaflet.map) {
           this.$refs.leaflet.map.invalidateSize();
-          // changer la taille de la carte
-          this.$refs.leaflet.map.setView([48.8566, 2.3522], 5); // Paris par défaut
+          this.$refs.leaflet.map.setView([48.8566, 2.3522], 5);
         }
       });
     },
@@ -749,7 +685,6 @@ export default {
     const openMap = this.$route.query.map;
     if (openMap === 'open') {
       this.showMap = true;
-      // on attend la fin de l’animation d’expansion (~300ms)
       setTimeout(() => {
         this.showMapContent = true;
       }, 300);
@@ -797,11 +732,6 @@ export default {
 .display-facet-label {
   font-size: 1rem;
 }
-
-
-
-
-/* Style général du header */
 :deep(.v-data-table thead th) {
   color: #333333;
   font-size: 1.25rem;
@@ -812,7 +742,6 @@ export default {
 }
 
 
-/* Style pour les cellules du tableau */
 :deep(.v-data-table tbody td ) {
   font-size: 1.3rem;
   color: #333333;
@@ -823,13 +752,10 @@ export default {
   margin-top: 10px;
 }
 
-
-/* Style des cellules */
 .table-cell-item {
   font-size: 1.15rem;
   margin-top: 10px;
 }
-
 
 .table-cell-name {
   font-weight: 600;
@@ -845,7 +771,6 @@ export default {
   font-weight: bold;
   text-align: center;
 }
-
 
 .expand-icon {
   cursor: pointer;
@@ -871,10 +796,13 @@ export default {
   font-size: 1.1rem;
   margin-top: 10px;
   color: #555;
-  /* all in one line */
   display: flex;
   align-items: center;
   gap: 5px;
+}
+
+.facet-control {
+  z-index: 3000 !important;
 }
 
 .table-expanded-container {
@@ -914,8 +842,16 @@ export default {
   transition: transform 0.3s ease;
 }
 
+.pagination-controls {
+  gap: 10px;
+}
+
 .transition-icon.expanded {
   transform: rotate(180deg);
+}
+
+.search-head-info-input {
+  max-width: 500px
 }
 
 .text-center-no-data {
@@ -998,6 +934,10 @@ export default {
   width: 100%;
 }
 
+.search-page-input {
+  width: 70px;
+}
+
 .map-btn {
   color: var(--brown);
   z-index:1000
@@ -1015,6 +955,14 @@ export default {
   text-decoration: none;
 }
 
+.show-map-container {
+  height: 500px;
+}
+.items-per-page-select {
+  max-width: 200px
+}
 
-
+.search-page-input {
+  width: 70px;
+}
 </style>

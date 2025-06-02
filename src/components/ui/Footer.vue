@@ -32,13 +32,13 @@
       <!-- Liens centraux -->
       <v-row justify="center">
         <v-col cols="auto" class="footer-link">
-          <router-link :to="{ path: '/info', query: { section: 'contact' } }" class="footer-link-ref">
+          <router-link :to="{ path: '/information', query: { section: 'contact' } }" class="footer-link-ref">
            Contact
           </router-link>
         </v-col>
         <v-col cols="auto" class="footer-divider">|</v-col>
         <v-col cols="auto" class="footer-link">
-          <router-link :to="{ path: '/info', query: { section: 'legal' } }" class="footer-link-ref">
+          <router-link :to="{ path: '/information', query: { section: 'legal' } }" class="footer-link-ref">
            Mentions légales
           </router-link>
         </v-col>
@@ -58,11 +58,11 @@ export default {
     return {
       partners: [
         {
-          src: new URL('@/assets/images/Logo_ENC_PSL.svg', import.meta.url).href,
+          src: new URL('@/assets/images/logos/Logo_ENC_PSL.svg', import.meta.url).href,
           url: 'https://www.enc.sorbonne.fr/',
         },
         {
-          src: new URL('@/assets/images/Logo-CJM.png', import.meta.url).href,
+          src: new URL('@/assets/images/logos/Logo-CJM.png', import.meta.url).href,
           url: 'https://www.labexcap.fr/',
         },
       ],

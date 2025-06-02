@@ -1,14 +1,13 @@
 <template>
   <v-container fluid class="info-page-container">
     <v-row no-gutters>
-      <!-- Menu de gauche -->
       <v-col cols="12" md="3" class="menu-col">
-        <v-list nav dense class="menu-list">
+        <v-list nav dense class="menu-list mb-0">
           <v-list-item
               v-for="(item, index) in menuItems"
               :key="index"
               :active="activeSection === item.key"
-              @click="activeSection = item.key"
+              @click="$router.push({ query: { section: item.key } })"
               class="menu-item"
               :class="{ 'menu-active': activeSection === item.key }"
           >
@@ -17,11 +16,10 @@
         </v-list>
       </v-col>
 
-      <!-- Contenu de droite -->
       <v-col cols="12" md="9" class="content-col">
         <div class="section-content">
-          <h2>{{ currentContent.title }}</h2>
-          <span v-html="currentContent.content"> </span>
+          <h2>{{ currentTitle }}</h2>
+          <component :is="currentComponent"/>
         </div>
       </v-col>
     </v-row>
@@ -29,63 +27,59 @@
 </template>
 
 <script>
-import UsagePage from '@/pages/usage.html?raw';
-import ContactPage from '@/pages/contact.html?raw';
-import LegalPage from '@/pages/legal.html?raw';
+import ContactPage from '@/components/info/InfoContactPage.vue'
+import LegalPage from '@/components/info/InfoLegalPage.vue'
+import UsagePage from '@/components/info/InfoUsagePage.vue'
 
 export default {
   name: 'InfoView',
+  components: {
+    ContactPage,
+    LegalPage,
+    UsagePage
+  },
   data() {
     return {
-      activeSection: 'about',
+      activeSection: 'usage',
       menuItems: [
         {title: "Mode d'emploi", key: "usage"},
         {title: "Contact", key: "contact"},
-        {title: "Mentions légales", key: "legal"},
+        {title: "Mentions légales", key: "legal"}
       ],
       sections: {
-        usage: {
-          title: "Mode d'emploi",
-          content: UsagePage
-        },
-        contact: {
-          title: "Contact",
-          content: ContactPage
-        },
-        legal: {
-          title: "Mentions légales",
-          content: LegalPage
-        }
+        usage: {title: "Mode d'emploi", component: 'UsagePage'},
+        contact: {title: "Contact", component: 'ContactPage'},
+        legal: {title: "Mentions légales", component: 'LegalPage'},
       }
     }
   },
   computed: {
-    currentContent() {
-      return this.sections[this.activeSection]
+    currentTitle() {
+      return this.sections[this.activeSection].title
     },
-
+    currentComponent() {
+      return this.sections[this.activeSection].component
+    }
   },
   watch: {
     '$route.query.section': {
       immediate: true,
       handler(section) {
         if (this.sections[section]) {
-          this.activeSection = section;
-          window.scrollTo(0, 0);
+          this.activeSection = section
+          window.scrollTo(0, 0)
         }
       }
     }
   },
   mounted() {
-    window.scrollTo(0, 0);
+    window.scrollTo(0, 0)
   }
 }
 </script>
 
+<style src="@/assets/css/dil_main_info_pages.css"></style>
 <style scoped>
-
-
-
 .info-page-container {
   min-height: 80vh;
   padding-top: 30px;
@@ -94,6 +88,7 @@ export default {
 .menu-col {
   background-color: #f7f7f7;
   padding: 20px;
+
   border-right: 2px solid var(--light-brown-alt);
   min-height: 100%;
 }

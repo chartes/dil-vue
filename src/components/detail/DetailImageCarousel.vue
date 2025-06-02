@@ -11,7 +11,7 @@
         <img
           :src="resolveImageURL(img)"
           :alt="img.label"
-          style="width: 100%; height: 400px; object-fit: contain; cursor: pointer;"
+          class="carousel__slide"
           @click="openImage(img)"
           @error="handleImgError"
         />
@@ -39,8 +39,6 @@
         </div>
       </template>
     </Carousel>
-
-    <!-- MODAL IMAGE -->
     <v-dialog v-model="dialog" max-width="80%">
       <v-card>
         <v-card-title class="justify-end">
@@ -53,7 +51,7 @@
             v-if="selectedImage"
             :src="resolveImageURL(selectedImage)"
             :alt="selectedImage.label"
-            style="max-width: 100%; max-height: 80vh; object-fit: contain;"
+            class="img-fluid"
           />
           <div class="mt-4">
             <p class="image-label">{{ selectedImage?.label }}</p>
@@ -115,7 +113,7 @@ export default {
       return '';
     },
     handleImgError(event) {
-      const fallbackUrl = new URL('@/assets/images/preview-na.png', import.meta.url).href;
+      const fallbackUrl = new URL('@/assets/images/icons/preview-na.png', import.meta.url).href;
       event.target.src = fallbackUrl;
       event.target.style.width = '100%';
       event.target.style.height = '400px';
@@ -126,7 +124,6 @@ export default {
 </script>
 
 <style scoped>
-/* Carrousel */
 
 .carousel__item {
   min-height: 300px;
@@ -147,8 +144,8 @@ li.carousel__slide img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; /* centrage vertical */
-  min-height: 460px; /* HAUTEUR FIXE pour contenir image + flèches */
+  justify-content: center;
+  min-height: 460px;
   padding: 1rem 0;
   box-sizing: border-box;
 }
@@ -156,7 +153,7 @@ li.carousel__slide img {
 :deep(.carousel__viewport) {
   width: 100%;
   display: flex;
-  justify-content: center; /* ajouté */
+  justify-content: center;
   align-items: center;
   background-color: transparent;
   padding: 0 20px;
@@ -181,19 +178,19 @@ li.carousel__slide img {
   transition: transform 0.3s ease;
 }
 
-/* Effet sur l'image active */
+
 :deep(.carousel__slide--active img) {
   transform: scale(1.03);
 }
 
-/* Bordure sur l'élément actif */
+
 :deep(.carousel__slide--active) {
   border-bottom: 9px solid var(--light-brown);
   box-sizing: border-box;
   padding-bottom: 20px;
 }
 
-/* Boutons Précédent / Suivant */
+
 :deep(.carousel-controls) {
   margin-top: 30px;
   margin-right: 50px;
@@ -204,12 +201,12 @@ li.carousel__slide img {
   left: 10px;
 }
 
-/* Boutons de navigation */
+
 :deep(.carousel-controls .carousel__prev),
 :deep(.carousel-controls .carousel__next) {
-  position: static; /* plus de position absolue */
+  position: static;
   transform: none;
-  background: url("@/assets/images/b_fleche.svg") center / contain no-repeat;
+  background: url("@/assets/images/icons/b_fleche.svg") center / contain no-repeat;
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -218,24 +215,22 @@ li.carousel__slide img {
   height: 36px;
 }
 
-/* Inverser la flèche gauche */
+
 :deep(.carousel-controls .carousel__prev) {
   transform: scaleX(-1);
 }
 
-/* Cacher les SVG par défaut */
+
 :deep(.carousel-controls .carousel__prev svg),
 :deep(.carousel-controls .carousel__next svg) {
   display: none;
 }
 
-/* Pagination cachée ou personnalisable ensuite */
+
 :deep(.carousel-controls .carousel__pagination) {
   display: none;
 }
 
-
-/* Viewport du carousel */
 :deep(.carousel__viewport) {
   background-color: transparent;
   padding: 0 20px;
@@ -253,7 +248,6 @@ li.carousel__slide img {
   cursor: pointer;
 }
 
-/* Responsive pour mobile */
 @media screen and (max-width: 1024px) {
   :deep(.carousel__slide img) {
     height: 250px;
@@ -274,5 +268,16 @@ li.carousel__slide img {
     right: -30px;
   }
 }
+.img-fluid {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
 
+.carousel__slide {
+  width: 100%;
+  height: 400px;
+  object-fit: contain;
+  cursor: pointer;
+}
 </style>
