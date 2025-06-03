@@ -104,6 +104,7 @@
 <script>
 import axios from 'axios'
 import ImageCarousel from '@/components/detail/DetailImageCarousel.vue'
+import {mapState} from "vuex";
 
 export default {
   name: "DetailView",
@@ -116,6 +117,9 @@ export default {
       imagesByPatent: {},
       expandedPatents: [],
     }
+  },
+  computed: {
+    ...mapState(['apiUrl']),
   },
   watch: {
     '$route.params.id': {
@@ -138,10 +142,10 @@ export default {
       this.$router.push({path: '/detail/' + id}).then(() => window.scrollTo({top: 0}));
     },
     async fetchPersonData(id) {
-      const personRes = await axios.get(`http://127.0.0.1:9090/dil/api/persons/person/${id}?html=true`);
+      const personRes = await axios.get(`${this.apiUrl}/persons/person/${id}?html=true`);
       this.person = personRes.data;
 
-      const imagesRes = await axios.get(`http://127.0.0.1:9090/dil/api/persons/person/${id}/images`);
+      const imagesRes = await axios.get(`${this.apiUrl}/persons/person/${id}/images`);
       this.imagesByPatent = Object.fromEntries(
           imagesRes.data.patent_images.map(pi => [pi.patent_id, pi.images])
       );

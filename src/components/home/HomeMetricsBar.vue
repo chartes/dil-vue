@@ -16,19 +16,23 @@
 
 
 <script>
+import {mapState} from "vuex";
+
 export default {
   name: 'MetricsBar',
   data () {
     return {
       totalPersons: 0,
       totalPatents: 0,
-      apiBase: 'http://127.0.0.1:9090/dil/api'
     }
+  },
+  computed: {
+    ...mapState(['apiUrl']),
   },
   methods: {
   async fetchMetrics() {
     try {
-      const response = await fetch(`${this.apiBase}/infos`);
+      const response = await fetch(`${this.apiUrl}/infos`);
       if (!response.ok) throw new Error('Network error');
       const data = await response.json();
 
@@ -67,7 +71,7 @@ export default {
 
 <style scoped>
 .metrics-bar {
-  margin-top: 30px;
+  margin-bottom: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
