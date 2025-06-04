@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+        <loc>https://www.dil.chartes.psl.eu</loc>
+    </url>
+    <url>
+        <loc>https://www.dil.chartes.psl.eu/home</loc>
+    </url>
+    <url>
+        <loc>https://www.dil.chartes.psl.eu/list</loc>
+    </url>
+    <url>
+        <loc>https://www.dil.chartes.psl.eu/api/docs</loc>
+    </url>
+    <url>
+        <loc>https://www.dil.chartes.psl.eu/information?section=usage</loc>
+    </url>
+    <url>
+        <loc>https://www.dil.chartes.psl.eu/information?section=contact</loc>
+    </url>
+    <url>
+        <loc>https://www.dil.chartes.psl.eu/information?section=legal</loc>
+    </url>
+</urlset>

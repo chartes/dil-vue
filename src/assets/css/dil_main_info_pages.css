@@ -1,0 +1,36 @@
+/* This file contains the CSS styles
+for the main information pages of
+the DIL project */
+
+.main-section {
+    width: 100%;
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 5px;
+}
+
+.title-h1 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+
+.title-h2 {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.paragraph {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    text-align: justify;
+}
