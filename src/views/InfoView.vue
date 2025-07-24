@@ -42,12 +42,12 @@ export default {
     return {
       activeSection: 'usage',
       menuItems: [
-        {title: "Mode d'emploi", key: "usage"},
+        {title: "À propos", key: "usage"},
         {title: "Contact", key: "contact"},
         {title: "Mentions légales", key: "legal"}
       ],
       sections: {
-        usage: {title: "Mode d'emploi", component: 'UsagePage'},
+        usage: {title: "À propos", component: 'UsagePage'},
         contact: {title: "Contact", component: 'ContactPage'},
         legal: {title: "Mentions légales", component: 'LegalPage'},
       }

@@ -3,8 +3,9 @@
     <v-app-bar class="app-navbar">
       <v-container fluid class="header-container">
         <div class="header-logos">
-          <v-img :src="logoENC" alt="Logo ENC" class="logo logo-enc" contain @click="goToWebsite('https://www.chartes.psl.eu/')" />
-          <v-img :src="logoSrc" alt="Logo App" class="logo logo-app" contain @click="$router.push('/home')" />
+          <v-img :src="logoENC" alt="Logo ENC" class="logo logo-enc" contain
+                 @click="goToWebsite('https://www.chartes.psl.eu/')"/>
+          <v-img :src="logoSrc" alt="Logo App" class="logo logo-app" contain @click="$router.push('/home')"/>
         </div>
 
         <div class="burger-wrapper d-md-none">
@@ -14,10 +15,16 @@
         </div>
 
         <div class="d-none d-md-flex">
+          <!--<router-link to="/visualization">
+            <v-btn>
+              <v-icon color="white" size="47" class="admin-icon">mdi-chart-bar</v-icon>
+            </v-btn>
+          </router-link>-->
           <v-btn @click="goToWebsite(adminUrl)">
             <v-icon color="white" size="47" class="admin-icon">mdi-account-circle</v-icon>
           </v-btn>
-          <v-img :src="logoAPI" alt="API Icon" class="api-btn" contain @click="goToWebsite(apiDocsUrl)" />
+
+          <v-img :src="logoAPI" alt="API Icon" class="api-btn" contain @click="goToWebsite(apiDocsUrl)"/>
         </div>
       </v-container>
     </v-app-bar>
@@ -32,11 +39,11 @@
             <v-list-item-title class="menu-label">Administration</v-list-item-title>
           </v-list-item>
 
-          <v-divider class="menu-divider" />
+          <v-divider class="menu-divider"/>
 
           <v-list-item @click="goToWebsite(apiDocsUrl)">
             <template #prepend>
-              <v-img :src="logoAPI" height="24" width="24" class="menu-icon-image" />
+              <v-img :src="logoAPI" height="24" width="24" class="menu-icon-image"/>
             </template>
             <v-list-item-title class="menu-label">Documentation d'API</v-list-item-title>
           </v-list-item>
@@ -47,7 +54,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import {mapState} from 'vuex';
 import logoENC from '@/assets/images/logos/enc_head_logo.svg';
 import logoSrc from '@/assets/images/logos/dil-icons/logo-dil-v5.svg';
 import logoAPI from '@/assets/images/logos/enc_api_icon.svg';
@@ -142,7 +149,7 @@ export default {
 }
 
 .menu-icon {
-    margin-right: -20px ;
+  margin-right: -20px;
 }
 
 .menu-icon-image {

@@ -150,7 +150,7 @@ export default {
           imagesRes.data.patent_images.map(pi => [pi.patent_id, pi.images])
       );
 
-      this.expandedPatents = [];
+      this.expandedPatents = this.person.patents.map((_, idx) => idx);
     },
     groupRelations(relations) {
       const grouped = {

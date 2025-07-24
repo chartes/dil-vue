@@ -280,7 +280,6 @@ export default {
       this.selectedDate = date
       this.exactMatch = exact
       this.$emit('update:dateFilter', {
-        type: this.filterType,
         date,
         exact
       })
@@ -326,7 +325,6 @@ export default {
       this.menu = true;
     },
     groupTerms() {
-      console.log(this.terms)
       this.filteredTermsGrouped = this.terms.reduce((acc, term) => {
         const topic = term.topic || 'Résultats'
         if (!acc[topic]) acc[topic] = []

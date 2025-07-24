@@ -29,14 +29,14 @@ export default {
     this.$nextTick(() => {
       this.initMap();
       this.fetchCities(
-        {
-          patent_city_query: this.cityQuery,
-          patent_date_start: this.date,
-          exact_patent_date_start: this.exact
-        }
+          {
+            patent_city_query: this.cityQuery,
+            patent_date_start: this.date,
+            exact_patent_date_start: this.exact
+          }
       ).then(() => {
-        this.isReady = true;
-      }
+            this.isReady = true;
+          }
       );
     });
   },
@@ -85,21 +85,20 @@ export default {
       this.map.addLayer(this.clusterGroup);
     },
     centerOnCity(cityId) {
-      if (cityId === 0) {
-        this.map.setView([46.5, 2.5], 4, {animate: false});
-        return;
-      }
+  if (!this.map) return;
 
-
-      const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
-      if (marker) {
-        const latlng = marker.getLatLng();
-      }
-    },
+  const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
+  if (marker) {
+    const latlng = marker.getLatLng();
+    if (latlng) {
+      this.map.setView(latlng, 8, { animate: true });
+      marker.openPopup();
+    }
+  }
+},
 
     async fetchCities(filters = {}) {
       try {
-        console.log("fetchCities", filters);
         const url = new URL(`${this.apiBase}/map/places`);
 
         if (filters.patent_city_query && filters.patent_city_query.length > 0) {
@@ -185,4 +184,5 @@ export default {
   border-top: 1px solid #ccc;
   border-radius: 0px 0px 20px 20px;
 }
+
 </style>

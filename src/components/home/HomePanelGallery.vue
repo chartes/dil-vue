@@ -31,25 +31,25 @@ export default {
     return {
       panels: [
         {
-          image: new URL('@/assets/images/carrousel_imgs/lautrec.jpg', import.meta.url).href,
-          label: "Consulter",
+          image: new URL('@/assets/images/carrousel_imgs/img-5.jpg', import.meta.url).href,
+          label: 'Consulter',
           router: {path: '/list'},
+          position: '30%',
+          zoom: '1'
+        },
+        {
+          image: new URL('@/assets/images/carrousel_imgs/lautrec.jpg', import.meta.url).href,
+          label: "Carte interactive",
+          router: {path: '/list', query: {map: "open"}},
           position: '77%',
           zoom: '1'
         },
         {
           image: new URL('@/assets/images/carrousel_imgs/bnf_simple.jpg', import.meta.url).href,
-          label: "Mode d'emploi",
-          router: {path: '/information', query: {section: "usage"}},
+          label: "À propos",
+          router: {path: '/information', query: {section: "À propos"}},
           position: 'center',
           zoom: '1'
-        },
-        {
-          image: new URL('@/assets/images/carrousel_imgs/imprimeur-lito.jpg', import.meta.url).href,
-          label: 'Carte interactive',
-          router: {path: '/list', query: {map: "open"}},
-          position: '16%',
-          zoom: '1.13'
         }
       ]
     }
@@ -64,10 +64,11 @@ export default {
         transform: `scale(${zoom})`,
       }
     },
-    computed: {
-      isMobile() {
-        return window.innerWidth <= 960
-      }
+
+  },
+  computed: {
+    isMobile() {
+      return window.innerWidth <= 960
     }
   }
 

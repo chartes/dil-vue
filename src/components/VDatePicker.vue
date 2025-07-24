@@ -2,7 +2,7 @@
   <div class="date-picker-container">
     <span class="advanced_search_header">
       <v-icon start class="icon">mdi-calendar</v-icon>
-      <span class="title">Début du brevet</span>
+      <span class="title">En activité en</span>
     </span>
     <v-menu
         v-model="menu"
@@ -94,7 +94,7 @@ export default {
   props: {
     modelValue: {
       type: String,
-      default: '',
+      default: "",
     },
   },
   data() {
@@ -185,7 +185,6 @@ export default {
       this.menu = false
     },
     onYearSelect(val) {
-      console.log("onYearSelect", val)
       this.step = 'month'
       this.$nextTick(() => {
         this.step = 'month'

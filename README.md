@@ -17,7 +17,7 @@
 ### Clone the GitHub repository:  
 in a local folder dedicated to the project
   ```bash
-  git clone ...
+  git clone git@github.com:chartes/dil-vue.git
   ```
 
 

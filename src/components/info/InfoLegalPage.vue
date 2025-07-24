@@ -32,10 +32,9 @@
         nationale des chartes - PSL.</p>
     </div>
 
-    <h1 class="title-h1">Propriété intellectuelle</h1>
+    <h1 class="title-h1">Propriété intellectuelle du site et de ses contenus</h1>
 
     <div class="sub-section">
-      <p class="paragraph">Développement et contenus du site</p>
       <p class="paragraph">Sauf mention contraire, les contenus du site (https://dil.chartes.psl.eu) et les données
         accessibles via ses API sont partagés sous licence ouverte Creative Commons CC BY-NC-SA 4.0.</p>
     </div>
@@ -53,9 +52,22 @@
         responsable de tout dommage, de quelque nature que ce soit, résultant de l'interprétation ou de l'utilisation
         des informations disponibles sur le site ou sur des sites tiers.</p>
     </div>
+    <h1 class="title-h1">Crédits photographiques</h1>
+    <div class="sub-section">
+      <p class="paragraph">Les sources images et des bannières des pages du site Dictionnaire des imprimeurs lithographes du XIXe siècle (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
+        <ul>
+        <li>Détail, Henri de Toulouse-Lautrec, « La Lithographie [dit Jane Avril chez l’imprimeur lithographe]», L’estampe originale : revue mensuelle des arts d’impression publiée par Le Journal des Artistes, direction André Marty (1857-19??), 30 mars 1893,
+BnF, département des Estampes et photographie, RÉSERVE AA-6 (TOULOUSE-LAUTREC, Henri de)</li>
+          <li>Détail, Gavarni, « L'atelier du lithographe», in: La Caricature morale, politique et littéraire du 11 octobre 1840, BnF, Réserve des livres rares, RES FOL-LC2-2828, Z-1643-1646</li>
+          <li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding, Master Printer of Copper Plates, Stirling, Eneas Mackay, 1910, p. 40. © INHA</li>
+      </ul>
+      <br>
+      <p class="paragraph">Les icônes (Material Design Icons, licence GPL) ainsi l'icône DIL sont libres de droits.</p>
+    </div>
+
     <p class="paragraph">Cette page est susceptible d'être modifiée et mise à jour à tout moment sans préavis.</p>
 
-    <p class="paragraph">Dernière mise à jour de la page : 28/05/2025.</p>
+    <p class="paragraph">Dernière mise à jour de la page : 24/07/2025.</p>
   </div>
 </template>
 <script>

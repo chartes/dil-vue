@@ -5,6 +5,7 @@ import ListView from "@/views/ListView.vue";
 import InfoView from '@/views/InfoView.vue';
 import NotFoundView from "@/views/NotFoundView.vue";
 import DetailView from "@/views/DetailView.vue";
+import VisualizationView from "@/views/VisualizationView.vue";
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
         path:'/detail/:id',
         name:'detail',
         component: DetailView,
+    },
+    {
+        path: '/visualization',
+        name: 'visualization',
+        component: VisualizationView
     },
     {
         // catch-all route
