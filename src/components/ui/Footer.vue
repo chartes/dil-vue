@@ -30,7 +30,7 @@
       </v-row>
 
       <!-- Liens centraux -->
-      <v-row justify="center">
+      <v-row justify="center" class="footer-links">
         <v-col cols="auto" class="footer-link">
           <router-link :to="{ path: '/information', query: { section: 'contact' } }" class="footer-link-ref">
            Contact
@@ -112,4 +112,17 @@ export default {
 .img-partner:hover {
   transform: scale(1.05);
 }
+
+@media (max-width: 600px) {
+  .footer-links {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin: 25px 0 20px 0 !important;
+  }
+  .footer-divider {
+    display: none;
+  }
+}
+
 </style>
