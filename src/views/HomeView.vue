@@ -115,6 +115,7 @@ export default {
 <style src="@/assets/css/dil-utils.css"></style>
 <style scoped>
 .row-container {
+  width: 100%;
   flex-wrap: wrap;
 }
 
@@ -147,7 +148,7 @@ export default {
   margin-top: 50px;
   font-size: 36px;
   font-weight: 700;
-  line-height: 55px;
+  line-height: 1.45;
   text-align: center;
   white-space: normal;
 }
@@ -219,7 +220,7 @@ export default {
   .title-home {
     font-size: clamp(1.2rem, 4vw + 0.5rem, 1.35rem);
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
   }
 
   .search-bar {
@@ -247,17 +248,31 @@ export default {
 }
 
 @media screen and (max-width: 960px) {
+  .home-container {
+    padding-bottom: 0;
+  }
+
+  .home-container:last-child {
+    padding-bottom: 20px;
+  }
+
   .left-section {
-    width: 100%;
+    min-width: 100vw;
     flex: 0 0 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
+    margin-top: -30px;
+    margin-left: -16px;
+    margin-right: -16px;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
 }
 
 @media screen and (max-width: 600px) {
+
   .btn-group-home {
     flex-direction: column;
   }

@@ -108,4 +108,14 @@ export default {
   background-color: black;
   margin: 0 20px;
 }
+
+
+@media screen and (max-width: 600px) {
+  .text-center.mx-4,
+  .separator {
+    margin: 0 !important;
+  }
+}
+
+
 </style>
