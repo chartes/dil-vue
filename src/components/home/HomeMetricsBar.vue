@@ -117,5 +117,18 @@ export default {
   }
 }
 
+@media screen and (max-width: 480px) {
+
+  .metrics-bar {
+    flex-direction: column;
+    gap: 30px;
+    margin: 10px 0 40px;
+  }
+
+  .separator {
+    display: none;
+  }
+}
+
 
 </style>
