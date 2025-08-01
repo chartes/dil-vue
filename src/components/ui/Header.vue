@@ -99,6 +99,8 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .header-logos {
@@ -117,9 +119,13 @@ export default {
   margin-left: 10px;
 }
 
+.logo-enc > * {
+  padding: 0 !important;
+}
+
 .logo-app {
   width: 125px;
-  height: 100px;
+  height: 50px;
 }
 
 .logo:hover {
@@ -244,6 +250,16 @@ export default {
 }
 
 @media (max-width: 960px) {
+  .logo-enc {
+    width: 40px;
+    margin: 0 10px 0 0;
+  }
+
+  .logo-app[data-v-d61be020] {
+    height: 47px;
+    transform: translateY(-1px);
+  }
+
   .d-md-none {
     display: block !important;
   }
