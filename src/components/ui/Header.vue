@@ -86,13 +86,14 @@ export default {
 <style scoped>
 
 .app-navbar {
+  max-width: 100vw;
   background-color: var(--brown) !important;
   padding: 0 !important;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 2500 !important;
 }
 
 .header-container {
@@ -184,7 +185,7 @@ export default {
   left: 0;
   right: 0;
   display: flex;
-  z-index: 999;
+  z-index: 2499;
 }
 
 .mobile-popover {

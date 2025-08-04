@@ -52,7 +52,7 @@
         <v-expand-transition appear>
           <v-toolbar flat class="toolbar-header d-flex">
 
-            <v-toolbar-title>
+            <v-toolbar-title class="panel-header-title-with-toggle">
               <v-icon class="mr-2 map-icon">
                 mdi-map
               </v-icon>
@@ -114,7 +114,7 @@
 
           <template #top>
             <v-toolbar flat class="toolbar-header d-flex">
-              <v-toolbar-title>
+              <v-toolbar-title class="panel-header-title">
                 {{ totalItems }} {{ pluralize('imprimeur', totalItems) }} - {{ pluralize('lithographe', totalItems) }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
@@ -650,6 +650,16 @@ export default {
   font-size: 1rem;
 }
 
+.panel-header-title-with-toggle {
+  flex: calc(100% - 100px) 0 0;
+  width: calc(100% - 100px);
+}
+
+.panel-header-title {
+  flex: calc(100% - 40px) 0 0;
+  width: calc(100% - 40px);
+}
+
 :deep(.v-data-table thead th) {
   color: #333333;
   font-size: 1.25rem;
@@ -929,6 +939,10 @@ export default {
   margin-top: 0 !important;
 }
 
+.imprimeurs-container > .v-row {
+  position: relative;
+}
+
 .facet-toggle-btn {
   position: fixed;
   top: 80px;
@@ -984,6 +998,57 @@ export default {
   font-size: 1.5rem;
   color: #000000;
   margin-right: 8px;
+}
+
+@media (max-width: 960px) {
+  .imprimeurs-container > .v-row {
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Filters panel */
+  .imprimeurs-container > .v-row > .v-col:first-child {
+    flex: 75% 0 0 !important;
+    width: 75% !important;
+    max-width: 75% !important;
+  }
+
+  /* Results */
+  .imprimeurs-container > .v-row > .v-col:last-child {
+    flex: 100% 0 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0;
+  }
+
+  .imprimeurs-container > .v-row > .facet-sidebar {
+    position: absolute;
+    z-index: 2000; /* above map controls */
+    width: 75%;
+    overflow-y: inherit;
+    padding: 0;
+  }
+
+  .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
+  }
+
+  .footer-controls {
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+  }
+
+  .footer-controls > * {
+    flex: 100% 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 56px;
+  }
 }
 
 </style>
