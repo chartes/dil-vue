@@ -1025,16 +1025,16 @@ export default {
   .imprimeurs-container > .v-row > .facet-sidebar {
     position: absolute;
     z-index: 2000; /* above map controls */
-    width: 75%;
     overflow-y: inherit;
     padding: 0;
   }
 
   .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {
-    position: absolute;
-    top: 30px;
+    position: fixed;
+    top: 130px;
     left: 0;
-    width: 100%;
+    width: 75%;
+    margin-top: 0;
   }
 
   .footer-controls {
@@ -1049,6 +1049,12 @@ export default {
     max-width: 100%;
     max-height: 56px;
   }
+
+  .pagination-controls .v-btn--icon.v-btn--density-default {
+    width: var(--v-btn-height);
+    height: var(--v-btn-height);
+  }
+
 }
 
 </style>
