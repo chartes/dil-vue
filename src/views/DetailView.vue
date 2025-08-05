@@ -182,9 +182,17 @@ export default {
 </script>
 
 <style scoped>
+
+.card-subtitle,
+.card-title {
+  text-overflow: inherit;
+  white-space: normal;
+}
+
 .card-title {
   font-size: 2rem;
   font-weight: bold;
+  line-height: 1.35 !important;
   color: #222;
 }
 
@@ -254,4 +262,35 @@ export default {
 .card-sub-container {
   gap: 1rem;
 }
+
+@media (max-width: 960px) {
+  .v-row .v-col .pa-6 {
+    padding: 0 !important;
+  }
+  .v-row .v-col .card-title,
+  .v-row .v-col .card-subtitle,
+  .v-row .v-col .pa-6 > .card-text {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .v-card .v-card-title.patent-title {
+    margin-top: 10px;
+    flex-direction: column;
+    gap: 5px;
+    align-items: flex-start !important;
+  }
+
+  .patent-title .mdi-chevron-up {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+
+  .patent-meta {
+    white-space: normal;
+  }
+
+}
+
 </style>
