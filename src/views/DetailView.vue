@@ -115,7 +115,7 @@ export default {
     return {
       person: null,
       imagesByPatent: {},
-      expandedPatents: [],
+      expandedPatents: [0], /* first patent open by defaut */
     }
   },
   computed: {
@@ -281,6 +281,7 @@ export default {
     align-items: flex-start !important;
   }
 
+  .patent-title .mdi-chevron-down,
   .patent-title .mdi-chevron-up {
     position: absolute;
     top: 10px;
