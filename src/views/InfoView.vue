@@ -80,6 +80,7 @@ export default {
 
 <style src="@/assets/css/dil_main_info_pages.css"></style>
 <style scoped>
+
 .info-page-container {
   min-height: 80vh;
   padding-top: 30px;
@@ -102,6 +103,10 @@ export default {
   border-left: 4px solid transparent;
   padding-left: 10px;
   transition: all 0.2s ease;
+}
+
+:deep(.menu-item .v-list-item-title) {
+  text-transform: uppercase;
 }
 
 .menu-item:hover {
@@ -129,6 +134,11 @@ export default {
   margin-top: 0;
   text-transform: uppercase;
   margin-left: 10px;
+  padding-left: calc(5% - 10px);
+}
+
+.section-content .main-section {
+  padding: 0;
 }
 
 .section-content p {
@@ -137,4 +147,13 @@ export default {
   line-height: 1.6;
   color: #333;
 }
+
+@media (max-width: 960px) {
+
+  .info-page-container > div {
+    gap: 30px;
+  }
+
+}
+
 </style>
