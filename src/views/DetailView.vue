@@ -223,7 +223,7 @@ export default {
 
 .patent-meta {
   font-size: 1.1rem;
-  color: #666;
+  color: #888;
 }
 
 .list-subheader {
@@ -292,6 +292,25 @@ export default {
     white-space: normal;
   }
 
+  .card-title[data-v-167ce9ae] {
+    font-size: 1.3rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    margin: 1rem 0 0.5rem;
+  }
+
+  .v-card .v-card-subtitle,
+  .section-text,
+  .card-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .list-subheader {
+    font-size: 0.95rem;
+  }
 }
 
 </style>

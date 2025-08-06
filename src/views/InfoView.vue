@@ -148,12 +148,36 @@ export default {
   color: #333;
 }
 
+.section-content a {
+  color: var(--brown) !important;
+}
+
+
 @media (max-width: 960px) {
+
+  .menu-col {
+    border-right: none;
+  }
 
   .info-page-container > div {
     gap: 30px;
   }
 
+  .section-content {
+    padding: 10px;
+  }
+
+  .section-content h2 {
+    padding-left: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .section-content .main-section {
+    margin: 0;
+    max-width: 100%;
+    padding: 5px;
+  }
 }
 
 </style>

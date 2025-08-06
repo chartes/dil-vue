@@ -1001,6 +1001,30 @@ export default {
 }
 
 @media (max-width: 960px) {
+
+  :deep(.facet-reopen-label) {
+    font-size: 0.75rem;
+  }
+
+  :deep(.text-center-no-data) {
+    font-size: 1.0rem;
+    line-height: 1.8;
+  }
+
+  :deep(.v-toolbar__content > .v-toolbar-title) {
+    margin-inline-start: 12px;
+  }
+
+  .panel-header-title-with-toggle {
+    flex: calc(100% - 80px) 0 0;
+    width: calc(100% - 80px);
+  }
+
+  .panel-header-title-with-toggle,
+  .panel-header-title {
+    font-size: 1.0rem;
+  }
+
   .imprimeurs-container > .v-row {
     flex-direction: column;
     width: 100%;
@@ -1020,6 +1044,7 @@ export default {
     width: 100% !important;
     max-width: 100% !important;
     padding: 0;
+    margin-top: 10px;
   }
 
   .imprimeurs-container > .v-row > .facet-sidebar {
@@ -1029,18 +1054,24 @@ export default {
     padding: 0;
   }
 
+  .facet-toggle-btn {
+    left: 16px;
+  }
+
   .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {
     position: fixed;
     top: 130px;
-    left: 0;
-    width: 75%;
+    left: 16px;
+    width: 85%;
     margin-top: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 
   .footer-controls {
     flex-wrap: wrap;
     gap: 15px;
     margin-bottom: 10px;
+    padding: 10px !important;
   }
 
   .footer-controls > * {
@@ -1055,6 +1086,42 @@ export default {
     height: var(--v-btn-height);
   }
 
+  :deep(.pagination-controls .v-field__input) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  :deep(.v-data-table .v-table__wrapper > table tbody > tr > td.v-data-table-column--no-padding) {
+    width: 40px !important;
+    padding: 0;
+  }
+
+  :deep(.v-table .v-table__wrapper > table > tbody > tr > td) {
+    padding-left: 0;
+    word-wrap: anywhere;
+  }
+
+  :deep(.expanded-patent-list),
+  :deep(.title-expanded-patent-list) {
+    margin: 0 !important;
+    padding-left: 0;
+  }
+
+  :deep(.expanded-patent-list) {
+   padding-bottom: 5px;
+  }
+
+  :deep(.table-cell-item-expanded),
+  :deep(.title-expanded-patent-list) {
+    font-size: 0.95rem;
+  }
+
+  :deep(.v-data-table thead th),
+  :deep(.v-data-table tbody td),
+  :deep(.table-cell-item) {
+    font-size: 1rem;
+    margin: 0;
+  }
 }
 
 </style>

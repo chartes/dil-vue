@@ -272,6 +272,20 @@ li.carousel__slide img {
   cursor: pointer;
 }
 
+
+.img-fluid {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.carousel__slide {
+  width: 100%;
+  height: 500px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 1024px) {
   :deep(.carousel__slide img) {
     height: 250px;
@@ -291,17 +305,24 @@ li.carousel__slide img {
   :deep(.carousel__next) {
     right: -30px;
   }
-}
-.img-fluid {
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
+
+  :deep(.v-card-text),
+  :deep(.link_label_img_carousel),
+  :deep(.carousel__slide.carousel__slide--active .caption) {
+    font-size: 0.95rem;
+  }
+
+  :deep(.v-btn--icon.v-btn--density-default) {
+    width: calc(var(--v-btn-height) + 2px);
+    height: calc(var(--v-btn-height) + 2px);
+  }
 }
 
-.carousel__slide {
-  width: 100%;
-  height: 500px;
-  object-fit: contain;
-  cursor: pointer;
+@media screen and (max-width: 699px) {
+  :deep(.carousel-controls) {
+    justify-content: space-between;
+    padding: 0 10px;
+  }
 }
+
 </style>

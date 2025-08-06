@@ -110,6 +110,12 @@ export default {
 }
 
 
+@media screen and (max-width: 960px) {
+  .metric-value {
+    font-size: 2rem;
+  }
+}
+
 @media screen and (max-width: 600px) {
   .text-center.mx-4,
   .separator {
