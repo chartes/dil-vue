@@ -1025,6 +1025,11 @@ export default {
     font-size: 1.0rem;
   }
 
+  .imprimeurs-container .v-data-table {
+    max-height: unset;
+    overflow-y: unset;
+  }
+
   .imprimeurs-container > .v-row {
     flex-direction: column;
     width: 100%;
