@@ -175,7 +175,7 @@ export default {
     gap: 10px;
     z-index: 1000;
     margin-left: 30px;
-
+    padding-right: 0;
   }
 
   .panel-card {
@@ -183,7 +183,6 @@ export default {
     height: 40vh;
     z-index: 1000;
     width: 100%;
-    max-width: 95%;
     pointer-events: auto;
     filter: none;
   }
@@ -212,6 +211,7 @@ export default {
     gap: 10px;
     z-index: 1000;
     margin-left: 0;
+    padding-right: 0;
 
   }
 
@@ -220,7 +220,6 @@ export default {
     height: 40vh;
     z-index: 1000;
     width: 100%;
-    max-width: 95%;
     pointer-events: auto;
     filter: none;
   }

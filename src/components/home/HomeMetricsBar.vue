@@ -108,4 +108,33 @@ export default {
   background-color: black;
   margin: 0 20px;
 }
+
+
+@media screen and (max-width: 960px) {
+  .metric-value {
+    font-size: 2rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .text-center.mx-4,
+  .separator {
+    margin: 0 !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+
+  .metrics-bar {
+    flex-direction: column;
+    gap: 30px;
+    margin: 10px 0 40px;
+  }
+
+  .separator {
+    display: none;
+  }
+}
+
+
 </style>

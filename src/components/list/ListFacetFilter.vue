@@ -538,11 +538,6 @@ input[type="text"]::placeholder {
 }
 
 @media (max-width: 768px) {
-  .facet-filter-container {
-    padding-left: 10px;
-    padding-right: 10px;
-  }
-
   .search-header-terms {
     padding-left: 20px;
   }

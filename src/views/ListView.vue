@@ -52,7 +52,7 @@
         <v-expand-transition appear>
           <v-toolbar flat class="toolbar-header d-flex">
 
-            <v-toolbar-title>
+            <v-toolbar-title class="panel-header-title-with-toggle">
               <v-icon class="mr-2 map-icon">
                 mdi-map
               </v-icon>
@@ -114,7 +114,7 @@
 
           <template #top>
             <v-toolbar flat class="toolbar-header d-flex">
-              <v-toolbar-title>
+              <v-toolbar-title class="panel-header-title">
                 {{ totalItems }} {{ pluralize('imprimeur', totalItems) }} - {{ pluralize('lithographe', totalItems) }}
               </v-toolbar-title>
               <v-spacer></v-spacer>
@@ -650,6 +650,16 @@ export default {
   font-size: 1rem;
 }
 
+.panel-header-title-with-toggle {
+  flex: calc(100% - 100px) 0 0;
+  width: calc(100% - 100px);
+}
+
+.panel-header-title {
+  flex: calc(100% - 40px) 0 0;
+  width: calc(100% - 40px);
+}
+
 :deep(.v-data-table thead th) {
   color: #333333;
   font-size: 1.25rem;
@@ -929,6 +939,10 @@ export default {
   margin-top: 0 !important;
 }
 
+.imprimeurs-container > .v-row {
+  position: relative;
+}
+
 .facet-toggle-btn {
   position: fixed;
   top: 80px;
@@ -984,6 +998,135 @@ export default {
   font-size: 1.5rem;
   color: #000000;
   margin-right: 8px;
+}
+
+@media (max-width: 960px) {
+
+  :deep(.facet-reopen-label) {
+    font-size: 0.75rem;
+  }
+
+  :deep(.text-center-no-data) {
+    font-size: 1.0rem;
+    line-height: 1.8;
+  }
+
+  :deep(.v-toolbar__content > .v-toolbar-title) {
+    margin-inline-start: 12px;
+  }
+
+  .panel-header-title-with-toggle {
+    flex: calc(100% - 80px) 0 0;
+    width: calc(100% - 80px);
+  }
+
+  .panel-header-title-with-toggle,
+  .panel-header-title {
+    font-size: 1.0rem;
+  }
+
+  .imprimeurs-container .v-data-table {
+    max-height: unset;
+    overflow-y: unset;
+  }
+
+  .imprimeurs-container > .v-row {
+    flex-direction: column;
+    width: 100%;
+    margin: 0;
+  }
+
+  /* Filters panel */
+  .imprimeurs-container > .v-row > .v-col:first-child {
+    flex: 75% 0 0 !important;
+    width: 75% !important;
+    max-width: 75% !important;
+  }
+
+  /* Results */
+  .imprimeurs-container > .v-row > .v-col:last-child {
+    flex: 100% 0 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0;
+    margin-top: 10px;
+  }
+
+  .imprimeurs-container > .v-row > .facet-sidebar {
+    position: absolute;
+    z-index: 2000; /* above map controls */
+    overflow-y: inherit;
+    padding: 0;
+  }
+
+  .facet-toggle-btn {
+    left: 16px;
+  }
+
+  .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {
+    position: fixed;
+    top: 130px;
+    left: 16px;
+    width: 85%;
+    margin-top: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .footer-controls {
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 10px;
+    padding: 10px !important;
+  }
+
+  .footer-controls > * {
+    flex: 100% 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 56px;
+  }
+
+  .pagination-controls .v-btn--icon.v-btn--density-default {
+    width: var(--v-btn-height);
+    height: var(--v-btn-height);
+  }
+
+  :deep(.pagination-controls .v-field__input) {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  :deep(.v-data-table .v-table__wrapper > table tbody > tr > td.v-data-table-column--no-padding) {
+    width: 40px !important;
+    padding: 0;
+  }
+
+  :deep(.v-table .v-table__wrapper > table > tbody > tr > td) {
+    padding-left: 0;
+    word-wrap: anywhere;
+  }
+
+  :deep(.expanded-patent-list),
+  :deep(.title-expanded-patent-list) {
+    margin: 0 !important;
+    padding-left: 0;
+  }
+
+  :deep(.expanded-patent-list) {
+   padding-bottom: 5px;
+  }
+
+  :deep(.table-cell-item-expanded),
+  :deep(.title-expanded-patent-list) {
+    font-size: 0.95rem;
+  }
+
+  :deep(.v-data-table thead th),
+  :deep(.v-data-table tbody td),
+  :deep(.table-cell-item) {
+    font-size: 1rem;
+    margin: 0;
+  }
 }
 
 </style>

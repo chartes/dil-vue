@@ -83,16 +83,39 @@ export default {
   padding: 3rem 2rem 0 2rem;
 }
 
-
 .subtitle {
   font-size: 1.4rem;
   font-weight: bold;
   display: flex;
-  align-items: center;
+  align-items: flex-start !important;
+  gap: 5px;
 }
 
 .text-intro {
   font-size: 1.2rem;
   line-height: 1.7;
 }
+
+@media screen and (max-width: 960px) {
+
+  .intro-block {
+    padding: 20px 10px 0;
+  }
+
+  .subtitle {
+    display: block !important;
+    margin-bottom: 10px !important;
+    font-size: 1.25rem;
+  }
+
+  .subtitle i {
+    transform: translateY(-3px);
+  }
+
+  .text-intro {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
 </style>

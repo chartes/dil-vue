@@ -15,7 +15,7 @@
           @click="openImage(img)"
           @error="handleImgError"
         />
-        <div v-if="isActive" class="text-center mt-2 caption">
+        <div class="text-center mt-2 caption">
           <template v-if="img.reference_url && img.reference_url !== 'unknown_url'">
             <a
               class="link_label_img_carousel"
@@ -125,6 +125,10 @@ export default {
 
 <style scoped>
 
+.carousel {
+  margin: 30px 0 20px;
+}
+
 .carousel__item {
   min-height: 300px;
   width: 500px;
@@ -174,22 +178,42 @@ li.carousel__slide img {
   height: 300px;
   object-fit: contain;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  /* box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); */
   transition: transform 0.3s ease;
+  transform: scale(0.75);
 }
 
-
-:deep(.carousel__slide--active img) {
-  transform: scale(1.03);
+:deep(.carousel__slide.carousel__slide--active img) {
+  transform: scale(1);
 }
 
+:deep(.carousel-controls) {
+  margin-right: 0 !important;
+}
+
+:deep(.carousel__viewport) {
+  padding: 0 !important;
+}
+
+:deep(.carousel__slide .caption) {
+  margin: 30px 0 !important;
+  position: relative;
+  opacity: 0;
+  transition: all ease-in-out 0.5s;
+}
+
+:deep(.carousel__slide.carousel__slide--active .caption) {
+  opacity: 1;
+}
+
+:deep(.carousel__slide) {
+  box-sizing: border-box;
+  border-bottom: 9px solid transparent;
+}
 
 :deep(.carousel__slide--active) {
   border-bottom: 9px solid var(--light-brown);
-  box-sizing: border-box;
-  padding-bottom: 20px;
 }
-
 
 :deep(.carousel-controls) {
   margin-top: 30px;
@@ -248,6 +272,20 @@ li.carousel__slide img {
   cursor: pointer;
 }
 
+
+.img-fluid {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+}
+
+.carousel__slide {
+  width: 100%;
+  height: 500px;
+  object-fit: contain;
+  cursor: pointer;
+}
+
 @media screen and (max-width: 1024px) {
   :deep(.carousel__slide img) {
     height: 250px;
@@ -267,17 +305,24 @@ li.carousel__slide img {
   :deep(.carousel__next) {
     right: -30px;
   }
-}
-.img-fluid {
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
+
+  :deep(.v-card-text),
+  :deep(.link_label_img_carousel),
+  :deep(.carousel__slide.carousel__slide--active .caption) {
+    font-size: 0.95rem;
+  }
+
+  :deep(.v-btn--icon.v-btn--density-default) {
+    width: calc(var(--v-btn-height) + 2px);
+    height: calc(var(--v-btn-height) + 2px);
+  }
 }
 
-.carousel__slide {
-  width: 100%;
-  height: 400px;
-  object-fit: contain;
-  cursor: pointer;
+@media screen and (max-width: 699px) {
+  :deep(.carousel-controls) {
+    justify-content: space-between;
+    padding: 0 10px;
+  }
 }
+
 </style>
