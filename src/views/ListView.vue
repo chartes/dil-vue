@@ -324,7 +324,7 @@ export default {
       facetResetBtn: false,
       totalItems: 0,
       sortDesc: false,
-      showFacets: true,
+      showFacets:  window.innerWidth > 960, /* filter panel closed by default on small devices */
       expandedRows: [],
       details: {},
       showMap: false,
