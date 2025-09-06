@@ -86,7 +86,6 @@ export default {
 <style scoped>
 
 .app-navbar {
-  max-width: 100vw;
   background-color: var(--brown) !important;
   padding: 0 !important;
   position: fixed;

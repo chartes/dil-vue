@@ -124,7 +124,6 @@ export default {
   padding-bottom: 60px;
   min-height: calc(100vh - 65px);
   display: flex;
-  align-items: center;
 }
 
 
