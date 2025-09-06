@@ -168,7 +168,6 @@
             </div>
           </template>
 
-
           <template #item.lastname="{ item }">
             <div class="table-cell-item table-cell-name">
               <router-link
@@ -182,7 +181,13 @@
           </template>
 
           <template #item.firstnames="{ item }">
-            {{ item.firstnames }}
+            <router-link
+                :to="`/detail/${item._id_dil}`"
+                :title="`Voir la fiche de ${item.lastname}`"
+                class="mb-3 first-name-table-label"
+            >
+              <span>{{ item.firstnames }}</span>
+            </router-link>
           </template>
 
           <template #item.total_patents="{ item }">
@@ -208,11 +213,16 @@
                 <v-expand-transition>
                   <div v-if="expandedRows.includes(item._id_dil)">
                     <div v-if="details[item._id_dil]?.patents?.length">
-                      <span class="title-expanded-patent-list">
-                        {{ details[item._id_dil].patents.length }}
-                        {{ pluralize('brevet', details[item._id_dil].patents.length) }}
-                        {{ pluralize('disponible', details[item._id_dil].patents.length) }}
-                      </span>
+                      <router-link
+                          :to="`/detail/${item._id_dil}`"
+                          :title="`Voir la fiche de ${item.lastname}`"
+                      >
+                        <span class="title-expanded-patent-list">
+                          {{ details[item._id_dil].patents.length }}
+                          {{ pluralize('brevet', details[item._id_dil].patents.length) }}
+                          {{ pluralize('disponible', details[item._id_dil].patents.length) }}
+                        </span>
+                      </router-link>
 
                       <ul class="expanded-patent-list list-unstyled mb-0 mt-2 d-flex flex-column gap-2">
                         <li
@@ -766,6 +776,22 @@ export default {
   padding-left: 1rem;
 }
 
+.table-expanded-container a {
+  display: inline-block;
+  margin-left: 10px;
+  padding-left: 20px;
+  background: url("@/assets/images/icons/lien_ext.svg") top 4px left / 22px auto no-repeat;
+  text-decoration: none;
+}
+
+.table-expanded-container a:hover {
+  background-image: url("@/assets/images/icons/lien_ext_hover.svg");
+}
+
+.table-expanded-container a:hover span.title-expanded-patent-list {
+  color: var(--brown);
+}
+
 .transition-icon {
   transition: transform 0.3s ease;
 }
@@ -873,17 +899,25 @@ export default {
 }
 
 .name-table-label {
+  display: inline-block;
+  width: 100%;
   color: #333333;
   transition: color 0.2s ease;
   text-decoration: none;
   font-weight: 600;
 }
 
-.name-table-label:hover {
-  color: #555;
+.first-name-table-label {
+  color: #333333;
+  font-weight: 400;
   text-decoration: none;
 }
 
+.first-name-table-label:hover,
+.name-table-label:hover {
+  color: var(--brown);
+  text-decoration: none;
+}
 
 .items-per-page-select {
   max-width: 200px
@@ -907,6 +941,14 @@ export default {
 :deep(.v-data-table) {
   max-height: 150vh;
   overflow-y: auto;
+}
+
+:deep(.v-data-table .v-table__wrapper > table tbody > tr:hover) {
+  background: rgb(var(--v-theme-surface-light));
+}
+
+:deep(.v-data-table .expand-icon) {
+  margin-top: 0;
 }
 
 .show-map-container {
