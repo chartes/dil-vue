@@ -1106,6 +1106,16 @@ export default {
     left: 16px;
   }
 
+  .name-table-label {
+    margin-bottom: 0 !important;
+  }
+
+  .table-expanded-container a {
+    background-size: 17px auto;
+    padding-left: 25px;
+    margin-left: 0;
+  }
+
   .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {
     position: fixed;
     top: 130px;
