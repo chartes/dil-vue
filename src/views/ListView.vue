@@ -44,7 +44,6 @@
 
       </v-col>
 
-
       <v-col :cols="showFacets ? 9 : 12">
         <br>
         <br>
@@ -81,6 +80,7 @@
 
         <br/>
         <v-data-table
+            id="table-imprimeurs"
             :headers="headers"
             :items="imprimeurs"
             :items-per-page="itemsPerPage"
@@ -362,6 +362,7 @@ export default {
     },
     async onCitySelected(cityId) {
       const facetFilter = this.$refs.facetFilter;
+      if (!facetFilter) return;
 
       if (this.selectedFacets.places.some(p => p.id === cityId)) return;
 
