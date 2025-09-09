@@ -39,27 +39,10 @@ export default {
           }
       );
     });
-
-    // Scroll down from map city popup to list :
-    const t = this;
-    window.addEventListener("click", (evt)=> {
-      const target = evt.target;
-      if (target.tagName.toLowerCase() === "a" && target.getAttribute("class") === "city-link") {
-        evt.preventDefault();
-        evt.stopImmediatePropagation();
-        const cityDil = target.getAttribute("data-city");
-        t.$emit("selectCity", cityDil);
-        const table = document.getElementById("table-imprimeurs"); // Cf id of <v-data-table> in ListView
-        if (table) {
-          window.scroll({
-            top: table.offsetTop - 72,
-            left: 0,
-            behavior: "smooth",
-          });
-        }
-      }
-    });
-
+    window.addEventListener("click", this.initMapLinks);
+  },
+  unmounted() {
+    window.removeEventListener("click", this.initMapLinks);
   },
   methods: {
     updateMap() {
@@ -105,18 +88,38 @@ export default {
       });
       this.map.addLayer(this.clusterGroup);
     },
+    initMapLinks(evt) {
+      // Scrolls down from map city popup link to list and emits selectCity event :
+      const t = this;
+      const target = evt.target;
+      if (target.tagName.toLowerCase() === "a" && target.getAttribute("class") === "city-link") {
+        evt.preventDefault();
+        evt.stopImmediatePropagation();
+        const cityDil = target.getAttribute("data-city");
+        console.log("emit", cityDil, t);
+        t.$emit("selectCity", cityDil);
+        const table = document.getElementById("table-imprimeurs"); // Cf id of <v-data-table> in ListView
+        if (table) {
+          window.scroll({
+            top: table.offsetTop - 72,
+            left: 0,
+            behavior: "smooth",
+          });
+        }
+      }
+    },
     centerOnCity(cityId) {
-  if (!this.map) return;
+      if (!this.map) return;
 
-  const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
-  if (marker) {
-    const latlng = marker.getLatLng();
-    if (latlng) {
-      this.map.setView(latlng, 8, { animate: true });
-      marker.openPopup();
-    }
-  }
-},
+      const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
+      if (marker) {
+        const latlng = marker.getLatLng();
+        if (latlng) {
+          this.map.setView(latlng, 8, { animate: true });
+          marker.openPopup();
+        }
+      }
+    },
 
     async fetchCities(filters = {}) {
       try {

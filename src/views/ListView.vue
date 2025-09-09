@@ -361,9 +361,12 @@ export default {
       }
     },
     async onCitySelected(cityId) {
+      console.log("onCitySelected1", cityId);
       const facetFilter = this.$refs.facetFilter;
 
       if (this.selectedFacets.places.some(p => p.id === cityId)) return;
+
+      console.log("onCitySelected2", cityId);
 
       try {
         const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`);
