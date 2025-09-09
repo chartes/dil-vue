@@ -2,9 +2,9 @@
   <v-container fluid class="imprimeurs-container">
     <v-row class="align-start justify-start mb-2">
       <v-col
-          v-if="showFacets"
           cols="3"
-          class="facet-sidebar facet-visible"
+          class="facet-sidebar"
+          :class="{ 'facet-visible': showFacets }"
       >
         <transition name="slide-x" mode="out-in">
           <v-row class="align-center mb-3 facet-control">
@@ -362,7 +362,6 @@ export default {
     },
     async onCitySelected(cityId) {
       const facetFilter = this.$refs.facetFilter;
-      if (!facetFilter) return;
 
       if (this.selectedFacets.places.some(p => p.id === cityId)) return;
 
@@ -933,11 +932,28 @@ export default {
   top: 0;
   align-self: flex-start;
   z-index: 10;
+
   max-height: 100vh;
   overflow-y: auto;
   padding-right: 16px;
   padding-top: 50px;
 }
+
+.facet-sidebar.facet-visible + .v-col {
+  margin-top: 86px;
+}
+
+.facet-sidebar br,
+.facet-sidebar .facet-filter-container {
+  display: none;
+}
+
+.facet-sidebar.facet-visible br,
+.facet-sidebar.facet-visible .facet-filter-container {
+  display: block;
+}
+
+
 
 :deep(.v-data-table) {
   max-height: 150vh;
@@ -984,6 +1000,14 @@ export default {
 
 .imprimeurs-container > .v-row {
   position: relative;
+}
+
+.imprimeurs-container > .v-row > .v-col br {
+  display: none;
+}
+
+#table-imprimeurs {
+  margin-top: 20px;
 }
 
 .facet-toggle-btn {
@@ -1087,12 +1111,16 @@ export default {
   }
 
   /* Results */
+
+  .facet-sidebar + .v-col {
+    margin-top: 86px;
+  }
+
   .imprimeurs-container > .v-row > .v-col:last-child {
     flex: 100% 0 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     padding: 0;
-    margin-top: 10px;
   }
 
   .imprimeurs-container > .v-row > .facet-sidebar {
