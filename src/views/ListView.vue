@@ -911,6 +911,8 @@ export default {
 }
 
 .first-name-table-label {
+  display: block;
+  margin-bottom: 0 !important;
   color: #333333;
   font-weight: 400;
   text-decoration: none;
