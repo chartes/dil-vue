@@ -275,7 +275,7 @@ li.carousel__slide img {
 
 .img-fluid {
   max-width: 100%;
-  max-height: 80vh;
+  max-height: calc(100vh - 300px);
   object-fit: contain;
 }
 
@@ -316,6 +316,7 @@ li.carousel__slide img {
     width: calc(var(--v-btn-height) + 2px);
     height: calc(var(--v-btn-height) + 2px);
   }
+
 }
 
 @media screen and (max-width: 699px) {

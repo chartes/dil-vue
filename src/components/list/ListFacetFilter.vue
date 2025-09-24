@@ -375,13 +375,19 @@ export default {
 
 .facet-filter-container {
   position: relative;
-  margin-top: 50px;
+  margin-top: 180px;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
 }
+
+@media (max-width: 1200px) {
+  .facet-filter-container {
+    padding: 10px 8px;
+  }
+}
+
 
 input[type="text"] {
   height: 60%;
@@ -551,7 +557,7 @@ input[type="text"]::placeholder {
   }
 
   .active-tags-labels {
-    font-size: 0.5em;
+    font-size: 0.75em;
   }
 }
 

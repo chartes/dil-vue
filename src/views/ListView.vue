@@ -2,9 +2,9 @@
   <v-container fluid class="imprimeurs-container">
     <v-row class="align-start justify-start mb-2">
       <v-col
-          v-if="showFacets"
           cols="3"
-          class="facet-sidebar facet-visible"
+          class="facet-sidebar"
+          :class="{ 'facet-visible': showFacets }"
       >
         <transition name="slide-x" mode="out-in">
           <v-row class="align-center mb-3 facet-control">
@@ -44,7 +44,6 @@
 
       </v-col>
 
-
       <v-col :cols="showFacets ? 9 : 12">
         <br>
         <br>
@@ -81,6 +80,7 @@
 
         <br/>
         <v-data-table
+            id="table-imprimeurs"
             :headers="headers"
             :items="imprimeurs"
             :items-per-page="itemsPerPage"
@@ -168,7 +168,6 @@
             </div>
           </template>
 
-
           <template #item.lastname="{ item }">
             <div class="table-cell-item table-cell-name">
               <router-link
@@ -182,7 +181,13 @@
           </template>
 
           <template #item.firstnames="{ item }">
-            {{ item.firstnames }}
+            <router-link
+                :to="`/detail/${item._id_dil}`"
+                :title="`Voir la fiche de ${item.lastname}`"
+                class="mb-3 first-name-table-label"
+            >
+              <span>{{ item.firstnames }}</span>
+            </router-link>
           </template>
 
           <template #item.total_patents="{ item }">
@@ -208,11 +213,16 @@
                 <v-expand-transition>
                   <div v-if="expandedRows.includes(item._id_dil)">
                     <div v-if="details[item._id_dil]?.patents?.length">
-                      <span class="title-expanded-patent-list">
-                        {{ details[item._id_dil].patents.length }}
-                        {{ pluralize('brevet', details[item._id_dil].patents.length) }}
-                        {{ pluralize('disponible', details[item._id_dil].patents.length) }}
-                      </span>
+                      <router-link
+                          :to="`/detail/${item._id_dil}`"
+                          :title="`Voir la fiche de ${item.lastname}`"
+                      >
+                        <span class="title-expanded-patent-list">
+                          {{ details[item._id_dil].patents.length }}
+                          {{ pluralize('brevet', details[item._id_dil].patents.length) }}
+                          {{ pluralize('disponible', details[item._id_dil].patents.length) }}
+                        </span>
+                      </router-link>
 
                       <ul class="expanded-patent-list list-unstyled mb-0 mt-2 d-flex flex-column gap-2">
                         <li
@@ -314,7 +324,7 @@ export default {
       facetResetBtn: false,
       totalItems: 0,
       sortDesc: false,
-      showFacets: true,
+      showFacets:  window.innerWidth > 960, /* filter panel closed by default on small devices */
       expandedRows: [],
       details: {},
       showMap: false,
@@ -351,9 +361,12 @@ export default {
       }
     },
     async onCitySelected(cityId) {
+      console.log("onCitySelected1", cityId);
       const facetFilter = this.$refs.facetFilter;
 
       if (this.selectedFacets.places.some(p => p.id === cityId)) return;
+
+      console.log("onCitySelected2", cityId);
 
       try {
         const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`);
@@ -766,6 +779,22 @@ export default {
   padding-left: 1rem;
 }
 
+.table-expanded-container a {
+  display: inline-block;
+  margin-left: 10px;
+  padding-left: 20px;
+  background: url("@/assets/images/icons/lien_ext.svg") top 4px left / 22px auto no-repeat;
+  text-decoration: none;
+}
+
+.table-expanded-container a:hover {
+  background-image: url("@/assets/images/icons/lien_ext_hover.svg");
+}
+
+.table-expanded-container a:hover span.title-expanded-patent-list {
+  color: var(--brown);
+}
+
 .transition-icon {
   transition: transform 0.3s ease;
 }
@@ -873,17 +902,27 @@ export default {
 }
 
 .name-table-label {
+  display: inline-block;
+  width: 100%;
   color: #333333;
   transition: color 0.2s ease;
   text-decoration: none;
   font-weight: 600;
 }
 
-.name-table-label:hover {
-  color: #555;
+.first-name-table-label {
+  display: block;
+  margin-bottom: 0 !important;
+  color: #333333;
+  font-weight: 400;
   text-decoration: none;
 }
 
+.first-name-table-label:hover,
+.name-table-label:hover {
+  color: var(--brown);
+  text-decoration: none;
+}
 
 .items-per-page-select {
   max-width: 200px
@@ -898,15 +937,40 @@ export default {
   top: 0;
   align-self: flex-start;
   z-index: 10;
+
   max-height: 100vh;
   overflow-y: auto;
   padding-right: 16px;
   padding-top: 50px;
 }
 
+.facet-sidebar.facet-visible + .v-col {
+  margin-top: 86px;
+}
+
+.facet-sidebar br,
+.facet-sidebar .facet-filter-container {
+  display: none;
+}
+
+.facet-sidebar.facet-visible br,
+.facet-sidebar.facet-visible .facet-filter-container {
+  display: block;
+}
+
+
+
 :deep(.v-data-table) {
   max-height: 150vh;
   overflow-y: auto;
+}
+
+:deep(.v-data-table .v-table__wrapper > table tbody > tr:hover) {
+  background: rgb(var(--v-theme-surface-light));
+}
+
+:deep(.v-data-table .expand-icon) {
+  margin-top: 0;
 }
 
 .show-map-container {
@@ -941,6 +1005,14 @@ export default {
 
 .imprimeurs-container > .v-row {
   position: relative;
+}
+
+.imprimeurs-container > .v-row > .v-col br {
+  display: none;
+}
+
+#table-imprimeurs {
+  margin-top: 20px;
 }
 
 .facet-toggle-btn {
@@ -1044,12 +1116,16 @@ export default {
   }
 
   /* Results */
+
+  .facet-sidebar + .v-col {
+    margin-top: 86px;
+  }
+
   .imprimeurs-container > .v-row > .v-col:last-child {
     flex: 100% 0 0 !important;
     width: 100% !important;
     max-width: 100% !important;
     padding: 0;
-    margin-top: 10px;
   }
 
   .imprimeurs-container > .v-row > .facet-sidebar {
@@ -1061,6 +1137,16 @@ export default {
 
   .facet-toggle-btn {
     left: 16px;
+  }
+
+  .name-table-label {
+    margin-bottom: 0 !important;
+  }
+
+  .table-expanded-container a {
+    background-size: 17px auto;
+    padding-left: 25px;
+    margin-left: 0;
   }
 
   .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {

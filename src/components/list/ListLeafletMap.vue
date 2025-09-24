@@ -39,6 +39,10 @@ export default {
           }
       );
     });
+    window.addEventListener("click", this.initMapLinks);
+  },
+  unmounted() {
+    window.removeEventListener("click", this.initMapLinks);
   },
   methods: {
     updateMap() {
@@ -84,18 +88,38 @@ export default {
       });
       this.map.addLayer(this.clusterGroup);
     },
+    initMapLinks(evt) {
+      // Scrolls down from map city popup link to list and emits selectCity event :
+      const t = this;
+      const target = evt.target;
+      if (target.tagName.toLowerCase() === "a" && target.getAttribute("class") === "city-link") {
+        evt.preventDefault();
+        evt.stopImmediatePropagation();
+        const cityDil = target.getAttribute("data-city");
+        console.log("emit", cityDil, t);
+        t.$emit("selectCity", cityDil);
+        const table = document.getElementById("table-imprimeurs"); // Cf id of <v-data-table> in ListView
+        if (table) {
+          window.scroll({
+            top: table.offsetTop - 72,
+            left: 0,
+            behavior: "smooth",
+          });
+        }
+      }
+    },
     centerOnCity(cityId) {
-  if (!this.map) return;
+      if (!this.map) return;
 
-  const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
-  if (marker) {
-    const latlng = marker.getLatLng();
-    if (latlng) {
-      this.map.setView(latlng, 8, { animate: true });
-      marker.openPopup();
-    }
-  }
-},
+      const marker = this.clusterGroup.getLayers().find(m => m.options.cityId === cityId);
+      if (marker) {
+        const latlng = marker.getLatLng();
+        if (latlng) {
+          this.map.setView(latlng, 8, { animate: true });
+          marker.openPopup();
+        }
+      }
+    },
 
     async fetchCities(filters = {}) {
       try {
@@ -138,12 +162,14 @@ export default {
             cityId: city.city_dil
           });
 
-          const popupHtml = `
-        <b>${city.city_label} (${city.city_dept_label})</b><br/>
-        ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
-      `;
+          const popupHtml = `<a href="" class="city-link" data-city="${city.city_dil}">
+           ${city.city_label} (${city.city_dept_label})
+           </a>
+           <br/>
+           ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
+          `;
+
           marker.bindPopup(popupHtml);
-          marker.on('click', () => this.$emit('selectCity', city.city_dil));
           this.clusterGroup.addLayer(marker);
         });
 
@@ -183,6 +209,17 @@ export default {
   border: 1px solid #EEEEEE;
   border-top: 1px solid #ccc;
   border-radius: 0px 0px 20px 20px;
+}
+
+:deep(.leaflet-popup-content a.city-link) {
+  font-weight: bold;
+  text-decoration: none;
+  color: black
+}
+
+:deep(.leaflet-popup-content a.city-link:hover) {
+  text-decoration: underline !important;
+  color: var(--brown);
 }
 
 </style>
