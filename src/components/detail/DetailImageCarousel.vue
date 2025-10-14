@@ -47,16 +47,19 @@
           </v-btn>
         </v-card-title>
         <v-card-text class="text-center">
-          <img
-            v-if="selectedImage"
-            :src="resolveImageURL(selectedImage)"
-            :alt="selectedImage.label"
-            class="img-fluid"
-          />
-          <div class="mt-4">
-            <p class="image-label">{{ selectedImage?.label }}</p>
-          </div>
-        </v-card-text>
+  <div v-if="selectedImage" class="zoom-box" v-zoom>
+    <img
+      :src="resolveImageURL(selectedImage)"
+      :alt="selectedImage.label"
+      class="zoom-img"
+      draggable="false"
+    />
+  </div>
+
+  <div class="mt-4">
+    <p class="image-label">{{ selectedImage?.label }}</p>
+  </div>
+</v-card-text>
       </v-card>
     </v-dialog>
   </div>
@@ -66,8 +69,165 @@
 import { Carousel, Slide, Navigation, Pagination } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
 
+// --- Directive v-zoom on img modal (wheel + drag + dblclick reset) ---
+const ZoomDirective = {
+  mounted(el) {
+    const img = el.querySelector('img');
+    let zoomed = false;
+    let scale = 1;
+    let x = 0, y = 0;
+    const max = 5;
+    let isPanning = false;
+    let startX = 0, startY = 0, startXOffset = 0, startYOffset = 0;
+
+    el.style.overflow = 'hidden';
+    el.style.touchAction = 'none';
+    el.style.cursor = 'grab';
+    img.style.transformOrigin = '0 0';
+
+    function update() {
+      if (!zoomed) return;
+      img.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+    }
+
+    function getRect() {
+      const r = el.getBoundingClientRect();
+      return { w: r.width, h: r.height, left: r.left, top: r.top };
+    }
+
+    function enterZoomModeAtCurrentView() {
+      if (zoomed) return;
+      const iw = img.naturalWidth || img.width;
+      const ih = img.naturalHeight || img.height;
+
+      const elRect = getRect();
+      const r = img.getBoundingClientRect();
+      const rw = r.width, rh = r.height;
+
+      const scaleW = rw / iw;
+      const scaleH = rh / ih;
+      scale = Math.min(scaleW, scaleH);
+
+      x = r.left - elRect.left;
+      y = r.top - elRect.top;
+
+      img.classList.add('is-zoomed');
+      zoomed = true;
+      update();
+    }
+
+    function constrain() {
+      if (!zoomed) return;
+      const elRect = getRect();
+      const iw = img.naturalWidth || img.width;
+      const ih = img.naturalHeight || img.height;
+      const vw = iw * scale;
+      const vh = ih * scale;
+
+      if (vw <= elRect.w) x = (elRect.w - vw) / 2;
+      else {
+        const minX = elRect.w - vw;
+        const maxX = 0;
+        x = Math.min(maxX, Math.max(minX, x));
+      }
+
+      if (vh <= elRect.h) y = (elRect.h - vh) / 2;
+      else {
+        const minY = elRect.h - vh;
+        const maxY = 0;
+        y = Math.min(maxY, Math.max(minY, y));
+      }
+    }
+
+    function onWheel(e) {
+      e.preventDefault();
+      if (!zoomed) enterZoomModeAtCurrentView();
+
+      const elRect = el.getBoundingClientRect();
+      const offsetX = e.clientX - elRect.left - x;
+      const offsetY = e.clientY - elRect.top - y;
+
+      const delta = -e.deltaY;
+      const step = 0.2;
+      const newScale = Math.min(max, Math.max(scale + (delta > 0 ? step : -step), 0.1));
+      if (newScale === scale) return;
+
+      const ratio = newScale / scale;
+      x = e.clientX - elRect.left - offsetX * ratio;
+      y = e.clientY - elRect.top - offsetY * ratio;
+
+      scale = newScale;
+      constrain();
+      update();
+    }
+
+    function onDown(e) {
+      if (!zoomed) return;
+      isPanning = true;
+      el.style.cursor = 'grabbing';
+      const p = (e.touches && e.touches[0]) || e;
+      startX = p.clientX;
+      startY = p.clientY;
+      startXOffset = x;
+      startYOffset = y;
+      window.addEventListener('mousemove', onMove, { passive: false });
+      window.addEventListener('mouseup', onUp);
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onUp);
+    }
+
+    function onMove(e) {
+      if (!isPanning) return;
+      e.preventDefault();
+      const p = (e.touches && e.touches[0]) || e;
+      x = startXOffset + (p.clientX - startX);
+      y = startYOffset + (p.clientY - startY);
+      constrain();
+      update();
+    }
+
+    function onUp() {
+      isPanning = false;
+      el.style.cursor = 'grab';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    }
+
+    function onDblClick() {
+      zoomed = false;
+      img.classList.remove('is-zoomed');
+      img.style.transform = 'none';
+      x = 0; y = 0; scale = 1;
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('mousedown', onDown);
+    el.addEventListener('touchstart', onDown, { passive: false });
+    el.addEventListener('dblclick', onDblClick);
+
+    el._zoomCleanup = () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('mousedown', onDown);
+      el.removeEventListener('touchstart', onDown);
+      el.removeEventListener('dblclick', onDblClick);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  },
+  unmounted(el) {
+    if (el._zoomCleanup) el._zoomCleanup();
+  }
+};
+
 export default {
   name: 'ImageCarousel',
+  directives: {
+    zoom: ZoomDirective,
+  },
   components: {
     Carousel,
     Slide,
@@ -84,6 +244,7 @@ export default {
     return {
       dialog: false,
       selectedImage: null,
+      apiDBBase: this.$store.state.adminUrl.replace(/\/admin\/?$/, ''),
     }
   },
   computed: {
@@ -108,7 +269,7 @@ export default {
         return img.iiif_url;
       }
       if (img.img_name) {
-        return `https://dev.chartes.psl.eu/dil/static/images_store/${img.img_name}`;
+        return `${this.apiDBBase}/static/images_store/${img.img_name}`;
       }
       return '';
     },
@@ -326,4 +487,32 @@ li.carousel__slide img {
   }
 }
 
+.zoom-box {
+  position: relative;
+  overflow: hidden;
+  max-height: calc(100vh - 300px);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #00000008;
+  border-radius: 8px;
+}
+
+.zoom-img {
+  max-width: 100%;
+  max-height: calc(100vh - 300px);
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform;
+  transition: transform 0.05s linear;
+  transform: none;
+}
+
+.zoom-img.is-zoomed {
+  max-width: none;
+  max-height: none;
+  object-fit: unset;
+}
 </style>
