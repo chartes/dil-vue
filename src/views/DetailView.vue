@@ -300,8 +300,71 @@ export default {
   cursor: pointer;
 }
 
+
+
+/* add an index emoji before each link person on hover */
+
+/* add a progressive underline effect on link person */
+.link-person {
+  position: relative;
+  display: inline-block; /* indispensable */
+  color: var(--primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding-bottom: 2px; /* espace pour la ligne progressive */
+}
+
+/* ligne progressive */
+.link-person::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--brown);
+  transition: width 0.3s ease;
+}
+
+
+/* effets au survol */
 .link-person:hover {
-  text-decoration: underline;
+  color: var(--brown);
+}
+
+.link-person:hover::after {
+  width: 100%;
+}
+
+.link-person:hover::before {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+:deep(.section-text a) {
+  position: relative;
+  color: var(--brown);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+:deep(.section-text a::after) {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0%;
+  height: 2px;
+  background-color: var(--link-over-color);
+  transition: width 0.3s ease;
+}
+
+:deep(.section-text a:hover) {
+  color: var(--brown);
+}
+
+:deep(.section-text a:hover::after) {
+  width: 100%;
 }
 
 .btn-back-list {
