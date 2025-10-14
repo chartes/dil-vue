@@ -60,6 +60,34 @@
                     <div v-html="patent.references" class="section-text"/>
                   </div>
 
+                  <div v-if="patent.professional_addresses?.length" class="mb-6">
+                    <h2 class="section-title">Adresses</h2>
+                    <v-list dense>
+                      <template
+                          v-for="group in groupAddresses(patent.professional_addresses)"
+                          :key="group.city"
+                      >
+                        <!--<v-subheader class="list-subheader">{{ group.city }}</v-subheader>-->
+
+                        <v-list-item
+                            v-for="(addr, idx) in group.items"
+                            :key="addr._id_dil || `${group.city}-${idx}`"
+                        >
+                          <v-list-item-content>
+                            <v-list-item-title>
+                              <template v-if="parseYear(addr.date_occupation) !== null">
+                                {{ formatYear(addr.date_occupation) }} — {{ addr.label }}
+                              </template>
+                              <template v-else>
+                                (s.d.) — {{ addr.label }}
+                              </template>
+                            </v-list-item-title>
+                          </v-list-item-content>
+                        </v-list-item>
+                      </template>
+                    </v-list>
+                  </div>
+
                   <div v-if="patent.patent_relations?.length" class="mb-6">
                     <h2 class="section-title">Relations</h2>
                     <v-list dense>
@@ -79,7 +107,7 @@
                   </div>
 
                   <div v-if="imagesByPatent[patent._id_dil]?.length">
-                    <h2 class="section-title">Galerie</h2>
+                    <h2 class="section-title section-title-center">Galerie</h2>
                     <ImageCarousel :images="imagesByPatent[patent._id_dil]"/>
                   </div>
                 </v-card-text>
@@ -133,13 +161,48 @@ export default {
     togglePatent(i) {
       const index = this.expandedPatents.indexOf(i);
       if (index > -1) {
-        this.expandedPatents.splice(index, 1); // ferme
+        this.expandedPatents.splice(index, 1);
       } else {
-        this.expandedPatents.push(i); // ouvre
+        this.expandedPatents.push(i);
       }
     },
     goToPerson(id) {
       this.$router.push({path: '/detail/' + id}).then(() => window.scrollTo({top: 0}));
+    },
+    parseYear(dateStr) {
+      if (!dateStr) return null;
+      const m = String(dateStr).match(/(1[5-9]\d{2}|20\d{2})/); // 1500–2099
+      const y = m ? Number(m[1]) : null;
+      return Number.isFinite(y) ? y : null;
+    },
+
+    groupAddresses(addresses = []) {
+      const groups = {};
+      for (const a of addresses) {
+        const city = a.city_label || 'Ville inconnue';
+        if (!groups[city]) groups[city] = [];
+        groups[city].push(a);
+      }
+
+
+      const sortByYear = (a, b) => {
+        const ya = this.parseYear(a.date_occupation);
+        const yb = this.parseYear(b.date_occupation);
+        if (ya === null && yb === null) return (a.label || '').localeCompare(b.label || '');
+        if (ya === null) return 1;
+        if (yb === null) return -1;
+        if (ya !== yb) return ya - yb;
+        return (a.label || '').localeCompare(b.label || '');
+      };
+
+      return Object.entries(groups)
+          .sort(([ca], [cb]) => ca.localeCompare(cb))
+          .map(([city, items]) => ({city, items: items.sort(sortByYear)}));
+    },
+
+    formatYear(dateStr) {
+      const y = this.parseYear(dateStr);
+      return y ?? 's.d.';
     },
     async fetchPersonData(id) {
       const personRes = await axios.get(`${this.apiUrl}/persons/person/${id}?html=true`);
@@ -267,6 +330,7 @@ export default {
   .v-row .v-col .pa-6 {
     padding: 0 !important;
   }
+
   .v-row .v-col .card-title,
   .v-row .v-col .card-subtitle,
   .v-row .v-col .pa-6 > .card-text {
@@ -298,7 +362,7 @@ export default {
 
   .section-title {
     font-size: 1.1rem;
-    margin: 1rem 0 0.5rem;
+    margin: 1.5rem 0 0.2rem;
   }
 
   .v-card .v-card-subtitle,
@@ -313,4 +377,12 @@ export default {
   }
 }
 
+.v-list-item + .v-list-item {
+  margin-top: -7px;
+}
+
+.section-title-center {
+  text-align: center;
+  padding-bottom: -12px;
+}
 </style>

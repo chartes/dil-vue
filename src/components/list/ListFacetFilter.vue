@@ -425,11 +425,15 @@ input[type="text"]::placeholder {
   font-weight: bold;
   padding: 10px;
   background-color: #f4f4f4;
+  list-style: none;
+  margin-left: -17px;
 }
 
 .autocomplete-item {
+  margin-left: -17px;
   padding: 10px;
   cursor: pointer;
+  list-style: none;
 }
 
 .autocomplete-item:hover {
