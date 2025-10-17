@@ -84,7 +84,24 @@ export default {
       osm.addTo(this.map);
 
       this.clusterGroup = L.markerClusterGroup({
-        showCoverageOnHover: false
+        showCoverageOnHover: false,
+        spiderfyOnMaxZoom: true,
+        iconCreateFunction: (cluster) => {
+          const children = cluster.getAllChildMarkers();
+          const totalImprimeurs = children.reduce((acc, m) => {
+            return acc + (m.options.nbPrinters || 1);
+          }, 0);
+
+          const sizeClass =
+              totalImprimeurs < 10 ? 'marker-cluster-small' :
+                  totalImprimeurs < 50 ? 'marker-cluster-medium' : 'marker-cluster-large';
+
+          return L.divIcon({
+            html: `<div><span>${totalImprimeurs}</span></div>`,
+            className: `marker-cluster ${sizeClass}`,
+            iconSize: L.point(40, 40)
+          });
+        }
       });
       this.map.addLayer(this.clusterGroup);
     },
@@ -115,7 +132,7 @@ export default {
       if (marker) {
         const latlng = marker.getLatLng();
         if (latlng) {
-          this.map.setView(latlng, 8, { animate: true });
+          this.map.setView(latlng, 8, {animate: true});
           marker.openPopup();
         }
       }
@@ -152,22 +169,22 @@ export default {
           if (Math.abs(lat) < Math.abs(lon)) [lat, lon] = [lon, lat];
 
           const nbPrinters = city.persons?.length || 1;
-          const radius = 5 + Math.log(nbPrinters) * 5;
+
+          const popupHtml = `
+    <a href="" class="city-link" data-city="${city.city_dil}">
+      ${city.city_label} (${city.city_dept_label})
+    </a><br/>
+    ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
+  `;
 
           const marker = L.circleMarker([lat, lon], {
-            radius,
+            radius: 5 + Math.log(nbPrinters) * 5,
             color: 'blue',
             fillColor: 'blue',
             fillOpacity: 0.5,
-            cityId: city.city_dil
+            cityId: city.city_dil,
+            nbPrinters
           });
-
-          const popupHtml = `<a href="" class="city-link" data-city="${city.city_dil}">
-           ${city.city_label} (${city.city_dept_label})
-           </a>
-           <br/>
-           ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
-          `;
 
           marker.bindPopup(popupHtml);
           this.clusterGroup.addLayer(marker);
@@ -221,5 +238,4 @@ export default {
   text-decoration: underline !important;
   color: var(--brown);
 }
-
 </style>

@@ -324,7 +324,7 @@ export default {
       facetResetBtn: false,
       totalItems: 0,
       sortDesc: false,
-      showFacets:  window.innerWidth > 960, /* filter panel closed by default on small devices */
+      showFacets: window.innerWidth > 960, /* filter panel closed by default on small devices */
       expandedRows: [],
       details: {},
       showMap: false,
@@ -511,9 +511,9 @@ export default {
         if (this.searchExtraInfo) {
           params.append('search_extra_info', this.searchExtraInfo);
         }
-        if (this.selectedFacets.date.date) {
+        if (this.selectedFacets.date?.date) {
           params.append('patent_date_start', this.selectedFacets.date.date);
-          params.append('exact_patent_date_start', this.selectedFacets.date.exact);
+params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true' : 'false');
         }
 
         if (this.selectedFacets.places.length > 0) {
@@ -535,13 +535,16 @@ export default {
       }
     },
     onUpdateExactMatch(payload) {
-      this.selectedFacets.date_exact = payload.exact;
-
+      if (!this.selectedFacets.date || typeof this.selectedFacets.date === 'string') {
+        this.selectedFacets.date = {date: this.selectedFacets.date || '', exact: !!payload.exact};
+      } else {
+        this.selectedFacets.date.exact = !!payload.exact;
+      }
       if (this.showMap && this.$refs.leaflet?.fetchCities) {
         this.$refs.leaflet.fetchCities({
           patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
-          patent_date_start: this.selectedFacets.date.date,
-          exact_patent_date_start: this.selectedFacets.date_exact || false
+          patent_date_start: this.selectedFacets.date?.date,
+          exact_patent_date_start: this.selectedFacets.date?.exact || false
         });
       }
     },
@@ -959,7 +962,6 @@ export default {
 }
 
 
-
 :deep(.v-data-table) {
   max-height: 150vh;
   overflow-y: auto;
@@ -1116,7 +1118,6 @@ export default {
   }
 
   /* Results */
-
   .facet-sidebar + .v-col {
     margin-top: 86px;
   }
@@ -1199,7 +1200,7 @@ export default {
   }
 
   :deep(.expanded-patent-list) {
-   padding-bottom: 5px;
+    padding-bottom: 5px;
   }
 
   :deep(.table-cell-item-expanded),
