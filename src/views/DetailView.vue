@@ -277,6 +277,10 @@ export default {
   line-height: 1.6;
 }
 
+:deep(.section-text ol){
+  list-style-position: inside;
+}
+
 .patent-title {
   font-size: 1.3rem;
   font-weight: 600;

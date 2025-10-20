@@ -937,7 +937,7 @@ params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true'
 
 .facet-sidebar {
   position: sticky;
-  top: 0;
+  top: 47px;
   align-self: flex-start;
   z-index: 10;
 
