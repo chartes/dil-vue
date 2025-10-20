@@ -375,7 +375,7 @@ export default {
 
 .facet-filter-container {
   position: relative;
-  margin-top: 15px;
+  margin-top: 32px;
   padding: 20px;
   background-color: white;
   border-radius: 8px;
@@ -385,7 +385,6 @@ export default {
 @media (max-width: 1200px) {
   .facet-filter-container {
     padding: 10px 8px;
-    margin-top: 25px;
   }
 }
 
