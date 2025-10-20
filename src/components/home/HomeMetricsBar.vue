@@ -11,12 +11,21 @@
       <div class="metric-label">BREVETS</div>
       <div class="metric-value">{{totalPatents}}</div>
     </div>
+
+    <!--
+    <div class="separator"></div>
+
+    <div class="text-center mx-4">
+      <div class="metric-label">BREVETS</div>
+      <div class="metric-value">{{totalEffectivePatents}}</div>
+    </div>-->
   </div>
 </template>
 
 
 <script>
 import {mapState} from "vuex";
+import {th} from "vuetify/locale";
 
 export default {
   name: 'MetricsBar',
@@ -24,6 +33,7 @@ export default {
     return {
       totalPersons: 0,
       totalPatents: 0,
+      totalEffectivePatents: 0,
     }
   },
   computed: {
@@ -35,9 +45,10 @@ export default {
       const response = await fetch(`${this.apiUrl}/infos`);
       if (!response.ok) throw new Error('Network error');
       const data = await response.json();
-
+      console.log('Fetched metrics:', data);
       this.animateCount('totalPersons', data.total_persons);
       this.animateCount('totalPatents', data.total_patents);
+      this.animateCount('totalEffectivePatents', data.total_effective_patents);
     } catch (error) {
       console.error('Error fetching metrics:', error);
     }

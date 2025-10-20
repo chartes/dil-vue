@@ -55,7 +55,7 @@
               <v-icon class="mr-2 map-icon">
                 mdi-map
               </v-icon>
-              Carte des imprimeurs-lithographes
+              Carte des imprimeries
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <v-btn icon @click="toggleMap" class="map-btn ml-2 d-flex align-center">
