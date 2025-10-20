@@ -277,7 +277,7 @@ export default {
   line-height: 1.6;
 }
 
-.section-text ol {
+:deep(.section-text ol){
   list-style-position: inside;
 }
 
