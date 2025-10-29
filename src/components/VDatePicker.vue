@@ -34,7 +34,7 @@
             </v-icon>
           </template>
         </v-text-field>
-        <v-checkbox
+        <!--<v-checkbox
             v-model="exactDate"
             density="compact"
             hide-details
@@ -44,7 +44,7 @@
           <template #label>
             <span class="date-exact-label">Date exacte</span>
           </template>
-        </v-checkbox>
+        </v-checkbox>-->
       </template>
 
       <v-card>
@@ -57,16 +57,16 @@
             @update:model-value="onYearSelect"
         />
 
-        <v-date-picker-months
+        <!--<v-date-picker-months
             v-if="step === 'month'"
             v-model="monthIndex"
             :year="year"
             :min="minDate"
             :max="maxDate"
             @update:model-value="onMonthSelect"
-        />
+        />-->
 
-        <v-date-picker-month
+       <!-- <v-date-picker-month
             v-if="step === 'date'"
             :v-model="day"
             :min="minDate"
@@ -74,15 +74,15 @@
             :month="month"
             :year="year"
             @update:model-value="onDaySelect"
-        />
+        />-->
 
-        <v-card-actions>
+        <!--<v-card-actions>
           <v-btn text @click="goBack" v-if="step !== 'year'">
             <v-icon icon="mdi-chevron-left"></v-icon>
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn text @click="closeMenu">Fermer</v-btn>
-        </v-card-actions>
+        </v-card-actions>-->
       </v-card>
     </v-menu>
   </div>
@@ -189,6 +189,7 @@ export default {
       this.$nextTick(() => {
         this.step = 'month'
         this.month = ''
+        this.closeMenu();
       })
       this.year = Number(val)
     },
@@ -265,5 +266,7 @@ export default {
   font-weight: 400;
   margin-right: 10px;
 }
+
+
 
 </style>

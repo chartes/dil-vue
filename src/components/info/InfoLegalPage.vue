@@ -1,6 +1,7 @@
 <template>
   <div class="main-section">
     <h1 class="title-h1">Éditeur</h1>
+    <hr>
     <div class="sub-section">
       <p class="paragraph">École nationale des chartes, établissement public administratif</p>
       <p class="paragraph">65, rue de Richelieu</p>
@@ -11,6 +12,7 @@
     </div>
 
     <h1 class="title-h1">Responsable de publication</h1>
+    <hr>
     <div class="sub-section">
       <p class="paragraph">Michelle Bubenicek, directrice de l'École nationale des chartes</p>
       <p class="paragraph">secretariat[at]chartes.psl.eu</p>
@@ -18,6 +20,7 @@
 
 
     <h1 class="title-h1">Hébergement</h1>
+    <hr>
     <div class="sub-section">
       <p class="paragraph">IR* Huma-Num</p>
       <p class="paragraph">Bâtiment de recherche Nord</p>
@@ -26,6 +29,7 @@
     </div>
 
     <h1 class="title-h1">Données personnelles</h1>
+    <hr>
     <div class="sub-section">
       <p class="paragraph">Consulter la page « <a href="https://www.chartes.psl.eu/politique-de-confidentialite"
                                                   target="_blank">Politique de confidentialité</a> » de l'École
@@ -33,13 +37,14 @@
     </div>
 
     <h1 class="title-h1">Propriété intellectuelle du site et de ses contenus</h1>
-
+    <hr>
     <div class="sub-section">
       <p class="paragraph">Sauf mention contraire, les contenus du site (https://dil.chartes.psl.eu) et les données
         accessibles via ses API sont partagés sous licence ouverte Creative Commons CC BY-NC-SA 4.0.</p>
     </div>
 
     <h1 class="title-h1">Responsabilité</h1>
+    <hr>
     <div class="sub-section">
       <p class="paragraph">L'éditeur met tout en œuvre pour que les informations disponibles sur le site
         (https://dil.chartes.psl.eu) soient aussi disponibles, exactes et à jour que possible, et se réserve le droit de
@@ -53,6 +58,7 @@
         des informations disponibles sur le site ou sur des sites tiers.</p>
     </div>
     <h1 class="title-h1">Crédits photographiques</h1>
+    <hr>
     <div class="sub-section">
       <p class="paragraph">Les sources images et des bannières des pages du site Dictionnaire des imprimeurs lithographes du XIXe siècle (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
         <ul>
@@ -62,12 +68,12 @@ BnF, département des Estampes et photographie, RÉSERVE AA-6 (TOULOUSE-LAUTREC,
           <li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding, Master Printer of Copper Plates, Stirling, Eneas Mackay, 1910, p. 40. © INHA</li>
       </ul>
       <br>
-      <p class="paragraph">Les icônes (Material Design Icons, licence GPL) ainsi l'icône DIL sont libres de droits.</p>
+      <p class="paragraph">Les icônes (Material Design Icons, licence GPL) ainsi que l'icône DIL présente dans la barre de navigation sont libres de droits.</p>
     </div>
 
     <p class="paragraph">Cette page est susceptible d'être modifiée et mise à jour à tout moment sans préavis.</p>
 
-    <p class="paragraph">Dernière mise à jour de la page : 24/07/2025.</p>
+    <p class="paragraph">Dernière mise à jour de la page : 29/10/2025.</p>
   </div>
 </template>
 <script>

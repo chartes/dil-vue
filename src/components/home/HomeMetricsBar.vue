@@ -1,24 +1,23 @@
 <template>
   <div class="metrics-bar d-flex align-center justify-center">
     <div class="text-center mx-4">
-      <div class="metric-label">PERSONNES</div>
+      <div class="metric-label">IMPRIMEURS</div>
       <div class="metric-value">{{totalPersons}}</div>
     </div>
 
     <div class="separator"></div>
 
-    <div class="text-center mx-4">
-      <div class="metric-label">BREVETS</div>
+    <!--<div class="text-center mx-4">
+      <div class="metric-label">IMPRIMERIES</div>
       <div class="metric-value">{{totalPatents}}</div>
     </div>
 
-    <!--
-    <div class="separator"></div>
+    <div class="separator"></div>-->
 
     <div class="text-center mx-4">
       <div class="metric-label">BREVETS</div>
       <div class="metric-value">{{totalEffectivePatents}}</div>
-    </div>-->
+    </div>
   </div>
 </template>
 

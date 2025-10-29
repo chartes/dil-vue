@@ -72,7 +72,7 @@
                 :apiBase="apiUrl"
                 :cityQuery="selectedFacets.places.map(p => p.id || p.id_dil)"
                 :date="selectedFacets.date.date"
-                :exact="selectedFacets.date_exact || false"
+                :exact="selectedFacets.date?.exact || false"
                 @selectCity="onCitySelected"
             />
           </div>
@@ -361,12 +361,12 @@ export default {
       }
     },
     async onCitySelected(cityId) {
-      console.log("onCitySelected1", cityId);
+      //console.log("onCitySelected1", cityId);
       const facetFilter = this.$refs.facetFilter;
 
       if (this.selectedFacets.places.some(p => p.id === cityId)) return;
 
-      console.log("onCitySelected2", cityId);
+      //console.log("onCitySelected2", cityId);
 
       try {
         const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`);
@@ -374,7 +374,7 @@ export default {
         const data = await res.json();
 
         const term = {
-          id: data._id_dil,
+          id_dil: data._id_dil,
           label: data.label,
           department_label_fr: data.insee_fr_department_label,
         };
@@ -513,12 +513,12 @@ export default {
         }
         if (this.selectedFacets.date?.date) {
           params.append('patent_date_start', this.selectedFacets.date.date);
-params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true' : 'false');
+          params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true' : 'false');
         }
 
         if (this.selectedFacets.places.length > 0) {
           this.selectedFacets.places.forEach(term => {
-            params.append('patent_city_query', term.id_dil || term.id);
+            params.append('patent_city_query', term.id_dil);
           });
         }
 
@@ -988,7 +988,6 @@ params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true'
   background-color: white;
   border-radius: 50%;
   padding: 15px;
-  /* augmentez la taille du bouton */
   width: 45px;
   height: 45px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);

@@ -290,4 +290,14 @@ export default {
   border: 2px solid black;
   text-transform: uppercase;
 }
+
+.btn-about-home-page {
+  width: fit-content;
+  margin: 40px auto 20px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  border: 2px solid black;
+  text-transform: uppercase;
+}
 </style>

@@ -2,6 +2,7 @@
 for the main information pages of
 the DIL project */
 
+/* ---- Main container ---- */
 .main-section {
     width: 100%;
     max-width: 90%;
@@ -9,18 +10,28 @@ the DIL project */
     padding: 5px;
 }
 
-.title-h1 {
-    font-size: 1.3rem;
-    margin-bottom: 20px;
-    font-weight: bold;
+.sub-section{
+  margin: 0 0 24px 0;
+  padding: 0;
 }
 
+/* ---- Titres ---- */
+.title-h1{
+  font-size: 1.35rem;
+  line-height: 1.35;
+  font-weight: 800;
+  color: var(--brown);
+  margin: 28px 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+}
 
-.title-h2 {
-    font-weight: bold;
-    font-size: 1rem;
-    margin-top: 20px;
-    margin-bottom: 10px;
+.title-h2{
+  font-size: 1.1rem;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--brown-600);
+  margin: 16px 0 8px 0;
 }
 
 .link {
@@ -29,11 +40,11 @@ the DIL project */
 }
 
 
-.paragraph {
-    font-size: 1.2rem;
-    line-height: 1.5;
-    margin-bottom: 15px;
-    text-align: justify;
+.paragraph{
+  font-size: 1rem;
+  line-height: 1.75;
+  color: #333;
+  margin: 0 0 14px 0;
 }
 
 .paragraph a {
@@ -45,17 +56,68 @@ the DIL project */
     text-decoration: underline;
 }
 
-ul {
-    margin-left: 15px;
-}
-
-li {
-    margin-bottom: 15px;
-}
 
 @media screen and (max-width: 960px) {
     .paragraph {
         font-size: 1rem;
         line-height: 1.6;
     }
+}
+
+/* ---- Code inline ---- */
+code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: #f5f5f5;
+  padding: 0 .35em;
+  border-radius: 4px;
+  font-size: .95em;
+}
+
+/* ---- exemple / attention blocks ---- */
+.example{
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-left: 4px solid var(--brown);
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin: 12px 0 16px 0;
+}
+
+.attention-block{
+  background: #fff5f5;
+  border: 1px solid #ffe0e0;
+  border-left: 4px solid var(--brown);
+  padding: 10px 12px;
+  border-radius: 6px;
+  color: #5a0000;
+}
+
+/* ---- Links ---- */
+a.link{
+  color: var(--brown);
+  text-decoration: underline;
+}
+
+/* ---- Lists ---- */
+.info-list,
+.sub-section ul{
+  margin: 8px 0 16px 18px;
+  padding: 0;
+}
+
+.info-list li,
+.sub-section ul li{
+  margin: 6px 0;
+  line-height: 1.7;
+}
+
+.sub-section ul li > ul{
+  margin-top: 6px;
+}
+
+/* ---- Helpers ---- */
+hr{
+  border: none;
+  border-top: 1px solid var(--light-brown-alt);
+  margin: 8px 0 12px;
 }

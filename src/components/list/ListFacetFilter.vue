@@ -30,31 +30,33 @@
           color="var(--light-brown)"
           @click:clear="searchQuery = ''"
       />
-      <div
-          v-if="showDropdown && searchQuery !== ''"
-          class="autocomplete-list"
-          :style="autocompleteStyle"
-      >
-        <ul>
-          <li class="topic-header">Suggestions</li>
-          <li
-              v-for="term in terms"
-              :key="term.id"
-              @mousedown.prevent="handleTermSelection(term)"
-              class="autocomplete-item"
-          >
-            <div class="term-label">
-              {{ term.label }}
-              <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
-            </div>
-            <div class="term-patents" v-if="term.total_patents_if_selected">
-              {{ term.total_patents_if_selected }} brevet{{ term.total_patents_if_selected > 1 ? 's' : '' }}
-              –
-              {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
-            </div>
-          </li>
-        </ul>
-      </div>
+      <teleport to="body">
+        <div
+            v-if="showDropdown && searchQuery !== ''"
+            class="autocomplete-list"
+            :style="autocompleteStyle"
+            @mousedown.stop
+        >
+          <ul>
+            <li class="topic-header">Suggestions</li>
+            <li
+                v-for="term in terms"
+                :key="term.id"
+                @mousedown.prevent="handleTermSelection(term)"
+                class="autocomplete-item"
+            >
+              <div class="term-label">
+                {{ term.label }}
+                <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
+              </div>
+              <div class="term-patents" v-if="term.total_patents_if_selected">
+                {{ term.total_patents_if_selected }} brevet{{ term.total_patents_if_selected > 1 ? 's' : '' }} –
+                {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
+              </div>
+            </li>
+          </ul>
+        </div>
+      </teleport>
     </div>
     <div class="selected-terms" v-if="selectedTerms.length > 0">
       <span class="active-tags">
@@ -67,7 +69,8 @@
       </span>
       <div class="tags">
         <span v-for="term in selectedTerms" :key="term.id" class="tag">
-          {{ term.label }} <span class="term-department">({{ term.department_label_fr }})</span>
+          <span>{{ term.label }}</span>
+           <span class="term-department">({{ term.department_label_fr }})</span>
           <button @click="removeTerm(term)">
             <v-icon color="#9B1A24" size="15">
               mdi-close
@@ -84,15 +87,15 @@
     />
     <div v-if="hasActiveFilters || activateResetBtn" class="reset-global-container">
       <v-btn
-  color="error"
-  class="reset-results-btn"
-  outlined
-  small
-  @click="onResetAll"
-  title="Rafraîchir les résultats"
->
-  <v-icon class="reset-icon">mdi-replay</v-icon>
-</v-btn>
+          color="error"
+          class="reset-results-btn"
+          outlined
+          small
+          @click="onResetAll"
+          title="Rafraîchir les résultats"
+      >
+        <v-icon class="reset-icon">mdi-replay</v-icon>
+      </v-btn>
     </div>
   </div>
 </template>
@@ -141,9 +144,9 @@ export default {
       autocompleteStyle: {
         top: '0px',
         left: '0px',
-        width: '90%',
-        position: 'absolute',
-        zIndex: 1000
+        width: '0px',
+        position: 'fixed', // IMPORTANT: fixed pour sortir des overflows
+        zIndex: 3000,      // au-dessus des panneaux
       }
 
     }
@@ -225,33 +228,7 @@ export default {
         terms: [],
       });
     },
-    onSearchQueryInput() {
-      this.showDropdown = true;
-      this.fetchTerms();
-      this.updateAutocompletePosition();
-    },
-    updateAutocompletePosition() {
-      this.$nextTick(() => {
-        const inputEl = this.$refs.autocompleteInput?.$el?.querySelector('input');
-        const listEl = this.$el.querySelector('.autocomplete-list');
 
-        if (inputEl && listEl) {
-          const rect = inputEl.getBoundingClientRect();
-          const containerRect = this.$el.getBoundingClientRect();
-
-          this.autocompleteStyle = {
-            position: 'absolute',
-            top: `${rect.bottom - containerRect.top}px`,
-            left: `${rect.left - containerRect.left}px`,
-            zIndex: 1000,
-            backgroundColor: 'white',
-            border: '1px solid #ddd',
-            maxHeight: '300px',
-            overflowY: 'auto'
-          };
-        }
-      });
-    },
     async fetchTerms() {
       try {
         this.isLoading = true;
@@ -365,9 +342,69 @@ export default {
     onClearPersonSearch() {
       this.personSearchQuery = '';
       this.$emit('update:extraSearch', ''); // ➔ reset complet dans le parent (ListView)
-    }
+    },
+    onGlobalClick(e) {
+    // fermer si clic à l’extérieur de l’input ou de la liste
+    const inputEl = this.$refs.autocompleteInput?.$el;
+    if (!inputEl) { this.showDropdown = false; return; }
+    if (!inputEl.contains(e.target)) this.showDropdown = false;
+  },
+
+  onSearchQueryInput() {
+    this.showDropdown = true;
+    this.fetchTerms();
+    this.updateAutocompletePosition();
+  },
+
+  updateAutocompletePosition() {
+    this.$nextTick(() => {
+      // 1) cibler le wrapper visuel du v-text-field
+      const root = this.$refs.autocompleteInput?.$el;
+      if (!root) return;
+
+      const fieldEl =
+        root.querySelector('.v-field') ||            // Vuetify 3
+        root.querySelector('.v-input') ||            // fallback
+        root;                                        // dernier recours
+
+      const rect = fieldEl.getBoundingClientRect();
+
+      // Option: éviter les subpixels qui créent 1px d’écart
+      const width = Math.round(rect.width);
+
+      // (facultatif) clamp dans le viewport
+      const padding = 8;
+      const left = Math.max(padding, Math.min(rect.left, window.innerWidth - width - padding));
+
+      this.autocompleteStyle = {
+        position: 'fixed',
+        top: `${rect.bottom}px`,
+        left: `${left}px`,
+        width: `${width}px`,
+        // styles "conteneur"
+        maxHeight: '300px',
+        overflowY: 'auto',
+        backgroundColor: 'white',
+        border: '1px solid #ddd',
+        borderTop: 'none',
+        boxShadow: '0 2px 8px rgba(0,0,0,.08)',
+        zIndex: 3000,
+        boxSizing: 'border-box',  // <— pour que width inclue la bordure
+      };
+    });
+  },
 
   },
+  mounted() {
+    window.addEventListener('scroll', this.updateAutocompletePosition, {passive: true});
+    window.addEventListener('resize', this.updateAutocompletePosition, {passive: true});
+    document.addEventListener('click', this.onGlobalClick, true);
+  },
+  beforeUnmount() {
+  window.removeEventListener('scroll', this.updateAutocompletePosition);
+  window.removeEventListener('resize', this.updateAutocompletePosition);
+  document.removeEventListener('click', this.onGlobalClick, true);
+},
 }
 </script>
 
@@ -406,38 +443,34 @@ input[type="text"]::placeholder {
 }
 
 .autocomplete-list {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ddd;
-  border-top: none;
-  max-height: 300px;
-  overflow-y: auto;
-  z-index: 1000;
-  list-style: none;
+  box-sizing: border-box;
   padding: 0;
   margin: 0;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
 }
 
 .topic-header {
-  font-weight: bold;
-  padding: 10px;
+  font-weight: 600;
+  padding: 10px 12px;
   background-color: #f4f4f4;
   list-style: none;
-  margin-left: -17px;
+  margin: 0;
 }
 
 .autocomplete-item {
-  margin-left: -17px;
-  padding: 10px;
+  padding: 10px 12px;
   cursor: pointer;
   list-style: none;
+  margin: 0;
+  display: block;
+  white-space: normal;
+  overflow: visible;
 }
 
+
 .autocomplete-item:hover {
-  background: #f0f0f0;
+  background: #f7f7f7;
 }
 
 .selected-terms .tags {
@@ -538,7 +571,7 @@ input[type="text"]::placeholder {
   transition: background-color 0.3s ease-in-out;
 }
 
-/* rotate icon */
+
 .reset-icon {
   transform: rotate(-50deg);
 }
@@ -568,19 +601,18 @@ input[type="text"]::placeholder {
 
 .term-label {
   font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-.term-department {
-  font-size: 0.9em;
-  color: #777;
-  margin-left: 5px;
-}
-
+.term-department,
 .term-patents {
-  font-size: 0.85em;
-  color: #777;
-  margin-left: 5px;
+  display: inline-block;
   margin-top: 2px;
+  color: #777;
+  font-size: 0.9em;
+  margin-left: 5px;
 }
 
 
