@@ -84,7 +84,7 @@
       </p>
       <h2 class="title-h2">En activité en</h2>
       <p class="paragraph">
-        Ce filtre permet de retrouver les imprimeurs actifs une <i>année</i> donnée. Par ex., <code>1828</code> permet
+        Ce filtre permet de retrouver les imprimeurs actifs une année donnée. Par ex., <code>1828</code> permet
         de filtrer les seuls imprimeurs en activité cette année-là.
       </p>
       <!--<p class="paragraph attention-block"><b>Attention.</b> Les imprimeurs dont la date de fin d'activité est inconnue sont

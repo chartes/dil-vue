@@ -4,7 +4,7 @@
     <div class="sub-section">
       <p class="paragraph">
         Certaines notices doivent beaucoup aux chercheurs et collectionneurs qui nous ont communiqué leurs découvertes.
-        Nous leur en sommes reconnaissants et remercions plus particulièrement :
+        Nous leur en sommes reconnaissants et remercions plus particulièrement :
         Mathieu Bidaux, Yvon Boileau, Marie-Cécile Bouju, Jocelyn Bouquillard, MaÏwenn Bourdic, Gilles Feyel, Steeve
         Gallizia, Benoît Gibert, Alain Hafner, Marie-Élisabeth Journiac-Audigou, Yves Lecointre, Dominique Lerch,
         Jean-Michel Quetin, Annie Renonciat, Franck Sainte-Martine, Michael Twyman

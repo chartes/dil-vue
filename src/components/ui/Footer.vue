@@ -73,7 +73,7 @@ export default {
 
 <style scoped>
 .footer {
-  border-top: 15px solid var(--brown);
+  border-top: 5px solid var(--brown);
   background-color: #4C4949;
   color: white;
 }

@@ -8,15 +8,15 @@
         </h3>
 
         <p class="text-intro">
-          En 1817, dans l'arsenal de surveillance des métiers du livre apparaît un brevet d'imprimeur lithographe sans
-          lequel nul ne peut exploiter la lithographie, cette nouvelle technique d'impression, inventée vingt ans plus
-          tôt en Allemagne. Sage précaution qui permet aux régimes successifs, jusqu'en 1870, d'empêcher que ce procédé
-          rapide et peu cher ne profite à l'estampe politique. La lithographie n'en connaît pas moins un très grand
-          essor, tant elle répond, par la multiplicité de ses utilisations aux besoins d'un siècle de transformations
-          économiques et sociales profondes. Bien plus que l'illustration des livres et les estampes satiriques, ce sont
+         En 1817, dans l’arsenal de surveillance des métiers du livre apparaît un brevet d’imprimeur lithographe sans
+          lequel nul ne peut exploiter la lithographie, cette nouvelle technique d’impression, inventée vingt ans plus
+          tôt en Allemagne. Sage précaution qui permet aux régimes successifs, jusqu’en 1870, d’empêcher que ce procédé
+          rapide et peu cher ne profite à l’estampe politique. La lithographie n’en connaît pas moins un très grand
+          essor, tant elle répond, par la multiplicité de ses utilisations aux besoins d’un siècle de transformations
+          économiques et sociales profondes. Bien plus que l’illustration des livres et les estampes satiriques, ce sont
           donc les travaux de ville et la publicité commerciale, les impressions administratives et judiciaires, les
-          dessins techniques et cartographiques et les décors d'objets de demi-luxe dont la consommation se démocratise,
-          qui, au XIX<sup>e</sup> siècle font vivre les imprimeurs lithographes et tourner leurs presses.
+          dessins techniques et cartographiques et les décors d’objets de demi-luxe dont la consommation se démocratise,
+          qui, au XIX<sup>e</sup> siècle font vivre les imprimeurs lithographes et tourner leurs presses.
         </p>
       </div>
     </v-col>
@@ -43,7 +43,7 @@
           rounded elevation="4"
           to="/information?section=dictionary"
       >
-        Plus d'informations
+        Plus d'information
       </v-btn>
     </v-col>
   </v-row>
