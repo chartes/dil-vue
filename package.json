@@ -16,6 +16,7 @@
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "slick-carousel": "^1.8.1",
+    "tify": "^0.35.0",
     "v-network-graph": "^0.9.21",
     "vis-network": "^9.1.9",
     "vue": "^3.5.13",
