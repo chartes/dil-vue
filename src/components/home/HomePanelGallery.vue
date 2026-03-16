@@ -31,10 +31,10 @@ export default {
     return {
       panels: [
         {
-          image: new URL('@/assets/images/carrousel_imgs/img-5.jpg', import.meta.url).href,
+          image: new URL('@/assets/images/carrousel_imgs/art-litho.png', import.meta.url).href,
           label: 'Consulter',
           router: {path: '/list'},
-          position: '30%',
+          position: '99%',
           zoom: '1'
         },
         {
