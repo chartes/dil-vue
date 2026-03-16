@@ -11,40 +11,73 @@
     <template v-if="person">
       <v-row>
         <v-col cols="12">
-          <v-card class="pa-6" outlined elevation="0">
-            <v-card-title class="card-title">
-              {{ person.firstnames }} {{ person.lastname }}
+          <v-card class="pa-6 person-card" outlined elevation="3">
+            <v-card-title
+                class="card-title person-card-header d-flex justify-space-between align-start"
+                @click="togglePersonCard"
+            >
+              <span>{{ person.firstnames }} {{ person.lastname }}</span>
+
+              <div class="person-toggle-hint">
+                <v-icon class="person-toggle-icon">
+                  {{ personExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
+                </v-icon>
+                <span class="person-toggle-text">
+    {{ personExpanded ? 'Réduire les informations' : 'Voir les informations' }}
+  </span>
+              </div>
             </v-card-title>
 
-            <v-card-subtitle v-if="person.birth_date || person.birth_city_label" class="card-subtitle">
+            <v-card-subtitle
+                v-if="person.birth_date || person.birth_city_label"
+                class="card-subtitle person-card-subtitle-clickable"
+                @click="togglePersonCard"
+            >
               Né <span v-if="person.birth_date">le {{ formatDate(person.birth_date) }}</span>
               <span v-if="person.birth_city_label"> à {{ person.birth_city_label }}</span>
             </v-card-subtitle>
 
-            <v-card-text class="card-text">
-              <div v-if="person.personal_information">
-                <h2 class="section-title">Informations personnelles</h2>
-                <div v-html="person.personal_information" class="section-text mb-6"/>
-              </div>
+            <v-expand-transition>
+              <div v-show="personExpanded">
+                <v-card-text class="card-text" @click.stop>
+                  <div v-if="person.personal_information" class="mb-6">
+                    <h2 class="section-title">Informations personnelles</h2>
+                    <div v-html="person.personal_information" class="section-text"/>
+                  </div>
 
-              <div v-if="person.professional_information">
-                <h2 class="section-title">Informations professionnelles</h2>
-                <div v-html="person.professional_information" class="section-text"/>
+                  <div v-if="person.professional_information">
+                    <h2 class="section-title">Informations professionnelles</h2>
+                    <div v-html="person.professional_information" class="section-text"/>
+                  </div>
+
+                  <div
+                      v-if="!person.personal_information && !person.professional_information"
+                      class="section-text"
+                  >
+                    Aucune information disponible.
+                  </div>
+                </v-card-text>
               </div>
-            </v-card-text>
+            </v-expand-transition>
           </v-card>
         </v-col>
       </v-row>
+
       <v-row v-for="(patent, i) in person.patents" :key="patent._id_dil" class="mt-8">
         <v-col cols="12">
-          <v-card outlined elevation="4" class="pa-6">
-            <v-card-title class="patent-title d-flex justify-space-between align-center" @click="togglePatent(i)">
-              <div>Brevet n°{{ i + 1 }}</div>
+          <v-card outlined elevation="4" class="pa-6 patent-card">
+            <v-card-title
+                class="patent-title patent-card-header d-flex justify-space-between align-center"
+                @click="togglePatent(i)"
+            >
+              <div class="patent-title-header">
+  {{ getPatentLabel(patent) }} — {{ patent.city_label }}
+</div>
               <div class="d-flex align-center card-sub-container">
                 <div class="patent-meta">
                   {{ formatDate(patent.date_start) }}
                   <v-icon small class="mx-1">mdi-chevron-right</v-icon>
-                  {{ formatDate(patent.date_end) }} — {{ patent.city_label }}
+                  {{ formatDate(patent.date_end) }}
                 </div>
                 <v-icon>
                   {{ expandedPatents.includes(i) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
@@ -54,7 +87,7 @@
 
             <v-expand-transition>
               <div v-show="expandedPatents.includes(i)">
-                <v-card-text class="card-text">
+                <v-card-text class="card-text" @click.stop>
                   <div v-if="patent.references" class="mb-6">
                     <h2 class="section-title">Bibliographie et sources</h2>
                     <div v-html="patent.references" class="section-text"/>
@@ -96,7 +129,7 @@
                         <v-list-item v-for="relation in group" :key="relation._id_dil">
                           <v-list-item-content>
                             <v-list-item-title>
-                        <span @click="goToPerson(relation._id_dil)" class="link-person">
+                       <span @click.stop="goToPerson(relation._id_dil)" class="link-person">
                           {{ relation.firstnames }} {{ relation.lastname }}
                         </span>
                             </v-list-item-title>
@@ -143,7 +176,8 @@ export default {
     return {
       person: null,
       imagesByPatent: {},
-      expandedPatents: [0], /* first patent open by defaut */
+      expandedPatents: [0],
+      personExpanded: false,
     }
   },
   computed: {
@@ -165,6 +199,13 @@ export default {
       } else {
         this.expandedPatents.push(i);
       }
+    },
+    getPatentLabel(patent) {
+  const year = this.parseYear(patent?.date_start);
+  return year !== null && year >= 1870 ? 'Activité' : 'Brevet';
+},
+    togglePersonCard() {
+      this.personExpanded = !this.personExpanded;
     },
     goToPerson(id) {
       this.$router.push({path: '/detail/' + id}).then(() => window.scrollTo({top: 0}));
@@ -214,6 +255,7 @@ export default {
       );
 
       this.expandedPatents = this.person.patents.map((_, idx) => idx);
+      this.personExpanded = false;
     },
     groupRelations(relations) {
       const grouped = {
@@ -245,7 +287,6 @@ export default {
 </script>
 
 <style scoped>
-
 .card-subtitle,
 .card-title {
   text-overflow: inherit;
@@ -260,8 +301,61 @@ export default {
 }
 
 .card-subtitle {
-  font-size: 1.2rem;
+  font-size: 1.35rem;
   color: #666;
+  line-height: 1.45;
+}
+
+.patent-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  width: 100%;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+}
+
+.patent-title-header {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #333;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.detail-view .v-row {
+  margin-top: -1rem;
+  margin-bottom: -0.90rem;
+}
+
+
+.card-sub-container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.9rem;
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.patent-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.45rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #666;
+  line-height: 1.2;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .section-title {
@@ -271,54 +365,32 @@ export default {
   color: #333;
 }
 
-.section-text, .card-text {
+.section-text,
+.card-text {
   font-size: 1.2rem;
   color: #444;
   line-height: 1.6;
 }
 
-:deep(.section-text ol){
+:deep(.section-text ol) {
   list-style-position: inside;
 }
 
-.patent-title {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #333;
-  cursor: pointer;
-}
-
-.patent-meta {
-  font-size: 1.1rem;
-  color: #888;
-}
-
 .list-subheader {
-  font-size: 1.3rem;
+  font-size: 1.40rem;
   font-weight: bold;
-  color: #555;
 }
 
-.link-person {
-  color: var(--primary);
-  cursor: pointer;
-}
-
-
-
-/* add an index emoji before each link person on hover */
-
-/* add a progressive underline effect on link person */
 .link-person {
   position: relative;
-  display: inline-block; /* indispensable */
+  display: inline-block;
   color: var(--primary);
+  cursor: pointer;
   text-decoration: none;
   transition: color 0.3s ease;
-  padding-bottom: 2px; /* espace pour la ligne progressive */
+  padding-bottom: 2px;
 }
 
-/* ligne progressive */
 .link-person::after {
   content: "";
   position: absolute;
@@ -330,8 +402,6 @@ export default {
   transition: width 0.3s ease;
 }
 
-
-/* effets au survol */
 .link-person:hover {
   color: var(--brown);
 }
@@ -343,6 +413,24 @@ export default {
 .link-person:hover::before {
   opacity: 1;
   transform: translateX(0);
+}
+
+.patent-card {
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.patent-card:hover {
+  background-color: #f5f5f5;
+}
+
+.patent-card:hover .patent-title,
+.patent-card:hover .patent-title-header,
+.patent-card:hover .patent-meta,
+.patent-card:hover .mdi-chevron-down,
+.patent-card:hover .mdi-chevron-up,
+.patent-card:hover .mdi-chevron-right {
+  color: var(--brown);
 }
 
 :deep(.section-text a) {
@@ -389,60 +477,78 @@ export default {
   color: #666;
 }
 
-.card-sub-container {
-  gap: 1rem;
+.clickable-heading {
+  cursor: pointer;
+  transition: color 0.25s ease, opacity 0.25s ease;
 }
 
-@media (max-width: 960px) {
-  .v-row .v-col .pa-6 {
-    padding: 0 !important;
-  }
-
-  .v-row .v-col .card-title,
-  .v-row .v-col .card-subtitle,
-  .v-row .v-col .pa-6 > .card-text {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  .v-card .v-card-title.patent-title {
-    margin-top: 10px;
-    flex-direction: column;
-    gap: 5px;
-    align-items: flex-start !important;
-  }
-
-  .patent-title .mdi-chevron-down,
-  .patent-title .mdi-chevron-up {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-
-  .patent-meta {
-    white-space: normal;
-  }
-
-  .card-title[data-v-167ce9ae] {
-    font-size: 1.3rem;
-  }
-
-  .section-title {
-    font-size: 1.1rem;
-    margin: 1.5rem 0 0.2rem;
-  }
-
-  .v-card .v-card-subtitle,
-  .section-text,
-  .card-text {
-    font-size: 1rem;
-    line-height: 1.6;
-  }
-
-  .list-subheader {
-    font-size: 0.95rem;
-  }
+.clickable-heading:hover {
+  color: var(--brown);
+  opacity: 0.9;
 }
+
+.person-toggle-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: 1rem;
+  flex-shrink: 0;
+}
+
+.mdi-chevron-up {
+  color: var(--brown);
+  font-size: 1.97rem !important;
+}
+
+.mdi-chevron-down {
+  color: var(--brown);
+  font-size: 1.97rem !important;
+}
+
+.person-toggle-icon {
+  color: var(--brown);
+  font-size: 1.97rem;
+}
+
+.person-toggle-text {
+  font-size: 0.95rem;
+  line-height: 1.1;
+  color: #777;
+  font-style: italic;
+  white-space: nowrap;
+  text-align: left;
+  opacity: 0.95;
+}
+
+.person-card,
+.patent-card {
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+}
+
+.person-card,
+.patent-card {
+  padding: 14px !important;
+}
+
+.person-card:hover,
+.patent-card:hover {
+  background-color: #f5f5f5;
+}
+
+.person-card:hover .card-title,
+.person-card:hover .card-subtitle,
+.person-card:hover .person-toggle-text,
+.person-card:hover .person-toggle-icon,
+.patent-card:hover .patent-title,
+.patent-card:hover .patent-title-header,
+.patent-card:hover .patent-meta,
+.patent-card:hover .mdi-chevron-down,
+.patent-card:hover .mdi-chevron-up,
+.patent-card:hover .mdi-chevron-right {
+  color: var(--brown);
+}
+
 
 .v-list-item + .v-list-item {
   margin-top: -7px;
@@ -450,6 +556,183 @@ export default {
 
 .section-title-center {
   text-align: center;
-  padding-bottom: -12px;
+}
+
+.patent-card,
+.person-card {
+  overflow: hidden;
+}
+
+.patent-card:hover .v-card-text,
+.patent-card:hover .v-list,
+.patent-card:hover .v-list-item,
+.patent-card:hover .v-list-item__content {
+  background-color: transparent !important;
+}
+
+.v-list {
+  background: transparent !important;
+}
+
+.v-list-item {
+  background: transparent !important;
+}
+
+@media (max-width: 1260px) {
+  .card-title,
+  .patent-title,
+  .patent-title-header {
+    font-size: 1.75rem;
+  }
+
+  .card-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .patent-meta {
+    font-size: 1.3rem;
+  }
+
+  .section-title {
+    font-size: 1.35rem;
+  }
+
+  .section-text,
+  .card-text {
+    font-size: 1.1rem;
+  }
+
+  .list-subheader {
+    font-size: 1.25rem;
+  }
+
+  .person-toggle-text {
+    font-size: 0.95rem;
+  }
+}
+
+
+@media (max-width: 960px) {
+
+  .person-card,
+  .patent-card {
+    padding: 18px !important;
+  }
+
+  .card-title {
+    font-size: 1.45rem;
+  }
+
+  .card-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .patent-title {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.55rem;
+    margin-top: 0;
+    font-size: 1.35rem;
+  }
+
+  .patent-title-header {
+    font-size: 1.35rem;
+    width: 100%;
+  }
+
+  .card-sub-container {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-left: 0;
+  }
+
+  .patent-meta {
+    font-size: 1.1rem;
+    white-space: normal;
+    text-align: left;
+    line-height: 1.35;
+  }
+
+  .patent-title .mdi-chevron-down,
+  .patent-title .mdi-chevron-up {
+    position: static;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    margin: 1.5rem 0 0.35rem;
+  }
+
+  .section-text,
+  .card-text,
+  .v-card .v-card-subtitle {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .list-subheader {
+    font-size: 1.05rem;
+  }
+
+  .person-toggle-hint {
+    margin-left: 0.5rem;
+    gap: 0.3rem;
+    align-items: center;
+  }
+
+  .person-toggle-text {
+    font-size: 0.82rem;
+    white-space: normal;
+    text-align: right;
+  }
+}
+
+@media (max-width: 800px) {
+  .card-title {
+    font-size: 1.25rem;
+    line-height: 1.25 !important;
+  }
+
+  .card-subtitle {
+    font-size: 1rem;
+  }
+
+  .person-card,
+  .patent-card {
+    padding: 2px !important;
+  }
+
+  .patent-title,
+  .patent-title-header {
+    font-size: 1.15rem;
+  }
+
+  .patent-meta {
+    font-size: 0.98rem;
+  }
+
+  .section-title {
+    font-size: 1.05rem;
+  }
+
+  .section-text,
+  .card-text {
+    font-size: 0.96rem;
+  }
+
+  .list-subheader {
+    font-size: 0.98rem;
+  }
+
+  .person-toggle-text {
+    font-size: 0.76rem;
+  }
+
+  .person-toggle-icon,
+  .mdi-chevron-up,
+  .mdi-chevron-down {
+    font-size: 1.5rem !important;
+  }
 }
 </style>

@@ -34,7 +34,7 @@ export default {
           image: new URL('@/assets/images/carrousel_imgs/art-litho.png', import.meta.url).href,
           label: 'Consulter',
           router: {path: '/list'},
-          position: '99%',
+          position: '93%',
           zoom: '1'
         },
         {
