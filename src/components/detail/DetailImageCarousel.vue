@@ -354,12 +354,13 @@ li.carousel__slide img {
 
 :deep(.carousel-controls) {
   margin-top: 30px;
-  margin-right: 50px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 20px;
-  left: 10px;
 }
 
 :deep(.carousel-controls .carousel__prev),
