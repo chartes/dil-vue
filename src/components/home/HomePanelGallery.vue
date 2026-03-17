@@ -34,7 +34,7 @@ export default {
           image: new URL('@/assets/images/carrousel_imgs/art-litho.png', import.meta.url).href,
           label: 'Consulter',
           router: {path: '/list'},
-          position: '93%',
+          position: '85%',
           zoom: '1'
         },
         {
@@ -165,6 +165,133 @@ export default {
   padding: 10px;
   width: calc(100% - 20px);
   text-align: right;
+}
+
+.panel-card {
+  flex: 1 1 calc(34% - 16px);
+  height: 80vh;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  margin: 0;
+  position: relative;
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.panel-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--red-pompein);
+  border-radius: 10px;
+  clip-path: inset(0 100% 100% 0);
+  transition: clip-path 0.4s ease;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.panel-gallery-container .panel-card:nth-child(1) {
+  animation: panelHint 1.4s ease 0.2s 1;
+}
+
+.panel-gallery-container .panel-card:nth-child(1)::after {
+  animation: panelBorderHint 1.2s ease 0.35s 1;
+}
+
+.panel-gallery-container .panel-card:nth-child(2) {
+  animation: panelHint 1.4s ease 0.55s 1;
+}
+
+.panel-gallery-container .panel-card:nth-child(2)::after {
+  animation: panelBorderHint 1.2s ease 0.7s 1;
+}
+
+.panel-gallery-container .panel-card:nth-child(3) {
+  animation: panelHint 1.4s ease 0.9s 1;
+}
+
+.panel-gallery-container .panel-card:nth-child(3)::after {
+  animation: panelBorderHint 1.2s ease 1.05s 1;
+}
+
+
+
+.panel-card:hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+@keyframes panelBorderHint {
+  0% {
+    clip-path: inset(0 100% 100% 0);
+  }
+  60%,
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+.panel-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--red-pompein);
+  border-radius: 10px;
+  clip-path: inset(0 100% 100% 0);
+  transition: clip-path 0.4s ease;
+  z-index: 3;
+  pointer-events: none;
+  animation: panelBorderHint 1.2s ease 0.6s 1;
+}
+
+@keyframes panelBorderHint {
+  0% {
+    clip-path: inset(0 100% 100% 0);
+  }
+  45% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 100% 100% 0);
+  }
+}
+
+.panel-card:hover::after {
+  clip-path: inset(0 0 0 0);
+}
+
+.panel-card {
+  flex: 1 1 calc(34% - 16px);
+  height: 80vh;
+  max-width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  margin: 0;
+  position: relative;
+  background-color: #ddd;
+  cursor: pointer;
+  animation: panelHint 1.4s ease 0.4s 1;
+}
+
+.panel-card:hover {
+  transform: translateY(-4px);
+}
+
+@keyframes panelHint {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  35% {
+    transform: scale(1.015);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
 }
 
 @media screen and (max-width: 1300px) {

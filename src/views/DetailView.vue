@@ -398,12 +398,12 @@ export default {
   bottom: 0;
   width: 0;
   height: 2px;
-  background-color: var(--brown);
+  background-color: var(--red-pompein);
   transition: width 0.3s ease;
 }
 
 .link-person:hover {
-  color: var(--brown);
+  color: var(--red-pompein);
 }
 
 .link-person:hover::after {
@@ -430,12 +430,12 @@ export default {
 .patent-card:hover .mdi-chevron-down,
 .patent-card:hover .mdi-chevron-up,
 .patent-card:hover .mdi-chevron-right {
-  color: var(--brown);
+  color: var(--red-pompein);
 }
 
 :deep(.section-text a) {
   position: relative;
-  color: var(--brown);
+  color: var(--red-pompein);
   text-decoration: none;
   transition: color 0.3s ease;
 }
@@ -452,7 +452,7 @@ export default {
 }
 
 :deep(.section-text a:hover) {
-  color: var(--brown);
+  color: var(--red-pompein);
 }
 
 :deep(.section-text a:hover::after) {
@@ -460,7 +460,7 @@ export default {
 }
 
 .btn-back-list {
-  background-color: var(--brown);
+  background-color: var(--red-pompein);
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -483,7 +483,7 @@ export default {
 }
 
 .clickable-heading:hover {
-  color: var(--brown);
+  color: var(--red-pompein);
   opacity: 0.9;
 }
 
@@ -496,17 +496,17 @@ export default {
 }
 
 .mdi-chevron-up {
-  color: var(--brown);
+  color: var(--red-pompein);
   font-size: 1.97rem !important;
 }
 
 .mdi-chevron-down {
-  color: var(--brown);
+  color: var(--red-pompein);
   font-size: 1.97rem !important;
 }
 
 .person-toggle-icon {
-  color: var(--brown);
+  color: var(--red-pompein);
   font-size: 1.97rem;
 }
 
@@ -546,7 +546,7 @@ export default {
 .patent-card:hover .mdi-chevron-down,
 .patent-card:hover .mdi-chevron-up,
 .patent-card:hover .mdi-chevron-right {
-  color: var(--brown);
+  color: var(--red-pompein);
 }
 
 

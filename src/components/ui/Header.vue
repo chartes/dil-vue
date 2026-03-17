@@ -5,7 +5,19 @@
         <div class="header-logos">
           <v-img :src="logoENC" alt="Logo ENC" class="logo logo-enc" contain
                  @click="goToWebsite('https://www.chartes.psl.eu/')"/>
-          <v-img :src="logoSrc" alt="Logo App" class="logo logo-app" contain @click="$router.push('/home')"/>
+          <v-tooltip :z-index="11050" location="bottom" :offset="10" content-class="header-tooltip">
+            <template #activator="{ props }">
+              <v-img
+                  v-bind="props"
+                  :src="logoSrc"
+                  alt="Logo App"
+                  class="logo logo-app"
+                  contain
+                  @click="$router.push('/home')"
+              />
+            </template>
+            <span class="tooltip-text">Retour à l'accueil</span>
+          </v-tooltip>
         </div>
 
         <div class="burger-wrapper d-md-none">
@@ -15,16 +27,25 @@
         </div>
 
         <div class="d-none d-md-flex">
-          <!--<router-link to="/visualization">
-            <v-btn>
-              <v-icon color="white" size="47" class="admin-icon">mdi-chart-bar</v-icon>
-            </v-btn>
-          </router-link>-->
-          <v-btn @click="goToWebsite(adminUrl)">
-            <v-icon color="white" size="47" class="admin-icon">mdi-account-circle</v-icon>
-          </v-btn>
+              <v-btn
+                  v-bind="props"
+                  class="admin-btn"
+                  :ripple="false"
+                  @click="goToWebsite(adminUrl)"
+              >
+                <v-icon color="white" size="47" class="admin-icon">
+                  mdi-account-circle
+                </v-icon>
+              </v-btn>
 
-          <v-img :src="logoAPI" alt="API Icon" class="api-btn" contain @click="goToWebsite(apiDocsUrl)"/>
+              <v-img
+                  v-bind="props"
+                  :src="logoAPI"
+                  alt="API Icon"
+                  class="api-btn"
+                  contain
+                  @click="goToWebsite(apiDocsUrl)"
+              />
         </div>
       </v-container>
     </v-app-bar>
@@ -86,7 +107,7 @@ export default {
 <style scoped>
 
 .app-navbar {
-  background-color: var(--brown) !important;
+  background-color: var(--red-pompein) !important;
   padding: 0 !important;
   position: fixed;
   top: 0;
@@ -133,7 +154,7 @@ export default {
 }
 
 .api-btn {
-  background-color: var(--brown);
+  background-color: var(--red-pompein);
   color: white;
   border-radius: 0.5rem;
   height: auto;
@@ -154,6 +175,27 @@ export default {
   filter: brightness(0.8);
 }
 
+.admin-btn {
+  background: transparent !important;
+  box-shadow: none !important;
+  min-width: 45px !important;
+
+}
+
+.admin-btn:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:deep(.admin-btn .v-btn__overlay) {
+  opacity: 0 !important;
+  background: transparent !important;
+}
+
+:deep(.admin-btn .v-btn__underlay) {
+  background: transparent !important;
+}
+
 .menu-icon {
   margin-right: -20px;
 }
@@ -170,7 +212,7 @@ export default {
 }
 
 .menu-divider {
-  background-color: var(--brown);
+  background-color: var(--red-pompein);
   height: 1px;
   margin: 8px 0;
 }
@@ -247,6 +289,35 @@ export default {
 .burger-wrapper {
   display: flex;
   align-items: center;
+}
+
+.tooltip-text {
+  font-size: 1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-top: 50px;
+}
+
+:deep(.header-tooltip) {
+  padding: 60px 14px;
+  border-radius: 6px;
+  font-size: 1.05rem;
+}
+
+:deep(.v-overlay-container .header-tooltip) {
+  z-index: 11050 !important;
+}
+
+.admin-icon,
+.api-btn,
+.logo-app {
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.admin-icon:hover,
+.api-btn:hover,
+.logo-app:hover {
+  transform: scale(1.05);
 }
 
 @media (max-width: 960px) {

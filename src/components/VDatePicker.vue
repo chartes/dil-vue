@@ -2,16 +2,19 @@
   <div class="date-picker-container">
     <span class="advanced_search_header">
       <v-icon start class="icon">mdi-calendar</v-icon>
-      <span class="title">En activité en</span>
+      <span class="title">Date d'activité</span>
     </span>
     <v-menu
-        v-model="menu"
-        offset-y
-        :close-on-content-click="false"
-        :return-value.sync="menu"
-        :nudge-top="40"
-        :nudge-width="200"
-    >
+    v-model="menu"
+    offset-y
+     offset="8"
+    :close-on-content-click="false"
+    :return-value.sync="menu"
+    location="bottom start"
+    content-class="date-picker-menu-overlay"
+     z-index="12000"
+>
+
 
       <template #activator="{ props }">
 
@@ -22,8 +25,8 @@
             readonly
             @click="openMenu"
             @click:prepend-inner="openMenu"
-            color="var(--light-brown)"
-            placeholder="Sélectionner une date"
+            color="var(--red-pompein)"
+            placeholder="Sélectionner une année"
         >
           <template #prepend-inner>
             <v-icon
@@ -105,7 +108,7 @@ export default {
       month: null,
       day: null,
       exactDate: false,
-      minDate: '1800-01-01',
+      minDate: '1816-01-01',
       maxDate: '1900-12-31',
     }
   },
@@ -267,6 +270,12 @@ export default {
   margin-right: 10px;
 }
 
+:deep(.date-picker-menu-overlay) {
+  z-index: 12000 !important;
+}
 
+:deep(.date-picker-menu-overlay .v-overlay__content) {
+  z-index: 12000 !important;
+}
 
 </style>

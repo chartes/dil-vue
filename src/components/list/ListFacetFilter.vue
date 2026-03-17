@@ -9,7 +9,7 @@
         hide-details
         clearable
         dense
-        color="var(--light-brown)"
+        color="var(--red-pompein)"
     />
     <div class="date-picker-container">
       <span class="advanced_search_header">
@@ -27,7 +27,7 @@
           hide-details
           single-line
           clearable
-          color="var(--light-brown)"
+          color="var(--red-pompein)"
           @click:clear="searchQuery = ''"
       />
       <teleport to="body">
@@ -50,7 +50,6 @@
                 <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
               </div>
               <div class="term-patents" v-if="term.total_patents_if_selected">
-                {{ term.total_patents_if_selected }} brevet{{ term.total_patents_if_selected > 1 ? 's' : '' }} –
                 {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
               </div>
             </li>
@@ -131,7 +130,7 @@ export default {
       showDropdown: false,
       pickedDate: null,
       displayedDate: '',
-      minDate: '1780-01-01',
+      minDate: '1816-01-01',
       maxDate: '1910-12-31',
       menu: false,
       pickerDate: '',
@@ -529,7 +528,6 @@ input[type="text"]::placeholder {
   font-weight: 500;
   border-radius: 5px;
   padding: 5px 10px;
-  background-color: #f4f4f4;
   color: #333;
 
 }
@@ -577,7 +575,7 @@ input[type="text"]::placeholder {
 }
 
 .reset-results-btn:hover {
-  background-color: #7B0C12 !important;
+  background-color: var(--red-pompein) !important;
 }
 
 @media (max-width: 768px) {

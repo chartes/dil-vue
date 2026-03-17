@@ -3,7 +3,7 @@
     <v-col cols="12" md="6" class="left-section">
       <div class="intro-block">
         <h3 class="my-2 subtitle d-flex align-center">
-          <v-icon class="mr-2" color="var(--light-brown-alt)">mdi-book-open-page-variant</v-icon>
+          <v-icon class="mr-2" color="var(--red-pompein)">mdi-book-open-page-variant</v-icon>
           Une technique révolutionnaire sous surveillance
         </h3>
 
@@ -23,7 +23,7 @@
     <v-col cols="12" md="6" class="right-section">
       <div class="intro-block">
         <h3 class="my-2 subtitle d-flex align-center">
-          <v-icon class="mr-2" color="var(--light-brown-alt)">mdi-magnify</v-icon>
+          <v-icon class="mr-2" color="var(--red-pompein)">mdi-magnify</v-icon>
           Un dictionnaire
         </h3>
         <p class="text-intro">
@@ -98,7 +98,7 @@ export default {
 }
 
 .btn-to-info {
-  background-color: var(--brown);
+  background-color: var(--red-pompein);
   color: white;
   font-weight: 600;
   text-transform: none;
@@ -107,7 +107,7 @@ export default {
 }
 
 .btn-to-info:hover {
-  background-color: var(--light-brown);
+  background-color: var(--light-brown-alt);
   color: white;
 }
 

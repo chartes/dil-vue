@@ -1,159 +1,145 @@
 <template>
   <v-container fluid class="imprimeurs-container">
-    <v-row class="align-start justify-start mb-2">
+    <div class="results-toolbar-top">
+      <div
+          class="facet-toggle-btn facet-toggle-btn-inline"
+          @click="showFacets = !showFacets"
+      >
+        <v-icon class="facet-reopen-icon">mdi-tune-variant</v-icon>
+        <span class="facet-reopen-label">
+          {{ showFacets ? 'FERMER LES FILTRES' : 'OUVRIR LES FILTRES' }}
+        </span>
+      </div>
+    </div>
+    <v-row class="list-layout-row">
       <v-col
-          cols="3"
+          cols="12"
+          md="3"
           class="facet-sidebar"
           :class="{ 'facet-visible': showFacets }"
       >
-        <transition name="slide-x" mode="out-in">
-          <v-row class="align-center mb-3 facet-control">
-
-            <v-col cols="auto">
-
-              <div
-
-                  v-if="showFacets"
-                  class="facet-toggle-btn"
-                  @click="showFacets = false"
-              >
-                <v-icon class="facet-reopen-icon">mdi-tune-variant</v-icon>
-                <span class="facet-reopen-label">FERMER LES FILTRES</span>
-
-              </div>
-            </v-col>
-          </v-row>
-        </transition>
-        <br>
-        <br>
-        <br>
-        <br>
-        <br>
-
-        <FacetFilter
-            ref="facetFilter"
-            title="Ville du brevet"
-            filterType="places"
-            :activateResetBtn="facetResetBtn"
-            @update:selectedTerms="onUpdatePlaces"
-            @update:dateFilter="onUpdateDate"
-            @update:extraSearch="onExtraSearchChange"
-            @update:exactMatch="onUpdateExactMatch"
-            @resetAllFacets="onResetAll"
-        />
-
-      </v-col>
-
-      <v-col :cols="showFacets ? 9 : 12">
-        <br>
-        <br>
-        <br>
-        <v-expand-transition appear>
-          <v-toolbar flat class="toolbar-header d-flex">
-
-            <v-toolbar-title class="panel-header-title-with-toggle">
-              <v-icon class="mr-2 map-icon">
-                mdi-map
-              </v-icon>
-              Carte des imprimeries
-            </v-toolbar-title>
-            <v-spacer></v-spacer>
-            <v-btn icon @click="toggleMap" class="map-btn ml-2 d-flex align-center">
-              <v-icon :class="{ 'chevron-rotated': showMap }">mdi-chevron-right</v-icon>
-            </v-btn>
-          </v-toolbar>
-        </v-expand-transition>
-
-        <v-expand-transition>
-          <div v-if="showMap" class="show-map-container">
-            <LeafletMap
-                v-if="showMapContent"
-                ref="leaflet"
-                :apiBase="apiUrl"
-                :cityQuery="selectedFacets.places.map(p => p.id || p.id_dil)"
-                :date="selectedFacets.date.date"
-                :exact="selectedFacets.date?.exact || false"
-                @selectCity="onCitySelected"
+        <transition name="slide-x">
+          <div v-if="showFacets" class="facet-sidebar-inner">
+            <FacetFilter
+                ref="facetFilter"
+                title="Ville d'activité"
+                filterType="places"
+                :activateResetBtn="facetResetBtn"
+                @update:selectedTerms="onUpdatePlaces"
+                @update:dateFilter="onUpdateDate"
+                @update:extraSearch="onExtraSearchChange"
+                @update:exactMatch="onUpdateExactMatch"
+                @resetAllFacets="onResetAll"
             />
           </div>
-        </v-expand-transition>
+        </transition>
+      </v-col>
 
-        <br/>
+      <v-col cols="12" :md="showFacets ? 9 : 12" class="results-col">
+        <div class="results-toolbar-top">
+          <div
+              class="facet-toggle-btn facet-toggle-btn-inline"
+              @click="showFacets = !showFacets"
+          >
+            <v-icon class="facet-reopen-icon">mdi-tune-variant</v-icon>
+            <span class="facet-reopen-label">
+              {{ showFacets ? 'FERMER LES FILTRES' : 'OUVRIR LES FILTRES' }}
+            </span>
+          </div>
+        </div>
+
         <v-data-table
             id="table-imprimeurs"
             :headers="headers"
             :items="imprimeurs"
             :items-per-page="itemsPerPage"
-            :page.sync="page"
+            :page="page"
             :loading="loading"
             item-value="_id_dil"
-            class="elevation-1"
-            show-expand
+            class="elevation-1 imprimeurs-table"
+            :class="{ 'table-shifted': !showFacets }"
             fixed-header
-            :expanded.sync="expandedRows"
-            @update:expanded="onExpandChange"
+            hover
+            @click:row="goToDetail"
         >
-
-          <template v-for="header in headers" :key="header.key" v-slot:[`header.${header.key}`]="{ column }">
-            <thead class="header">
-            <tr v-if="header.key === 'lastname'">
-              <th class="sortable-header" @click="toggleSort">
-                <span class="table-data-span table-data-header-label">{{ column.title }}</span>
-                <v-icon class="ml-1">
-                  {{ sortDesc ? 'mdi-arrow-up' : 'mdi-arrow-down' }}
-                </v-icon>
-              </th>
-            </tr>
-            <tr v-else-if="header.key !== 'data-table-expand' && header.key !== 'actions'">
-              <th class="table-data-span table-data-header-label">
-                {{ column.title }}
-              </th>
-            </tr>
-            </thead>
-          </template>
-
           <template #top>
-            <v-toolbar flat class="toolbar-header d-flex">
+            <v-toolbar flat class="toolbar-header table-topbar">
               <v-toolbar-title class="panel-header-title">
                 {{ totalItems }} {{ pluralize('imprimeur', totalItems) }} - {{ pluralize('lithographe', totalItems) }}
               </v-toolbar-title>
-              <v-spacer></v-spacer>
+              <v-spacer/>
             </v-toolbar>
 
-            <div class="footer-controls d-flex align-center justify-space-between pa-4">
+            <v-expand-transition appear>
+              <v-toolbar flat class="toolbar-header map-toolbar">
+                <v-toolbar-title class="panel-header-title-with-toggle">
+                  <v-icon class="mr-2 map-icon">mdi-map</v-icon>
+                  Carte des imprimeries
+                </v-toolbar-title>
+                <v-spacer/>
+                <v-btn icon @click="toggleMap" class="map-btn">
+                  <v-icon :class="{ 'chevron-rotated': showMap }">mdi-chevron-right</v-icon>
+                </v-btn>
+              </v-toolbar>
+            </v-expand-transition>
+
+            <v-expand-transition>
+              <div v-if="showMap" class="show-map-container">
+                <LeafletMap
+                    v-if="showMapContent"
+                    ref="leaflet"
+                    :apiBase="apiUrl"
+                    :cityQuery="selectedFacets.places.map(p => p.id || p.id_dil)"
+                    :date="selectedFacets.date?.date"
+                    :exact="selectedFacets.date?.exact || false"
+                    @selectCity="onCitySelected"
+                />
+              </div>
+            </v-expand-transition>
+
+            <div class="footer-controls top-controls">
               <v-text-field
                   v-model="searchHeadInfo"
-                  label="Filtrer par nom et/ou prénoms"
-                  class="search-head-info-input"
-                  color="var(--light-brown)"
-                  dense
+                  label="Rechercher par nom"
+                  class="search-head-info-input search-head-info-input-large search-head-info-hint"
+                  color="var(--red-pompein)"
+                  density="comfortable"
+                  variant="outlined"
                   clearable
-                  @input="fetchImprimeurs"
+                  hide-details
+                  @input="onSearchInput"
                   @click:clear="onClearFirstnamesLastname"
               />
 
-              <div class="pagination-controls d-flex align-center">
+              <div class="pagination-controls">
                 <v-btn icon :disabled="page <= 1" @click="goToPage(1)" title="Première page">
                   <v-icon>mdi-page-first</v-icon>
                 </v-btn>
-                <v-btn icon :disabled="page <= 1" @click="page--" title="Page précédente">
+
+                <v-btn icon :disabled="page <= 1" @click="page = page - 1" title="Page précédente">
                   <v-icon>mdi-chevron-left</v-icon>
                 </v-btn>
+
                 <v-text-field
-                    v-model.number="page"
+                    v-model.number="pageInput"
                     type="number"
                     min="1"
                     :max="pageCount"
-                    dense
+                    density="compact"
                     hide-details
+                    variant="outlined"
                     class="search-page-input"
-                    @keydown.enter="fetchImprimeurs"
+                    @keydown.enter="applyPageInput"
+                    @blur="applyPageInput"
                     title="Aller à la page"
                 />
-                <span>/ {{ pageCount }}</span>
-                <v-btn icon :disabled="page >= pageCount" @click="page++" title="Page suivante">
+
+                <span class="page-count-label">/ {{ pageCount }}</span>
+
+                <v-btn icon :disabled="page >= pageCount" @click="page = page + 1" title="Page suivante">
                   <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
+
                 <v-btn icon :disabled="page >= pageCount" @click="goToPage(pageCount)" title="Dernière page">
                   <v-icon>mdi-page-last</v-icon>
                 </v-btn>
@@ -161,127 +147,88 @@
             </div>
           </template>
 
+          <template #item.identity="{ item }">
+            <div class="identity-table-link">
+              {{ formatIdentity(item) }}
+            </div>
+          </template>
+
+          <template #item.exercise_places="{ item }">
+            <div class="exercise-places-cell">
+              <div class="exercise-places-main">
+                {{ formatExercisePlaces(item) }}
+              </div>
+
+              <template v-if="shouldShowHighlight(item)">
+                <hr class="sep-quote row-sep-quote"/>
+                <div
+                    class="highlighted-quote table-highlighted-quote"
+                    v-html="item.highlight"
+                />
+              </template>
+            </div>
+          </template>
+
+          <template #item.actions="{ item }">
+            <router-link
+                :to="`/detail/${item._id_dil}`"
+                :title="`Voir la notice de ${item.lastname || ''}`"
+                class="notice-link-icon"
+                @click.stop
+            >
+              <v-icon size="22">mdi-open-in-new</v-icon>
+            </router-link>
+          </template>
+
           <template #no-data>
             <div class="text-center-no-data">
-              <v-icon large>mdi-alert-circle</v-icon>
+              <v-icon size="32">mdi-alert-circle</v-icon>
               <p>Aucune donnée disponible.</p>
             </div>
           </template>
 
-          <template #item.lastname="{ item }">
-            <div class="table-cell-item table-cell-name">
-              <router-link
-                  :to="`/detail/${item._id_dil}`"
-                  :title="`Voir la fiche de ${item.lastname}`"
-                  class="mb-3 name-table-label"
-              >
-                <span>{{ item.lastname }}</span>
-              </router-link>
-            </div>
-          </template>
-
-          <template #item.firstnames="{ item }">
-            <router-link
-                :to="`/detail/${item._id_dil}`"
-                :title="`Voir la fiche de ${item.lastname}`"
-                class="mb-3 first-name-table-label"
-            >
-              <span>{{ item.firstnames }}</span>
-            </router-link>
-          </template>
-
-          <template #item.total_patents="{ item }">
-            <div class="table-cell-item table-cell-patents">
-              {{ item.total_patents }}
-            </div>
-          </template>
-
-          <template #item.data-table-expand="{ item }">
-            <v-icon
-                class="expand-icon transition-icon"
-                :class="{ expanded: expandedRows.includes(item._id_dil) }"
-                @click.stop="toggleExpandedRow(item._id_dil)"
-            >
-              mdi-chevron-down
-            </v-icon>
-          </template>
-
-
-          <template #expanded-row="{ item, columns }">
-            <tr>
-              <td :colspan="columns.length" class="pa-4 table-expanded-container">
-                <v-expand-transition>
-                  <div v-if="expandedRows.includes(item._id_dil)">
-                    <div v-if="details[item._id_dil]?.patents?.length">
-                      <router-link
-                          :to="`/detail/${item._id_dil}`"
-                          :title="`Voir la fiche de ${item.lastname}`"
-                      >
-                        <span class="title-expanded-patent-list">
-                          {{ details[item._id_dil].patents.length }}
-                          {{ pluralize('brevet', details[item._id_dil].patents.length) }}
-                          {{ pluralize('disponible', details[item._id_dil].patents.length) }}
-                        </span>
-                      </router-link>
-
-                      <ul class="expanded-patent-list list-unstyled mb-0 mt-2 d-flex flex-column gap-2">
-                        <li
-                            v-for="(patent, index) in details[item._id_dil].patents"
-                            :key="index"
-                            class="table-cell-item-expanded"
-                        >
-                          • {{ formatDate(patent.date_start) }} /
-                          {{ formatDate(patent.date_end) || 'inconnue' }} –
-                          {{ patent.city_label }}
-                        </li>
-                      </ul>
-                    </div>
-                    <div v-else>
-                      Aucun brevet disponible.
-                    </div>
-
-                    <hr v-if="item.highlight" class="my-4 sep-quote"/>
-                    <div v-if="item.highlight" class="highlighted-quote mb-4" v-html="item.highlight"/>
-                  </div>
-                </v-expand-transition>
-              </td>
-            </tr>
-          </template>
-
-
           <template #bottom>
-            <div class="footer-controls d-flex align-center justify-space-between pa-4">
+            <div class="footer-controls bottom-controls">
               <v-select
                   v-model="itemsPerPage"
                   :items="[10, 50, 100]"
                   label="Éléments par page"
-                  dense
+                  density="comfortable"
+                  variant="outlined"
                   hide-details
                   class="items-per-page-select"
                   @update:modelValue="onItemsPerPageChange"
               />
-              <div class="pagination-controls d-flex align-center">
+
+              <div class="pagination-controls">
                 <v-btn icon :disabled="page <= 1" @click="goToPage(1)" title="Première page">
                   <v-icon>mdi-page-first</v-icon>
                 </v-btn>
-                <v-btn icon :disabled="page <= 1" @click="page--" title="Page précédente">
+
+                <v-btn icon :disabled="page <= 1" @click="page = page - 1" title="Page précédente">
                   <v-icon>mdi-chevron-left</v-icon>
                 </v-btn>
+
                 <v-text-field
-                    v-model.number="page"
+                    v-model.number="pageInput"
                     type="number"
                     min="1"
                     :max="pageCount"
-                    dense
+                    density="compact"
                     hide-details
+                    variant="outlined"
                     class="search-page-input"
-                    @keydown.enter="fetchImprimeurs"
+                    @keydown.enter="applyPageInput"
+                    @blur="applyPageInput"
                     title="Aller à la page"
                 />
-                <span>/ {{ pageCount }}</span>
-                <v-btn icon :disabled="page >= pageCount" @click="page++" title="Page suivante">
+
+                <span class="page-count-label">/ {{ pageCount }}</span>
+
+                <v-btn icon :disabled="page >= pageCount" @click="page = page + 1" title="Page suivante">
                   <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
+
                 <v-btn icon :disabled="page >= pageCount" @click="goToPage(pageCount)" title="Dernière page">
                   <v-icon>mdi-page-last</v-icon>
                 </v-btn>
@@ -291,22 +238,13 @@
         </v-data-table>
       </v-col>
     </v-row>
-
-    <div
-
-        v-if="!showFacets"
-        class="facet-toggle-btn"
-        @click="showFacets = true"
-    >
-      <v-icon class="facet-reopen-icon">mdi-tune-variant</v-icon>
-      <span class="facet-reopen-label">OUVRIR LES FILTRES</span>
-    </div>
   </v-container>
 </template>
+
 <script>
-import {mapState} from 'vuex';
-import FacetFilter from '@/components/list/ListFacetFilter.vue';
-import LeafletMap from '@/components/list/ListLeafletMap.vue';
+import {mapState} from 'vuex'
+import FacetFilter from '@/components/list/ListFacetFilter.vue'
+import LeafletMap from '@/components/list/ListLeafletMap.vue'
 
 export default {
   name: 'ListView',
@@ -317,902 +255,1089 @@ export default {
   data() {
     return {
       page: 1,
-      itemsPerPage: 10,
+      pageInput: 1,
+      itemsPerPage: 50,
       imprimeurs: [],
+      details: {},
       searchHeadInfo: '',
       searchExtraInfo: '',
+      searchDebounce: null,
       facetResetBtn: false,
       totalItems: 0,
       sortDesc: false,
-      showFacets: window.innerWidth > 960, /* filter panel closed by default on small devices */
-      expandedRows: [],
-      details: {},
+      showFacets: false,
       showMap: false,
       showMapContent: false,
       selectedFacets: {
         places: [],
-        date: ""
+        date: ''
       },
       headers: [
-        {title: '', key: 'data-table-expand', width: '50px'},
-        {title: 'Nom', key: 'lastname', class: 'col-lastname'},
-        {title: 'Prénom(s)', key: 'firstnames', class: 'col-firstnames'}
+        {title: 'Nom – Prénoms', key: 'identity', sortable: false, width: '30%'},
+        {title: 'Villes d’exercice', key: 'exercise_places', sortable: false, width: '62%'},
+        {title: '', key: 'actions', sortable: false, align: 'end', width: '8%'}
       ],
       loading: false
     }
   },
   computed: {
-    ...mapState(["apiUrl"]),
+    ...mapState(['apiUrl']),
     pageCount() {
-      return Math.ceil(this.totalItems / this.itemsPerPage);
+      return Math.max(1, Math.ceil(this.totalItems / this.itemsPerPage))
+    }
+  },
+  watch: {
+    page(newVal) {
+      this.pageInput = newVal
+      this.fetchImprimeurs()
     },
+    itemsPerPage() {
+      this.page = 1
+    },
+    showFacets() {
+      this.$nextTick(() => {
+        if (this.$refs.leaflet?.map) {
+          this.$refs.leaflet.map.invalidateSize()
+        }
+      })
+    },
+    showMap(val) {
+      if (!val) return
+      this.$nextTick(() => {
+        setTimeout(() => {
+          if (this.$refs.leaflet?.map) {
+            this.$refs.leaflet.map.invalidateSize()
+          }
+          this.refreshMapCities()
+        }, 200)
+      })
+    },
+    'selectedFacets.places': {
+      deep: true,
+      handler() {
+        this.page = 1
+        this.fetchImprimeurs()
+        this.refreshMapCities()
+      }
+    },
+    'selectedFacets.date': {
+      deep: true,
+      handler() {
+        this.page = 1
+        this.fetchImprimeurs()
+        this.refreshMapCities()
+      }
+    }
+  },
+  mounted() {
+    this.showFacets = false
+
+    if (this.$route.query.map === 'open') {
+      this.showMap = true
+      setTimeout(() => {
+        this.showMapContent = true
+      }, 300)
+    }
+
+    this.fetchImprimeurs()
+  },
+  beforeUnmount() {
+    if (this.searchDebounce) {
+      clearTimeout(this.searchDebounce)
+    }
   },
   methods: {
     pluralize(word, count, pluralForm = null) {
-      return `${word}${count > 1 ? (pluralForm ?? 's') : ''}`;
+      return `${word}${count > 1 ? (pluralForm ?? 's') : ''}`
     },
+
+    formatIdentity(item) {
+      const lastname = item?.lastname || ''
+      const firstnames = item?.firstnames || ''
+      return firstnames ? `${lastname} – ${firstnames}` : lastname
+    },
+    shouldShowHighlight(item) {
+      return !!this.searchExtraInfo?.trim() && !!item?.highlight
+    },
+    formatDateShort(dateStr) {
+      if (!dateStr) return null
+      const date = new Date(dateStr)
+      if (Number.isNaN(date.getTime())) return null
+      return date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    },
+
+    formatExercisePlaces(item) {
+      const personDetails = this.details[item._id_dil]
+      const patents = personDetails?.patents || []
+
+      if (!patents.length) {
+        return 'Aucune ville d’exercice renseignée'
+      }
+
+      return patents
+          .map((patent) => {
+            const rawCity = patent.city_label || 'Ville inconnue'
+            const city = rawCity.replace(/\s*\([^()]*\)\s*$/u, '').trim()
+
+            const start = this.formatDateShort(patent.date_start) || 'date inconnue'
+            const end = this.formatDateShort(patent.date_end) || 'date inconnue'
+
+            return `${city} (${start} - ${end})`
+          })
+          .join(', ')
+    },
+
+    goToDetail(event, row) {
+      const item = row?.item
+      if (!item?._id_dil) return
+      this.$router.push(`/detail/${item._id_dil}`)
+    },
+
+    onSearchInput() {
+      this.page = 1
+      if (this.searchDebounce) {
+        clearTimeout(this.searchDebounce)
+      }
+      this.searchDebounce = setTimeout(() => {
+        this.fetchImprimeurs()
+      }, 250)
+    },
+
     onClearFirstnamesLastname() {
-      this.searchHeadInfo = '';
-      this.fetchImprimeurs();
+      this.searchHeadInfo = ''
+      this.page = 1
+      this.fetchImprimeurs()
     },
+
     goToPage(pageNumber) {
-      if (pageNumber >= 1 && pageNumber <= this.pageCount) {
-        this.page = pageNumber;
+      const safePage = Math.min(Math.max(1, pageNumber), this.pageCount)
+      this.page = safePage
+    },
+
+    applyPageInput() {
+      const parsed = Number(this.pageInput)
+      if (!Number.isFinite(parsed)) {
+        this.pageInput = this.page
+        return
+      }
+      this.goToPage(parsed)
+    },
+
+    scrollTop() {
+      window.scrollTo({top: 0, behavior: 'smooth'})
+    },
+
+    async onResetAll() {
+      this.selectedFacets.places = []
+      this.selectedFacets.date = ''
+      this.searchExtraInfo = ''
+      this.searchHeadInfo = ''
+      this.details = {}
+      await this.refreshResults()
+    },
+
+    async refreshResults(fetch = true, shouldScrollTop = true) {
+      this.page = 1
+      if (shouldScrollTop) {
+        this.scrollTop()
+      }
+      if (fetch) {
+        await this.fetchImprimeurs()
       }
     },
+
+    async onItemsPerPageChange() {
+      this.page = 1
+      await this.fetchImprimeurs()
+    },
+
+    async onExtraSearchChange(value) {
+      this.searchExtraInfo = value
+      await this.refreshResults()
+    },
+
+    async onUpdateDate(dateRange) {
+      this.selectedFacets.date = dateRange
+    },
+
+    async onUpdatePlaces(value) {
+      this.selectedFacets.places = value.terms
+    },
+
+    onUpdateExactMatch(payload) {
+      if (!this.selectedFacets.date || typeof this.selectedFacets.date === 'string') {
+        this.selectedFacets.date = {
+          date: this.selectedFacets.date || '',
+          exact: !!payload.exact
+        }
+      } else {
+        this.selectedFacets.date.exact = !!payload.exact
+      }
+      this.refreshMapCities()
+    },
+
     async onCitySelected(cityId) {
-      //console.log("onCitySelected1", cityId);
-      const facetFilter = this.$refs.facetFilter;
-
-      if (this.selectedFacets.places.some(p => p.id === cityId)) return;
-
-      //console.log("onCitySelected2", cityId);
+      const facetFilter = this.$refs.facetFilter
+      if (this.selectedFacets.places.some(p => (p.id || p.id_dil) === cityId)) return
 
       try {
-        const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`);
-        if (!res.ok) throw new Error("Erreur API");
-        const data = await res.json();
+        const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`)
+        if (!res.ok) throw new Error('Erreur API')
+        const data = await res.json()
 
         const term = {
           id_dil: data._id_dil,
           label: data.label,
-          department_label_fr: data.insee_fr_department_label,
-        };
-
-
-        this.selectedFacets.places = [...this.selectedFacets.places, term];
-
-        if (typeof facetFilter.addExternalTerm === 'function') {
-          facetFilter.addExternalTerm(term);
+          department_label_fr: data.insee_fr_department_label
         }
 
-        this.page = 1;
-        await this.fetchImprimeurs();
+        this.selectedFacets.places = [...this.selectedFacets.places, term]
 
+        if (typeof facetFilter?.addExternalTerm === 'function') {
+          facetFilter.addExternalTerm(term)
+        }
+
+        this.page = 1
+        await this.fetchImprimeurs()
       } catch (err) {
-        console.error("Erreur lors de la récupération de la ville :", err);
+        console.error('Erreur lors de la récupération de la ville :', err)
       }
     },
-    formatDate(dateStr) {
-      if (!dateStr) return null;
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('fr-FR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      });
-    },
-    scrollTop() {
-      window.scrollTo({top: 0});
-    },
+
     toggleMap() {
-      this.showMap = !this.showMap;
+      this.showMap = !this.showMap
 
       if (this.showMap) {
         setTimeout(() => {
-          this.showMapContent = true;
+          this.showMapContent = true
           this.$nextTick(() => {
-            const mapRef = this.$refs.leaflet?.map;
-            if (mapRef) {
-              mapRef.invalidateSize();
+            if (this.$refs.leaflet?.map) {
+              this.$refs.leaflet.map.invalidateSize()
             }
-
-            this.$refs.leaflet?.fetchCities({
-              patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
-              patent_date_start: this.selectedFacets.date?.date,
-              exact_patent_date_start: this.selectedFacets.date?.exact || false
-            });
-          });
-        }, 300);
+            this.refreshMapCities()
+          })
+        }, 300)
       } else {
-        this.showMapContent = false;
+        this.showMapContent = false
       }
     },
-    toggleExpandedRow(id) {
-      const index = this.expandedRows.indexOf(id);
-      if (index > -1) {
-        this.expandedRows.splice(index, 1);
-      } else {
-        this.expandedRows.push(id);
-        this.loadDetails(id);
-      }
-    },
-    async onResetAll() {
-      this.selectedFacets.places = [];
-      this.selectedFacets.date = "";
-      this.searchExtraInfo = '';
-      this.searchHeadInfo = '';
-      this.expandedRows = [];
-      this.details = {};
-      await this.refreshResults();
-    },
-    async refreshResults(fetch = true, scrollTop = true) {
-      this.page = 1;
-      if (scrollTop) {
-        this.scrollTop();
-      }
-      if (fetch) {
-        await this.fetchImprimeurs();
-      }
-    },
-    async onItemsPerPageChange() {
-      this.page = 1;
-      await this.fetchImprimeurs();
-    },
-    async toggleSort() {
-      this.sortDesc = !this.sortDesc;
-      await this.refreshResults();
-    },
-    onExpandChange(newExpanded) {
-      const newlyExpanded = newExpanded.filter(
-          id => !this.expandedRows.includes(id)
-      );
-      this.expandedRows = newExpanded;
-      newlyExpanded.forEach(id => this.loadDetails(id));
-    },
-    async onExtraSearchChange(value) {
-      this.searchExtraInfo = value;
-      await this.refreshResults();
-    },
-    async onUpdateDate(dateRange) {
-      this.selectedFacets.date = dateRange;
-      //await this.refreshResults();
-      if (this.showMap && this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
-        this.$refs.leaflet.fetchCities({
-          patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
-          patent_date_start: this.selectedFacets.date.date,
-          exact_patent_date_start: this.selectedFacets.date.exact || false
-        });
-      }
 
-    },
-    async onUpdatePlaces(value) {
-
-      this.selectedFacets.places = value.terms;
-
-      if (this.showMap && this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
-        this.$refs.leaflet.fetchCities({
-          patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
-          patent_date_start: this.selectedFacets.date.date,
-          exact_patent_date_start: this.selectedFacets.date.exact || false
-        });
-      }
-    },
-    async fetchImprimeurs() {
-      this.loading = true;
-      try {
-        const params = new URLSearchParams();
-        params.append('page', this.page);
-        params.append('size', this.itemsPerPage);
-        params.append('sort', this.sortDesc ? 'desc' : 'asc');
-        if (this.searchHeadInfo) {
-          params.append('search_head_info', this.searchHeadInfo);
-        }
-        if (this.searchExtraInfo) {
-          params.append('search_extra_info', this.searchExtraInfo);
-        }
-        if (this.selectedFacets.date?.date) {
-          params.append('patent_date_start', this.selectedFacets.date.date);
-          params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true' : 'false');
-        }
-
-        if (this.selectedFacets.places.length > 0) {
-          this.selectedFacets.places.forEach(term => {
-            params.append('patent_city_query', term.id_dil);
-          });
-        }
-
-
-        const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`);
-        const data = await res.json();
-        this.imprimeurs = data.items;
-        this.totalItems = data.total;
-
-      } catch (err) {
-        console.error('Erreur lors du chargement :', err);
-      } finally {
-        this.loading = false;
-      }
-    },
-    onUpdateExactMatch(payload) {
-      if (!this.selectedFacets.date || typeof this.selectedFacets.date === 'string') {
-        this.selectedFacets.date = {date: this.selectedFacets.date || '', exact: !!payload.exact};
-      } else {
-        this.selectedFacets.date.exact = !!payload.exact;
-      }
+    refreshMapCities() {
       if (this.showMap && this.$refs.leaflet?.fetchCities) {
         this.$refs.leaflet.fetchCities({
           patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
           patent_date_start: this.selectedFacets.date?.date,
           exact_patent_date_start: this.selectedFacets.date?.exact || false
-        });
+        })
       }
     },
-    loadDetails: async function (id) {
-      if (this.details[id]) return;
-      try {
-        const res = await fetch(`${this.apiUrl}/persons/person/${id}?html=false`);
 
-        if (!res.ok) {
-          throw new Error('Erreur de réseau');
-        } else {
-          this.details[id] = await res.json();
-        }
-      } catch (err) {
-        console.error("Erreur de chargement des détails :", err);
-      }
-    },
-  },
-  watch: {
-    'selectedFacets.places': {
-      handler(newTerms) {
-        this.page = 1;
-        this.fetchImprimeurs();
-        if (this.$refs.leaflet?.fetchCities) {
-          this.$refs.leaflet.fetchCities({
-            patent_city_query: newTerms.map(p => p.id || p.id_dil),
-            patent_date_start: this.selectedFacets.date.date,
-            exact_patent_date_start: this.selectedFacets.date.exact || false
-          });
-        }
-      },
-      deep: true
-    },
-    'selectedFacets.date': {
-      handler() {
-        this.page = 1;
-        this.fetchImprimeurs();
-        if (this.$refs.leaflet?.fetchCities) {
-          this.$refs.leaflet.fetchCities({
-            patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
-            patent_date_start: this.selectedFacets.date.date,
-            exact_patent_date_start: this.selectedFacets.date.exact || false
-          });
-        }
-      },
-      deep: true
-    },
-    showFacets(val) {
-      // refresh map if open
-      this.$nextTick(() => {
-        if (this.$refs.leaflet && this.$refs.leaflet.map) {
-          this.$refs.leaflet.map.invalidateSize();
-          this.$refs.leaflet.map.setView([48.8566, 2.3522], 5);
-        }
-      });
-    },
-    page() {
-      this.fetchImprimeurs();
-    },
-    itemsPerPage() {
-      this.page = 1;
-      this.fetchImprimeurs();
-    },
-    searchHeadInfo() {
-      this.page = 1;
-    },
-    showMap(val) {
-      this.$nextTick(() => {
-        if (val && this.$refs.leaflet && this.$refs.leaflet.fetchCities) {
-          setTimeout(() => {
-            if (this.$refs.leaflet && this.$refs.leaflet.map) {
-              this.$refs.leaflet.map.invalidateSize();
+    async loadDetailsForCurrentPage() {
+      const idsToLoad = this.imprimeurs
+          .map(item => item._id_dil)
+          .filter(id => !this.details[id])
+
+      if (!idsToLoad.length) return
+
+      await Promise.all(
+          idsToLoad.map(async (id) => {
+            try {
+              const res = await fetch(`${this.apiUrl}/persons/person/${id}?html=false`)
+              if (!res.ok) throw new Error('Erreur de réseau')
+              const data = await res.json()
+              this.details = {
+                ...this.details,
+                [id]: data
+              }
+            } catch (err) {
+              console.error(`Erreur de chargement des détails pour ${id}:`, err)
             }
-          }, 200);
-          this.$refs.leaflet.fetchCities({
-            patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
-            patent_date_start: this.selectedFacets.date.date,
-            exact_patent_date_start: this.selectedFacets.date.exact || false
-          });
-        }
-      });
+          })
+      )
     },
-  },
-  mounted() {
-    const openMap = this.$route.query.map;
-    if (openMap === 'open') {
-      this.showMap = true;
-      setTimeout(() => {
-        this.showMapContent = true;
-      }, 300);
+
+    async fetchImprimeurs() {
+      this.loading = true
+      try {
+        const params = new URLSearchParams()
+        params.append('page', this.page)
+        params.append('size', this.itemsPerPage)
+        params.append('sort', this.sortDesc ? 'desc' : 'asc')
+
+        if (this.searchHeadInfo) {
+          params.append('search_head_info', this.searchHeadInfo)
+        }
+        if (this.searchExtraInfo) {
+          params.append('search_extra_info', this.searchExtraInfo)
+        }
+        if (this.selectedFacets.date?.date) {
+          params.append('patent_date_start', this.selectedFacets.date.date)
+          params.append('exact_patent_date_start', this.selectedFacets.date.exact ? 'true' : 'false')
+        }
+        if (this.selectedFacets.places.length > 0) {
+          this.selectedFacets.places.forEach(term => {
+            params.append('patent_city_query', term.id_dil)
+          })
+        }
+
+        const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`)
+        const data = await res.json()
+
+        this.imprimeurs = data.items || []
+        this.totalItems = data.total || 0
+        await this.loadDetailsForCurrentPage()
+      } catch (err) {
+        console.error('Erreur lors du chargement :', err)
+      } finally {
+        this.loading = false
+      }
     }
-    const mode = this.$route.query.mode;
-    this.fetchImprimeurs();
   }
-};
+}
 </script>
 
 <style scoped>
-.table-data {
-  margin-top: -10px;
+.imprimeurs-container {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
 }
 
-.v-row.mb-2 {
+.list-layout-row {
+  position: relative;
   margin-bottom: 0 !important;
 }
 
-.btn-facets {
-  font-size: 1.4rem;
-  color: var(--brown);
-  margin-bottom: 10px;
-  cursor: pointer;
+.results-col {
+  position: relative;
+  z-index: 1;
+  padding-top: 86px;
 }
 
-.icon-close-facet {
-  font-size: 1.9rem;
+.facet-sidebar.facet-visible + .results-col {
+  padding-top: 20px;
 }
 
-.display-facet-label {
-  font-size: 1rem;
-}
+/* =========================
+   Bouton filtres
+========================= */
 
-.panel-header-title-with-toggle {
-  flex: calc(100% - 100px) 0 0;
-  width: calc(100% - 100px);
-}
-
-.panel-header-title {
-  flex: calc(100% - 40px) 0 0;
-  width: calc(100% - 40px);
-}
-
-:deep(.v-data-table thead th) {
-  color: #333333;
-  font-size: 1.25rem;
-  font-weight: 400;
-  text-decoration: none;
-  text-align: left;
-  padding-top: 10px;
-}
-
-
-:deep(.v-data-table tbody td ) {
-  font-size: 1.3rem;
-  color: #333333;
-  padding-top: 10px;
-  text-align: left;
-  padding-bottom: 10px;
-  padding-left: 10px;
-  margin-top: 10px;
-}
-
-.table-cell-item {
-  font-size: 1.15rem;
-  margin-top: 10px;
-}
-
-.table-cell-name {
-  font-weight: 600;
-  color: #2c3e50;
-}
-
-.table-cell-firstname {
-  color: #555;
-  font-style: italic;
-}
-
-.table-cell-patents {
-  font-weight: bold;
-  text-align: center;
-}
-
-.expand-icon {
-  cursor: pointer;
-  color: var(--brown);
-  font-size: 35px;
-  font-weight: bold;
-  margin-left: 10px;
-  margin-right: 10px;
-  margin-top: 10px;
-  transition: transform 0.2s ease;
-}
-
-.expanded-patent-list {
-  margin-top: 10px;
-  padding-left: 1rem;
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: #333;
-  list-style-type: none;
-}
-
-.table-cell-item-expanded {
-  font-size: 1.1rem;
-  margin-top: 10px;
-  color: #555;
+.results-toolbar-top {
+  position: fixed;
+  top: 90px;
+  left: 24px;
+  z-index: 6000;
   display: flex;
   align-items: center;
-  gap: 5px;
-}
-
-.facet-control {
-  z-index: 3000 !important;
-}
-
-.table-expanded-container {
-  background-color: #f9f9f9;
-  border-top: 1px solid #ddd;
-  padding: 1rem;
-}
-
-.expanded-patent-list {
+  justify-content: flex-start;
+  min-height: 44px;
   margin: 0;
-  padding-left: 1rem;
-  font-size: 1.1rem;
-  line-height: 1.5;
-  color: #333;
-  list-style-type: none;
+  pointer-events: none;
 }
 
-.table-cell-item-expanded {
-  font-size: 1.1rem;
-  display: flex;
+.results-toolbar-top .facet-toggle-btn {
+  pointer-events: auto;
+}
+
+.facet-toggle-btn {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #555;
-  padding-left: 1rem;
+  min-width: 220px;
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #d8d8d8;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.title-expanded-patent-list {
-  font-size: 1.3rem;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 10px;
-  display: block;
-  padding-left: 1rem;
+.facet-toggle-btn:hover {
+  background: #fafafa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
-.table-expanded-container a {
-  display: inline-block;
-  margin-left: 10px;
-  padding-left: 20px;
-  background: url("@/assets/images/icons/lien_ext.svg") top 4px left / 22px auto no-repeat;
-  text-decoration: none;
-}
-
-.table-expanded-container a:hover {
-  background-image: url("@/assets/images/icons/lien_ext_hover.svg");
-}
-
-.table-expanded-container a:hover span.title-expanded-patent-list {
-  color: var(--brown);
-}
-
-.transition-icon {
-  transition: transform 0.3s ease;
-}
-
-.pagination-controls {
-  gap: 10px;
-}
-
-.transition-icon.expanded {
-  transform: rotate(180deg);
-}
-
-.search-head-info-input {
-  max-width: 500px
-}
-
-.text-center-no-data {
-  text-align: center;
-  padding: 20px;
-  font-size: 1.5rem;
-  color: #999;
-}
-
-.highlighted-quote {
+.facet-toggle-btn-inline {
   position: relative;
-  padding-left: 2.5rem;
-  font-size: 1.3rem;
-  line-height: 1.6;
-  font-style: italic;
-  color: #444;
-  margin-bottom: 1rem;
 }
 
-.highlighted-quote::before {
-  content: "“";
-  position: absolute;
-  left: 0;
-  top: 0;
-  font-size: 3rem;
-  line-height: 1;
-  color: var(--brown);
-  font-family: Georgia, serif;
-  font-weight: bold;
-}
-
-.highlighted-quote mark {
-  background: #fff34d;
+.facet-reopen-icon {
   color: #000;
-  padding: 0 4px;
-  border-radius: 3px;
-  font-weight: bold;
+  font-size: 22px;
 }
 
-
-.sep-quote {
-  border: 0;
-  height: 1px;
-  background-color: var(--brown);
-  margin: 20px 0;
+.facet-reopen-label {
+  margin-top: 1px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #000;
 }
 
-.btn-facets {
-  font-size: 1.4rem;
-  color: var(--brown);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  z-index: 1000;
-}
-
-.icon-close-facet {
-  font-size: 1.9rem;
-}
-
-.display-facet-label {
-  position: relative;
-  font-size: 1rem;
-  cursor: pointer;
-  color: var(--brown);
-}
-
-.display-facet-label::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 2px;
-  width: 0%;
-  background-color: var(--brown);
-  transition: width 0.2s ease-out;
-}
-
-.display-facet-label:hover::after {
-  width: 100%;
-}
-
-.search-page-input {
-  width: 70px;
-}
-
-.map-btn {
-  color: var(--brown);
-  z-index: 1000
-}
-
-.name-table-label {
-  display: inline-block;
-  width: 100%;
-  color: #333333;
-  transition: color 0.2s ease;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.first-name-table-label {
-  display: block;
-  margin-bottom: 0 !important;
-  color: #333333;
-  font-weight: 400;
-  text-decoration: none;
-}
-
-.first-name-table-label:hover,
-.name-table-label:hover {
-  color: var(--brown);
-  text-decoration: none;
-}
-
-.items-per-page-select {
-  max-width: 200px
-}
-
-.search-page-input {
-  width: 70px;
-}
+/* =========================
+   Sidebar filtres
+========================= */
 
 .facet-sidebar {
   position: sticky;
-  top: 47px;
+  top: 72px;
   align-self: flex-start;
-  z-index: 10;
-
-  max-height: 100vh;
-  overflow-y: auto;
+  z-index: 3000;
+  max-height: calc(100vh - 90px);
   padding-right: 16px;
-  padding-top: 50px;
+  overflow: visible !important;
 }
 
-.facet-sidebar.facet-visible + .v-col {
-  margin-top: 86px;
+.facet-sidebar-inner {
+  margin-top: 8px;
+  padding-top: 18px;
+  z-index: 3001;
+  overflow: visible !important;
+  box-sizing: border-box;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: transform, opacity;
 }
 
-.facet-sidebar br,
-.facet-sidebar .facet-filter-container {
+.facet-sidebar:not(.facet-visible) .facet-sidebar-inner {
   display: none;
 }
 
-.facet-sidebar.facet-visible br,
-.facet-sidebar.facet-visible .facet-filter-container {
-  display: block;
+.slide-x-enter-active,
+.slide-x-leave-active {
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.25s ease;
 }
 
-
-:deep(.v-data-table) {
-  max-height: 150vh;
-  overflow-y: auto;
+.slide-x-enter-from,
+.slide-x-leave-to {
+  opacity: 0;
+  transform: translateX(-20%);
 }
 
-:deep(.v-data-table .v-table__wrapper > table tbody > tr:hover) {
-  background: rgb(var(--v-theme-surface-light));
+.slide-x-enter-to,
+.slide-x-leave-from {
+  opacity: 1;
+  transform: translateX(0);
 }
 
-:deep(.v-data-table .expand-icon) {
-  margin-top: 0;
+/* =========================
+   Headers / toolbars
+========================= */
+
+.toolbar-header {
+  position: relative;
+  z-index: 1;
+  min-height: auto !important;
+  padding-inline: 0 !important;
 }
 
-.show-map-container {
-  border: 1px solid #EEEEEE;
-  border-radius: 0px 0px 20px 20px;
-  height: 60vh;
-  margin-bottom: 20px;
-  overflow: hidden;
+.table-topbar {
+  margin-bottom: 0.25rem;
+}
+
+.map-toolbar {
+  margin-top: -0.25rem;
+  margin-bottom: 1rem;
+  border-top: 1px solid #000;
+}
+
+.panel-header-title,
+.panel-header-title-with-toggle {
+  flex: 1 1 auto;
+  width: auto;
+  font-weight: 700;
+  color: #222;
+}
+
+.map-icon {
+  margin-right: 0.5rem;
+  font-size: 1.45rem;
+  color: #000;
+}
+
+.map-btn {
+  z-index: 10;
+  color: var(--red-pompein);
 }
 
 .map-btn .v-icon {
-  transition: transform 0.3s ease;
-  background-color: white;
-  border-radius: 50%;
-  padding: 15px;
   width: 45px;
   height: 45px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  color: #000000;
+  padding: 15px;
   font-size: 24px;
+  color: #000;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  transition: transform 0.3s ease;
 }
 
 .map-btn .chevron-rotated {
   transform: rotate(90deg);
 }
 
-.imprimeurs-container {
-  padding-top: 0 !important;
-  margin-top: 0 !important;
-}
-
-.imprimeurs-container > .v-row {
+.show-map-container {
   position: relative;
+  z-index: 1;
+  height: 60vh;
+  margin-bottom: 20px;
+  overflow: hidden;
+  border: 1px solid #eee;
+  border-radius: 0 0 20px 20px;
 }
 
-.imprimeurs-container > .v-row > .v-col br {
-  display: none;
+/* =========================
+   Table
+========================= */
+
+.imprimeurs-table {
+  position: relative;
+  z-index: 1;
+  margin-top: 1rem;
+  overflow: hidden;
+  border-radius: 12px;
 }
 
-#table-imprimeurs {
-  margin-top: 20px;
+.table-shifted {
+  margin-top: -0.1rem;
 }
 
-.facet-toggle-btn {
-  position: fixed;
-  top: 80px;
-  left: 20px;
-  z-index: 2000;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 8px 12px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+:deep(#table-imprimeurs .v-table__wrapper table) {
+  width: 100%;
+  table-layout: fixed;
+}
+
+:deep(#table-imprimeurs thead th) {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: left;
+  vertical-align: top;
+  color: #2d2d2d;
+  background: #fafafa;
+  border-bottom: 1px solid #ececec;
+}
+
+:deep(#table-imprimeurs tbody td) {
+  padding-top: 14px;
+  padding-bottom: 14px;
+  font-size: 1rem;
+  text-align: left;
+  vertical-align: top;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+:deep(#table-imprimeurs tbody tr) {
   cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+:deep(#table-imprimeurs tbody tr:hover) {
+  background: rgb(var(--v-theme-surface-light));
+}
+
+:deep(#table-imprimeurs thead th:nth-child(1)),
+:deep(#table-imprimeurs tbody td:nth-child(1)) {
+  width: 30%;
+  padding-left: 12px;
+  padding-right: 14px;
+}
+
+:deep(#table-imprimeurs thead th:nth-child(2)),
+:deep(#table-imprimeurs tbody td:nth-child(2)) {
+  width: 62%;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+:deep(#table-imprimeurs thead th:nth-child(3)),
+:deep(#table-imprimeurs tbody td:nth-child(3)) {
+  width: 8%;
+  padding-left: 4px;
+  padding-right: 12px;
+  text-align: right;
+}
+
+.identity-table-link {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #2f2f2f;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+:deep(#table-imprimeurs tbody tr:hover .identity-table-link) {
+  color: var(--red-pompein);
+}
+
+.exercise-places-cell {
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: #444;
+  white-space: normal;
+  word-break: break-word;
+
+}
+
+
+:deep(#table-imprimeurs .v-table__wrapper table) {
+  table-layout: auto;
+  width: 100%;
+}
+
+:deep(#table-imprimeurs thead th:nth-child(1)),
+:deep(#table-imprimeurs tbody td:nth-child(1)) {
+  width: 34%;
+  min-width: 260px;
+  padding-left: 12px;
+  padding-right: 20px;
+  white-space: normal;
+}
+
+:deep(#table-imprimeurs thead th:nth-child(2)),
+:deep(#table-imprimeurs tbody td:nth-child(2)) {
+  width: auto;
+  min-width: 320px;
+  padding-left: 0;
+  padding-right: 10px;
+  white-space: normal;
+}
+
+:deep(#table-imprimeurs thead th:nth-child(3)),
+:deep(#table-imprimeurs tbody td:nth-child(3)) {
+  width: 56px;
+  min-width: 56px;
+  text-align: right;
+  padding-left: 4px;
+  padding-right: 12px;
+}
+
+.identity-table-link,
+.exercise-places-cell {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.notice-link-icon,
+.notice-link-icon .v-icon {
+  opacity: 0.75;
+}
+
+:deep(#table-imprimeurs tbody tr:hover .notice-link-icon),
+:deep(#table-imprimeurs tbody tr:hover .notice-link-icon .v-icon),
+.notice-link-icon:hover,
+.notice-link-icon:hover .v-icon {
+  opacity: 1;
+  color: var(--red-pompein);
+  transform: translateX(2px);
+}
+
+.notice-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.notice-link-icon:hover {
+  color: var(--red-pompein);
+  transform: translateX(2px);
+}
+
+.text-center-no-data {
+  padding: 24px;
+  font-size: 1.15rem;
+  text-align: center;
+  color: #999;
+}
+
+/* =========================
+   Contrôles haut / bas
+========================= */
+
+.footer-controls {
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: opacity 0.3s ease;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 16px !important;
 }
 
-.facet-reopen-icon {
-  color: #000000;
-  font-size: 22px;
+.top-controls {
+  padding-top: 0 !important;
 }
 
-.facet-reopen-label {
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.page-count-label {
+  font-weight: 500;
+  white-space: nowrap;
+  color: #444;
+}
+
+.search-page-input {
+  width: 76px;
+}
+
+.items-per-page-select {
+  max-width: 220px;
+}
+
+/* =========================
+   Input recherche nom
+========================= */
+
+.search-head-info-input-large {
+  min-width: 420px;
+  max-width: 760px !important;
+}
+
+:deep(.search-head-info-input-large .v-field) {
+  background: #fff;
+  border: none !important;
+  border-radius: 12px;
+  box-shadow: none;
+  transition: box-shadow 0.2s ease;
+}
+
+
+:deep(.search-head-info-input-large .v-field__outline) {
+  --v-field-border-opacity: 1;
+  color: #d8d2cb !important;
+}
+
+:deep(.search-head-info-input-large:hover .v-field__outline) {
+  color: var(--link-over-color) !important;
+}
+
+:deep(.search-head-info-input-large .v-field--focused .v-field__outline) {
+  color: var(--red-pompein) !important;
+}
+
+
+:deep(.search-head-info-input-large .v-label) {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--red-pompein);
+}
+
+:deep(.search-head-info-input-large .v-label.v-field-label--floating) {
+  background: #fff;
+  padding: 0 6px;
+}
+
+:deep(.search-head-info-input-large input) {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #333;
+}
+
+/* =========================
+   Highlight notices
+========================= */
+
+.exercise-places-main {
+  display: block;
+}
+
+.row-sep-quote {
+  margin: 12px 0 10px;
+  border: 0;
+  height: 1px;
+  background-color: var(--brown);
+}
+
+.table-highlighted-quote {
+  position: relative;
+  padding-left: 1.8rem;
+  margin-top: 0.35rem;
   font-size: 0.95rem;
-  color: #000000;
+  line-height: 1.55;
+  font-style: italic;
+  color: #444;
+}
+
+.table-highlighted-quote::before {
+  content: "“";
+  position: absolute;
+  left: 0;
+  top: -2px;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--brown);
+  font-family: Georgia, serif;
   font-weight: bold;
-  margin-top: 2px;
 }
 
-.facet-toggle-btn:hover {
-  background: #f9f9f9;
+.table-highlighted-quote :deep(mark),
+.table-highlighted-quote mark {
+  background: #fff34d;
+  color: #000;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-weight: 700;
 }
 
-.slide-x-enter-active,
-.slide-x-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
+/* =========================
+   Animation visuelle input
+========================= */
+
+.search-head-info-hint {
+  animation: searchFieldGlowHint 1.2s ease 0.4s 1;
 }
 
-.slide-x-enter-from,
-.slide-x-leave-to {
-  transform: translateX(-100%);
-  opacity: 0;
+:deep(.search-head-info-hint .v-field) {
+  animation: searchFieldShadowHint 1.2s ease 0.4s 1;
 }
 
-.slide-x-enter-to,
-.slide-x-leave-from {
-  transform: translateX(0);
-  opacity: 1;
+@keyframes searchFieldGlowHint {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.01);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
-.map-icon {
-  font-size: 1.5rem;
-  color: #000000;
-  margin-right: 8px;
+@keyframes searchFieldShadowHint {
+  0% {
+    box-shadow: 0 0 0 rgba(155, 26, 36, 0);
+  }
+  40% {
+    box-shadow: 0 0 0 4px rgba(155, 26, 36, 0.16);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(155, 26, 36, 0);
+  }
 }
+
+/* =========================
+   Responsive large tablette
+========================= */
+
+@media (max-width: 1260px) {
+  .search-head-info-input-large {
+    min-width: 320px;
+    max-width: 520px !important;
+  }
+
+  :deep(#table-imprimeurs thead th:nth-child(1)),
+  :deep(#table-imprimeurs tbody td:nth-child(1)) {
+    width: 32%;
+  }
+
+  :deep(#table-imprimeurs thead th:nth-child(2)),
+  :deep(#table-imprimeurs tbody td:nth-child(2)) {
+    width: 58%;
+  }
+
+  :deep(#table-imprimeurs thead th:nth-child(3)),
+  :deep(#table-imprimeurs tbody td:nth-child(3)) {
+    width: 10%;
+  }
+}
+
+/* =========================
+   Responsive tablette / mobile
+========================= */
 
 @media (max-width: 960px) {
-
-  :deep(.facet-reopen-label) {
-    font-size: 0.75rem;
-  }
-
-  :deep(.text-center-no-data) {
-    font-size: 1.0rem;
-    line-height: 1.8;
-  }
-
-  :deep(.v-toolbar__content > .v-toolbar-title) {
-    margin-inline-start: 12px;
-  }
-
-  .panel-header-title-with-toggle {
-    flex: calc(100% - 80px) 0 0;
-    width: calc(100% - 80px);
-  }
-
-  .panel-header-title-with-toggle,
-  .panel-header-title {
-    font-size: 1.0rem;
-  }
-
-  .imprimeurs-container .v-data-table {
-    max-height: unset;
-    overflow-y: unset;
-  }
-
-  .imprimeurs-container > .v-row {
+  .list-layout-row {
     flex-direction: column;
     width: 100%;
     margin: 0;
   }
 
-  /* Filters panel */
-  .imprimeurs-container > .v-row > .v-col:first-child {
-    flex: 75% 0 0 !important;
-    width: 75% !important;
-    max-width: 75% !important;
-  }
-
-  /* Results */
-  .facet-sidebar + .v-col {
-    margin-top: 86px;
-  }
-
-  .imprimeurs-container > .v-row > .v-col:last-child {
-    flex: 100% 0 0 !important;
+  .results-col {
     width: 100% !important;
     max-width: 100% !important;
-    padding: 0;
+    padding: 72px 0 0;
+    margin-top: 0;
   }
 
-  .imprimeurs-container > .v-row > .facet-sidebar {
+  .results-toolbar-top {
+    top: 76px;
+    left: 16px;
+    z-index: 10000;
+  }
+
+  .facet-sidebar {
     position: absolute;
-    z-index: 2000; /* above map controls */
-    overflow-y: inherit;
-    padding: 0;
+    top: 0;
+    left: 0;
+    z-index: 3000;
+    width: 82% !important;
+    max-width: 82% !important;
+    max-height: none;
+    overflow-y: visible;
+    padding-right: 0;
+  }
+
+  .facet-sidebar-inner {
+    position: fixed;
+    top: 136px;
+    left: 16px;
+    z-index: 3000;
+    width: 85%;
+    margin-top: 0;
+    padding: 14px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
   }
 
   .facet-toggle-btn {
-    left: 16px;
+    min-width: 190px;
+    padding: 9px 12px;
   }
 
-  .name-table-label {
-    margin-bottom: 0 !important;
+  .facet-reopen-label {
+    font-size: 0.75rem;
   }
 
-  .table-expanded-container a {
-    background-size: 17px auto;
-    padding-left: 25px;
-    margin-left: 0;
+  .panel-header-title,
+  .panel-header-title-with-toggle {
+    font-size: 1rem;
   }
 
-  .imprimeurs-container > .v-row > .facet-sidebar .facet-filter-container {
-    position: fixed;
-    top: 130px;
-    left: 16px;
-    width: 85%;
-    margin-top: 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  .show-map-container {
+    height: 48vh;
   }
 
   .footer-controls {
     flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 10px;
+    gap: 14px;
     padding: 10px !important;
   }
 
   .footer-controls > * {
-    flex: 100% 0 0;
+    flex: 1 1 100%;
     width: 100%;
     max-width: 100%;
-    max-height: 56px;
   }
 
-  .pagination-controls .v-btn--icon.v-btn--density-default {
-    width: var(--v-btn-height);
-    height: var(--v-btn-height);
+  .pagination-controls {
+    width: 100%;
+    justify-content: space-between;
+    gap: 8px;
   }
 
-  :deep(.pagination-controls .v-field__input) {
-    padding-left: 10px;
-    padding-right: 10px;
+  .search-head-info-input-large,
+  .items-per-page-select {
+    min-width: 100%;
+    max-width: 100% !important;
   }
 
-  :deep(.v-data-table .v-table__wrapper > table tbody > tr > td.v-data-table-column--no-padding) {
-    width: 40px !important;
-    padding: 0;
-  }
-
-  :deep(.v-table .v-table__wrapper > table > tbody > tr > td) {
-    padding-left: 0;
-    word-wrap: anywhere;
-  }
-
-  :deep(.expanded-patent-list),
-  :deep(.title-expanded-patent-list) {
-    margin: 0 !important;
-    padding-left: 0;
-  }
-
-  :deep(.expanded-patent-list) {
-    padding-bottom: 5px;
-  }
-
-  :deep(.table-cell-item-expanded),
-  :deep(.title-expanded-patent-list) {
+  :deep(#table-imprimeurs thead th) {
+    padding-top: 10px;
+    padding-bottom: 10px;
     font-size: 0.95rem;
   }
 
-  :deep(.v-data-table thead th),
-  :deep(.v-data-table tbody td),
-  :deep(.table-cell-item) {
+  :deep(#table-imprimeurs tbody td) {
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 0.95rem;
+  }
+
+  :deep(#table-imprimeurs thead th:nth-child(1)),
+  :deep(#table-imprimeurs tbody td:nth-child(1)) {
+    width: 34%;
+    padding-left: 8px;
+    padding-right: 10px;
+  }
+
+  :deep(#table-imprimeurs thead th:nth-child(2)),
+  :deep(#table-imprimeurs tbody td:nth-child(2)) {
+    width: 54%;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+
+  :deep(#table-imprimeurs thead th:nth-child(3)),
+  :deep(#table-imprimeurs tbody td:nth-child(3)) {
+    width: 12%;
+    padding-left: 2px;
+    padding-right: 8px;
+  }
+
+  .identity-table-link {
+    font-size: 0.96rem;
+    line-height: 1.4;
+  }
+
+  .exercise-places-cell {
+    font-size: 0.9rem;
+    line-height: 1.45;
+  }
+
+  .text-center-no-data {
     font-size: 1rem;
-    margin: 0;
+    line-height: 1.6;
+  }
+
+  .map-btn .v-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 22px;
   }
 }
 
+/* =========================
+   Responsive petit mobile
+========================= */
+
+@media (max-width: 700px) {
+  .facet-sidebar-inner {
+    top: 140px;
+    width: calc(100% - 32px);
+  }
+
+  :deep(#table-imprimeurs thead th) {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 0.88rem;
+  }
+
+  :deep(#table-imprimeurs tbody td) {
+    padding-top: 8px;
+    padding-bottom: 8px;
+    font-size: 0.88rem;
+  }
+
+  .identity-table-link {
+    font-size: 0.9rem;
+  }
+
+  .exercise-places-cell {
+    font-size: 0.84rem;
+  }
+
+  .page-count-label {
+    font-size: 0.9rem;
+  }
+
+  .search-page-input {
+    width: 66px;
+  }
+}
 </style>

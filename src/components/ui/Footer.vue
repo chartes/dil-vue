@@ -73,7 +73,7 @@ export default {
 
 <style scoped>
 .footer {
-  border-top: 5px solid var(--brown);
+  border-top: 5px solid var(--red-pompein);
   background-color: #4C4949;
   color: white;
 }
@@ -95,7 +95,7 @@ export default {
 }
 
 .footer-link a:hover {
-  border-bottom: 5px solid var(--brown);
+  border-bottom: 5px solid var(--red-pompein);
   padding-bottom: 10px;
 }
 

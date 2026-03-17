@@ -54,7 +54,7 @@ export default {
   },
 
   animateCount(key, target) {
-    const duration = 0;
+    const duration = 600;
     const start = 0;
     const startTime = performance.now();
 
@@ -102,7 +102,7 @@ export default {
 .metric-value {
   font-size: 2.5rem;
   font-weight: bold;
-  color: var(--light-brown-alt);
+  color: var(--red-pompein) !important;
   margin-top: 4px;
   line-height: 1;
   min-width: 180px;

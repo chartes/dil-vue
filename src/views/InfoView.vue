@@ -137,7 +137,7 @@ export default {
   position: sticky;
   top: 0;
   height: 4px;
-  background: var(--brown, #7b0c12);
+  background: var(--red-pompein, #7b0c12);
   width: 0%;
   z-index: 10;
 }
@@ -146,7 +146,7 @@ export default {
 .menu-col {
   background-color: #f7f7f7;
   padding: 20px;
-  border-right: 2px solid var(--light-brown-alt, #e6ddd6);
+  border-right: 2px solid var(--red-pompein, #e6ddd6);
   min-height: 100%;
   position: sticky;
   top: 70px; /* colle le menu au scroll sur desktop */
@@ -176,7 +176,7 @@ export default {
 }
 
 .menu-active {
-  border-left: 4px solid var(--brown, #7b0c12);
+  border-left: 4px solid var(--red-pompein, #7b0c12);
   background-color: rgba(123, 12, 18, 0.05);
 }
 
@@ -193,7 +193,7 @@ export default {
   display: block;
   height: 100%;
   width: 0%;
-  background: var(--brown, #7b0c12);
+  background: var(--red-pompein, #7b0c12);
   transition: width .1s linear;
 }
 
@@ -203,11 +203,11 @@ export default {
 
 .section-content h2 {
   font-size: 1.6rem;
-  color: var(--brown, #7b0c12);
+  color: var(--red-pompein, #7b0c12);
   margin-bottom: 20px;
   font-weight: 700;
   line-height: 1.4;
-  border-bottom: 2px solid var(--light-brown-alt, #e6ddd6);
+  border-bottom: 2px solid var(--red-pompein, #e6ddd6);
   padding-bottom: 10px;
   margin-top: 0;
   text-transform: uppercase;
@@ -224,7 +224,7 @@ export default {
 }
 
 .section-content a {
-  color: var(--brown, #7b0c12) !important;
+  color: var(--red-pompein, #7b0c12) !important;
   text-decoration: underline;
 }
 

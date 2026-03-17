@@ -5,13 +5,19 @@ html {
   --font-primary: "Libre Baskerville", sans-serif;
   --font-secondary: "Barlow Semi Condensed", sans-serif;
   --font-endp: "Cormorant Garamond", sans-serif;
+/* proposition initiale : #7B0C12*/
+  /* proposition rouge pompeien : #bc052d */
+  /* proposition bleu paon : #00445e */
+
 
   --brown: #7B0C12;
-  --dark-grey: #343434;
-  --light-brown: #ad464b;
-  --light-brown-alt: #CC3E46;
-  --panel-bg-color: #ffffff;
+  --red-pompein: #bc052d;
+  --light-brown-alt: #c51f39;
   --link-over-color: #CC3E46;
+  --blue-peacock: #00445e;
+
+  --dark-grey: #343434;
+  --panel-bg-color: #ffffff;
 
   --desktop-content-width: 1270px;
   --desktop-side-padding: calc(50% - 635px);
