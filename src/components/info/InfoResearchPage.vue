@@ -61,8 +61,8 @@
       <p class="paragraph"><b>Troncature.</b> Le caractère <code>*</code> représente zéro à plusieurs caractères
         indéfinis. La requête
         <code>affich*</code> retourne les occurrences "affiche", "affiches", "affichage", "affichettes", etc.</p>
-      <p class="paragraph"><b>Recherche d’expressions</b>. Inscrire les mots de la requête entre des guillemets simples
-        permet de rechercher l’expression exacte. La requête <code>'service militaire'</code> permet d’accéder aux
+      <p class="paragraph"><b>Recherche d’expressions</b>. Inscrire les mots de la requête entre des guillemets doubles
+        permet de rechercher l’expression exacte. La requête <code>"service militaire"</code> permet d’accéder aux
         notices
         contenant cette expression exacte.</p>
       <h1 class="title-h1">Les facettes : filtrer les résultats</h1>

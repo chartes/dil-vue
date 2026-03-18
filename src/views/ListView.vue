@@ -25,6 +25,7 @@
                 title="Ville d'activité"
                 filterType="places"
                 :activateResetBtn="facetResetBtn"
+                :initialSelectedIds="selectedFacets.places"
                 @update:selectedTerms="onUpdatePlaces"
                 @update:dateFilter="onUpdateDate"
                 @update:extraSearch="onExtraSearchChange"
@@ -35,7 +36,7 @@
         </transition>
       </v-col>
 
-      <v-col cols="12" :md="showFacets ? 9 : 12" class="results-col">
+      <v-col cols="12" :md="showFacets ? 9 : 12" class="results-col" ref="resultsColumn">
         <div class="results-toolbar-top">
           <div
               class="facet-toggle-btn facet-toggle-btn-inline"
@@ -47,8 +48,8 @@
             </span>
           </div>
         </div>
-
         <v-data-table
+            ref="resultsTable"
             id="table-imprimeurs"
             :headers="headers"
             :items="imprimeurs"
@@ -63,7 +64,9 @@
             @click:row="goToDetail"
         >
           <template #top>
-            <v-toolbar flat class="toolbar-header table-topbar">
+            <div ref="resultsAnchor" class="results-anchor"></div>
+
+            <v-toolbar ref="resultsHeader" flat class="toolbar-header table-topbar">
               <v-toolbar-title class="panel-header-title">
                 {{ totalItems }} {{ pluralize('imprimeur', totalItems) }} - {{ pluralize('lithographe', totalItems) }}
               </v-toolbar-title>
@@ -89,9 +92,9 @@
                     v-if="showMapContent"
                     ref="leaflet"
                     :apiBase="apiUrl"
-                    :cityQuery="selectedFacets.places.map(p => p.id || p.id_dil)"
-                    :date="selectedFacets.date?.date"
-                    :exact="selectedFacets.date?.exact || false"
+                    :cityQuery="mapCityQuery"
+                    :date="mapDate"
+                    :exact="mapExact"
                     @selectCity="onCitySelected"
                 />
               </div>
@@ -107,7 +110,7 @@
                   variant="outlined"
                   clearable
                   hide-details
-                  @input="onSearchInput"
+                  @input="scheduleFetch"
                   @click:clear="onClearFirstnamesLastname"
               />
 
@@ -116,7 +119,7 @@
                   <v-icon>mdi-page-first</v-icon>
                 </v-btn>
 
-                <v-btn icon :disabled="page <= 1" @click="page = page - 1" title="Page précédente">
+                <v-btn icon :disabled="page <= 1" @click="goToPage(page - 1)" title="Page précédente">
                   <v-icon>mdi-chevron-left</v-icon>
                 </v-btn>
 
@@ -136,7 +139,7 @@
 
                 <span class="page-count-label">/ {{ pageCount }}</span>
 
-                <v-btn icon :disabled="page >= pageCount" @click="page = page + 1" title="Page suivante">
+                <v-btn icon :disabled="page >= pageCount" @click="goToPage(page + 1)" title="Page suivante">
                   <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
 
@@ -205,7 +208,7 @@
                   <v-icon>mdi-page-first</v-icon>
                 </v-btn>
 
-                <v-btn icon :disabled="page <= 1" @click="page = page - 1" title="Page précédente">
+                <v-btn icon :disabled="page <= 1" @click="goToPage(page - 1)" title="Page précédente">
                   <v-icon>mdi-chevron-left</v-icon>
                 </v-btn>
 
@@ -225,7 +228,7 @@
 
                 <span class="page-count-label">/ {{ pageCount }}</span>
 
-                <v-btn icon :disabled="page >= pageCount" @click="page = page + 1" title="Page suivante">
+                <v-btn icon :disabled="page >= pageCount" @click="goToPage(page + 1)" title="Page suivante">
                   <v-icon>mdi-chevron-right</v-icon>
                 </v-btn>
 
@@ -258,7 +261,6 @@ export default {
       pageInput: 1,
       itemsPerPage: 50,
       imprimeurs: [],
-      details: {},
       searchHeadInfo: '',
       searchExtraInfo: '',
       searchDebounce: null,
@@ -277,23 +279,29 @@ export default {
         {title: 'Villes d’exercice', key: 'exercise_places', sortable: false, width: '62%'},
         {title: '', key: 'actions', sortable: false, align: 'end', width: '8%'}
       ],
-      loading: false
+      loading: false,
+      fetchController: null,
+      requestSeq: 0,
+      shouldScrollToResults: false,
+
     }
   },
   computed: {
     ...mapState(['apiUrl']),
     pageCount() {
       return Math.max(1, Math.ceil(this.totalItems / this.itemsPerPage))
+    },
+    mapCityQuery() {
+      return this.selectedFacets.places.map(p => p.id || p.id_dil)
+    },
+    mapDate() {
+      return this.selectedFacets.date?.date || ''
+    },
+    mapExact() {
+      return this.selectedFacets.date?.exact || false
     }
   },
   watch: {
-    page(newVal) {
-      this.pageInput = newVal
-      this.fetchImprimeurs()
-    },
-    itemsPerPage() {
-      this.page = 1
-    },
     showFacets() {
       this.$nextTick(() => {
         if (this.$refs.leaflet?.map) {
@@ -301,6 +309,7 @@ export default {
         }
       })
     },
+
     showMap(val) {
       if (!val) return
       this.$nextTick(() => {
@@ -312,20 +321,18 @@ export default {
         }, 200)
       })
     },
+
     'selectedFacets.places': {
       deep: true,
       handler() {
-        this.page = 1
-        this.fetchImprimeurs()
-        this.refreshMapCities()
+        this.onFiltersChanged({refreshMap: true})
       }
     },
+
     'selectedFacets.date': {
       deep: true,
       handler() {
-        this.page = 1
-        this.fetchImprimeurs()
-        this.refreshMapCities()
+        this.onFiltersChanged({refreshMap: true})
       }
     }
   },
@@ -359,6 +366,7 @@ export default {
     shouldShowHighlight(item) {
       return !!this.searchExtraInfo?.trim() && !!item?.highlight
     },
+
     formatDateShort(dateStr) {
       if (!dateStr) return null
       const date = new Date(dateStr)
@@ -371,22 +379,29 @@ export default {
     },
 
     formatExercisePlaces(item) {
-      const personDetails = this.details[item._id_dil]
-      const patents = personDetails?.patents || []
+      const places = item?.exercise_places_summary || []
 
-      if (!patents.length) {
+      if (!places.length) {
         return 'Aucune ville d’exercice renseignée'
       }
 
-      return patents
-          .map((patent) => {
-            const rawCity = patent.city_label || 'Ville inconnue'
+      return places
+          .map((place) => {
+            const rawCity = place.city_label || 'Ville inconnue'
             const city = rawCity.replace(/\s*\([^()]*\)\s*$/u, '').trim()
 
-            const start = this.formatDateShort(patent.date_start) || 'date inconnue'
-            const end = this.formatDateShort(patent.date_end) || 'date inconnue'
+            const start = this.formatDateShort(place.date_start)
+            const end = this.formatDateShort(place.date_end)
 
-            return `${city} (${start} - ${end})`
+            if (start && end) {
+              return `${city} (${start} / ${end})`
+            }
+
+            if (start) {
+              return `${city} (${start})`
+            }
+
+            return city
           })
           .join(', ')
     },
@@ -397,25 +412,32 @@ export default {
       this.$router.push(`/detail/${item._id_dil}`)
     },
 
-    onSearchInput() {
-      this.page = 1
-      if (this.searchDebounce) {
-        clearTimeout(this.searchDebounce)
-      }
-      this.searchDebounce = setTimeout(() => {
-        this.fetchImprimeurs()
-      }, 250)
-    },
-
     onClearFirstnamesLastname() {
       this.searchHeadInfo = ''
       this.page = 1
-      this.fetchImprimeurs()
+      this.pageInput = 1
+      this.scheduleFetch()
+    },
+
+    onFiltersChanged({refreshMap = true} = {}) {
+      if (refreshMap) {
+        this.refreshMapCities()
+      }
+
+      if (this.page !== 1) {
+        this.page = 1
+        this.pageInput = 1
+      }
+
+      this.scheduleFetch()
     },
 
     goToPage(pageNumber) {
       const safePage = Math.min(Math.max(1, pageNumber), this.pageCount)
+      if (safePage === this.page) return
       this.page = safePage
+      this.pageInput = safePage
+      this.fetchImprimeurs()
     },
 
     applyPageInput() {
@@ -431,33 +453,54 @@ export default {
       window.scrollTo({top: 0, behavior: 'smooth'})
     },
 
-    async onResetAll() {
-      this.selectedFacets.places = []
-      this.selectedFacets.date = ''
-      this.searchExtraInfo = ''
-      this.searchHeadInfo = ''
-      this.details = {}
-      await this.refreshResults()
+    scrollToResults() {
+      this.$nextTick(() => {
+        const tableRoot = this.$refs.resultsTable?.$el || this.$refs.resultsTable;
+        if (!tableRoot) return;
+
+        const tbody =
+            tableRoot.querySelector('tbody') ||
+            tableRoot.querySelector('.v-table__wrapper');
+
+        if (!tbody) return;
+
+        const rect = tbody.getBoundingClientRect();
+        const absoluteTop = rect.top + window.scrollY;
+
+        const fixedToolbar = document.querySelector('.results-toolbar-top');
+        const fixedToolbarHeight = fixedToolbar
+            ? fixedToolbar.getBoundingClientRect().height
+            : 0;
+
+        const isMobile = window.innerWidth <= 960;
+        const extraOffset = isMobile ? 20 : 19;
+
+        window.scrollTo({
+          top: Math.max(0, absoluteTop - fixedToolbarHeight - extraOffset),
+          behavior: 'smooth'
+        });
+      });
     },
 
-    async refreshResults(fetch = true, shouldScrollTop = true) {
-      this.page = 1
-      if (shouldScrollTop) {
-        this.scrollTop()
-      }
-      if (fetch) {
-        await this.fetchImprimeurs()
+    onResetAll() {
+      this.searchExtraInfo = ''
+      this.searchHeadInfo = ''
+      this.selectedFacets = {
+        places: [],
+        date: ''
       }
     },
 
     async onItemsPerPageChange() {
       this.page = 1
+      this.pageInput = 1
       await this.fetchImprimeurs()
     },
 
-    async onExtraSearchChange(value) {
+    onExtraSearchChange(value) {
       this.searchExtraInfo = value
-      await this.refreshResults()
+      this.page = 1
+      this.scheduleFetch()
     },
 
     async onUpdateDate(dateRange) {
@@ -465,7 +508,14 @@ export default {
     },
 
     async onUpdatePlaces(value) {
-      this.selectedFacets.places = value.terms
+      const nextTerms = value.terms || [];
+
+      const currentIds = this.selectedFacets.places.map(t => t.id_dil || t.id || t.label);
+      const nextIds = nextTerms.map(t => t.id_dil || t.id || t.label);
+
+      if (JSON.stringify(currentIds) === JSON.stringify(nextIds)) return;
+
+      this.selectedFacets.places = nextTerms;
     },
 
     onUpdateExactMatch(payload) {
@@ -481,8 +531,11 @@ export default {
     },
 
     async onCitySelected(cityId) {
-      const facetFilter = this.$refs.facetFilter
-      if (this.selectedFacets.places.some(p => (p.id || p.id_dil) === cityId)) return
+      if (this.selectedFacets.places.some(p => (p.id || p.id_dil) === cityId)) {
+        this.shouldScrollToResults = true
+        this.scrollToResults()
+        return
+      }
 
       try {
         const res = await fetch(`${this.apiUrl}/referential/cities/city/${cityId}`)
@@ -495,14 +548,9 @@ export default {
           department_label_fr: data.insee_fr_department_label
         }
 
+        this.shouldScrollToResults = true
         this.selectedFacets.places = [...this.selectedFacets.places, term]
 
-        if (typeof facetFilter?.addExternalTerm === 'function') {
-          facetFilter.addExternalTerm(term)
-        }
-
-        this.page = 1
-        await this.fetchImprimeurs()
       } catch (err) {
         console.error('Erreur lors de la récupération de la ville :', err)
       }
@@ -527,6 +575,7 @@ export default {
     },
 
     refreshMapCities() {
+      /*
       if (this.showMap && this.$refs.leaflet?.fetchCities) {
         this.$refs.leaflet.fetchCities({
           patent_city_query: this.selectedFacets.places.map(p => p.id || p.id_dil),
@@ -534,34 +583,19 @@ export default {
           exact_patent_date_start: this.selectedFacets.date?.exact || false
         })
       }
-    },
+      */
 
-    async loadDetailsForCurrentPage() {
-      const idsToLoad = this.imprimeurs
-          .map(item => item._id_dil)
-          .filter(id => !this.details[id])
-
-      if (!idsToLoad.length) return
-
-      await Promise.all(
-          idsToLoad.map(async (id) => {
-            try {
-              const res = await fetch(`${this.apiUrl}/persons/person/${id}?html=false`)
-              if (!res.ok) throw new Error('Erreur de réseau')
-              const data = await res.json()
-              this.details = {
-                ...this.details,
-                [id]: data
-              }
-            } catch (err) {
-              console.error(`Erreur de chargement des détails pour ${id}:`, err)
-            }
-          })
-      )
     },
 
     async fetchImprimeurs() {
       this.loading = true
+      const currentSeq = ++this.requestSeq
+
+      if (this.fetchController) {
+        this.fetchController.abort()
+      }
+      this.fetchController = new AbortController()
+
       try {
         const params = new URLSearchParams()
         params.append('page', this.page)
@@ -584,17 +618,38 @@ export default {
           })
         }
 
-        const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`)
+        const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`, {
+          signal: this.fetchController.signal
+        })
         const data = await res.json()
+
+        if (currentSeq !== this.requestSeq) return
 
         this.imprimeurs = data.items || []
         this.totalItems = data.total || 0
-        await this.loadDetailsForCurrentPage()
       } catch (err) {
-        console.error('Erreur lors du chargement :', err)
+        if (err.name !== 'AbortError') {
+          console.error('Erreur lors du chargement :', err)
+        }
       } finally {
-        this.loading = false
+        if (currentSeq === this.requestSeq) {
+          this.loading = false
+
+          if (this.shouldScrollToResults) {
+            this.shouldScrollToResults = false
+            this.scrollToResults()
+          }
+        }
       }
+    },
+    scheduleFetch() {
+      this.page = 1
+      if (this.searchDebounce) {
+        clearTimeout(this.searchDebounce)
+      }
+      this.searchDebounce = setTimeout(() => {
+        this.fetchImprimeurs()
+      }, 300)
     }
   }
 }
@@ -875,6 +930,10 @@ export default {
 
 :deep(#table-imprimeurs tbody tr:hover .identity-table-link) {
   color: var(--red-pompein);
+}
+
+.results-anchor {
+  position: relative;
 }
 
 .exercise-places-cell {

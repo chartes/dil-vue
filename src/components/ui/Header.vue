@@ -113,7 +113,7 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  z-index: 2500 !important;
+  z-index: 4000 !important;
 }
 
 .header-container {
@@ -226,7 +226,7 @@ export default {
   left: 0;
   right: 0;
   display: flex;
-  z-index: 2499;
+  z-index: 40000 !important;
 }
 
 .mobile-popover {

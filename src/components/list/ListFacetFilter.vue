@@ -140,14 +140,14 @@ export default {
       selectedDate: '',
       currentDay: '',
       exactMatch: false,
+      isSyncingFromParent: false,
       autocompleteStyle: {
         top: '0px',
         left: '0px',
         width: '0px',
-        position: 'fixed', // IMPORTANT: fixed pour sortir des overflows
-        zIndex: 3000,      // au-dessus des panneaux
+        position: 'fixed',
+        zIndex: 3000,
       }
-
     }
   },
   computed: {
@@ -167,35 +167,61 @@ export default {
     }
   },
   watch: {
-    selectedTerms: {
-      handler(newValue) {
-        this.$emit('update:selectedTerms', {
-          type: this.filterType,
-          terms: newValue,
-        })
-      },
-      deep: true,
-    },
-    reset(newVal) {
-      if (newVal) this.selectedTerms = []
-    },
-    selectedDate: {
-      handler(newVal) {
-        this.$emit('update:selectedDate', {
-          type: this.filterType,
-          date: newVal,
-        })
-      },
-    },
-    exactMatch: {
-      handler(newVal) {
-        this.$emit('update:exactMatch', {
-          type: this.filterType,
-          exact: newVal,
-        })
-      },
+  initialSelectedIds: {
+    immediate: true,
+    deep: true,
+    handler(newVal) {
+      const nextTerms = Array.isArray(newVal) ? [...newVal] : [];
+
+      const same =
+        JSON.stringify(this.selectedTerms.map(t => t.id_dil || t.id || t.label)) ===
+        JSON.stringify(nextTerms.map(t => t.id_dil || t.id || t.label));
+
+      if (same) return;
+
+      this.isSyncingFromParent = true;
+      this.selectedTerms = nextTerms;
+
+      this.$nextTick(() => {
+        this.isSyncingFromParent = false;
+      });
+    }
+  },
+
+  selectedTerms: {
+    deep: true,
+    handler(newValue) {
+      if (this.isSyncingFromParent) return;
+
+      this.$emit('update:selectedTerms', {
+        type: this.filterType,
+        terms: newValue,
+      });
     },
   },
+
+  reset(newVal) {
+    if (newVal) this.selectedTerms = [];
+  },
+
+  selectedDate: {
+    handler(newVal) {
+      this.$emit('update:selectedDate', {
+        type: this.filterType,
+        date: newVal,
+      });
+    },
+  },
+
+  exactMatch: {
+    handler(newVal) {
+      this.$emit('update:exactMatch', {
+        type: this.filterType,
+        exact: newVal,
+      });
+    },
+  },
+},
   methods: {
     onResetAll() {
       this.selectedTerms = [];
@@ -343,55 +369,58 @@ export default {
       this.$emit('update:extraSearch', ''); // ➔ reset complet dans le parent (ListView)
     },
     onGlobalClick(e) {
-    // fermer si clic à l’extérieur de l’input ou de la liste
-    const inputEl = this.$refs.autocompleteInput?.$el;
-    if (!inputEl) { this.showDropdown = false; return; }
-    if (!inputEl.contains(e.target)) this.showDropdown = false;
-  },
+      // fermer si clic à l’extérieur de l’input ou de la liste
+      const inputEl = this.$refs.autocompleteInput?.$el;
+      if (!inputEl) {
+        this.showDropdown = false;
+        return;
+      }
+      if (!inputEl.contains(e.target)) this.showDropdown = false;
+    },
 
-  onSearchQueryInput() {
-    this.showDropdown = true;
-    this.fetchTerms();
-    this.updateAutocompletePosition();
-  },
+    onSearchQueryInput() {
+      this.showDropdown = true;
+      this.fetchTerms();
+      this.updateAutocompletePosition();
+    },
 
-  updateAutocompletePosition() {
-    this.$nextTick(() => {
-      // 1) cibler le wrapper visuel du v-text-field
-      const root = this.$refs.autocompleteInput?.$el;
-      if (!root) return;
+    updateAutocompletePosition() {
+      this.$nextTick(() => {
+        // 1) cibler le wrapper visuel du v-text-field
+        const root = this.$refs.autocompleteInput?.$el;
+        if (!root) return;
 
-      const fieldEl =
-        root.querySelector('.v-field') ||            // Vuetify 3
-        root.querySelector('.v-input') ||            // fallback
-        root;                                        // dernier recours
+        const fieldEl =
+            root.querySelector('.v-field') ||            // Vuetify 3
+            root.querySelector('.v-input') ||            // fallback
+            root;                                        // dernier recours
 
-      const rect = fieldEl.getBoundingClientRect();
+        const rect = fieldEl.getBoundingClientRect();
 
-      // Option: éviter les subpixels qui créent 1px d’écart
-      const width = Math.round(rect.width);
+        // Option: éviter les subpixels qui créent 1px d’écart
+        const width = Math.round(rect.width);
 
-      // (facultatif) clamp dans le viewport
-      const padding = 8;
-      const left = Math.max(padding, Math.min(rect.left, window.innerWidth - width - padding));
+        // (facultatif) clamp dans le viewport
+        const padding = 8;
+        const left = Math.max(padding, Math.min(rect.left, window.innerWidth - width - padding));
 
-      this.autocompleteStyle = {
-        position: 'fixed',
-        top: `${rect.bottom}px`,
-        left: `${left}px`,
-        width: `${width}px`,
-        // styles "conteneur"
-        maxHeight: '300px',
-        overflowY: 'auto',
-        backgroundColor: 'white',
-        border: '1px solid #ddd',
-        borderTop: 'none',
-        boxShadow: '0 2px 8px rgba(0,0,0,.08)',
-        zIndex: 3000,
-        boxSizing: 'border-box',  // <— pour que width inclue la bordure
-      };
-    });
-  },
+        this.autocompleteStyle = {
+          position: 'fixed',
+          top: `${rect.bottom}px`,
+          left: `${left}px`,
+          width: `${width}px`,
+          // styles "conteneur"
+          maxHeight: '300px',
+          overflowY: 'auto',
+          backgroundColor: 'white',
+          border: '1px solid #ddd',
+          borderTop: 'none',
+          boxShadow: '0 2px 8px rgba(0,0,0,.08)',
+          zIndex: 3000,
+          boxSizing: 'border-box',  // <— pour que width inclue la bordure
+        };
+      });
+    },
 
   },
   mounted() {
@@ -400,10 +429,10 @@ export default {
     document.addEventListener('click', this.onGlobalClick, true);
   },
   beforeUnmount() {
-  window.removeEventListener('scroll', this.updateAutocompletePosition);
-  window.removeEventListener('resize', this.updateAutocompletePosition);
-  document.removeEventListener('click', this.onGlobalClick, true);
-},
+    window.removeEventListener('scroll', this.updateAutocompletePosition);
+    window.removeEventListener('resize', this.updateAutocompletePosition);
+    document.removeEventListener('click', this.onGlobalClick, true);
+  },
 }
 </script>
 

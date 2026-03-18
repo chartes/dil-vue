@@ -8,6 +8,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
+import logoDicotopo from '@/assets/images/logos/logo-dicotopo.png'
 
 export default {
   name: 'LeafletMap',
@@ -22,7 +23,8 @@ export default {
     return {
       map: null,
       clusterGroup: null,
-      isReady: false
+      isReady: false,
+      lastFetchKey: null
     };
   },
   mounted() {
@@ -47,6 +49,16 @@ export default {
   methods: {
     updateMap() {
       if (!this.map) return;
+
+      const nextKey = JSON.stringify({
+        cityQuery: this.cityQuery || [],
+        date: this.date || '',
+        exact: !!this.exact
+      });
+
+      if (nextKey === this.lastFetchKey) return;
+      this.lastFetchKey = nextKey;
+
       this.fetchCities({
         patent_city_query: this.cityQuery,
         patent_date_start: this.date,
@@ -97,7 +109,9 @@ export default {
                   totalImprimeurs < 50 ? 'marker-cluster-medium' : 'marker-cluster-large';
 
           return L.divIcon({
-            html: `<div><span>${totalImprimeurs}</span></div>`,
+            html: `<div>
+<span>${totalImprimeurs}</span>
+</div>`,
             className: `marker-cluster ${sizeClass}`,
             iconSize: L.point(40, 40)
           });
@@ -106,24 +120,14 @@ export default {
       this.map.addLayer(this.clusterGroup);
     },
     initMapLinks(evt) {
-      // Scrolls down from map city popup link to list and emits selectCity event :
-      const t = this;
-      const target = evt.target;
-      if (target.tagName.toLowerCase() === "a" && target.getAttribute("class") === "city-link") {
-        evt.preventDefault();
-        evt.stopImmediatePropagation();
-        const cityDil = target.getAttribute("data-city");
-        console.log("emit", cityDil, t);
-        t.$emit("selectCity", cityDil);
-        const table = document.getElementById("table-imprimeurs"); // Cf id of <v-data-table> in ListView
-        if (table) {
-          window.scroll({
-            top: table.offsetTop - 72,
-            left: 0,
-            behavior: "smooth",
-          });
-        }
-      }
+      const link = evt.target.closest?.("a.city-link");
+      if (!link) return;
+
+      evt.preventDefault();
+      evt.stopImmediatePropagation();
+
+      const cityDil = link.getAttribute("data-city");
+      this.$emit("selectCity", cityDil);
     },
     centerOnCity(cityId) {
       if (!this.map) return;
@@ -169,13 +173,20 @@ export default {
           if (Math.abs(lat) < Math.abs(lon)) [lat, lon] = [lon, lat];
 
           const nbPrinters = city.persons?.length || 1;
+          console.log("city", city)
 
           const popupHtml = `
-    <a href="" class="city-link" data-city="${city.city_dil}">
-      ${city.city_label} (${city.city_dept_label})
-    </a><br/>
-    ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
-  `;
+  <a href="" class="city-link" data-city="${city.city_dil}">
+   <i class="fa fa-open-in-new" style="color: red;"></i>
+${city.city_label} (${city.city_dept_label})
+  </a>
+  <br/>
+  ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
+  <span>
+  <img src="${logoDicotopo}" alt="Logo Dicotopo" width="25px">
+  <a href="https://dicotopo.cths.fr/places/${city.dicotopo_item_id}" target="_blank">Accéder à Dicotopo</a>
+  </span>
+`;
 
           const marker = L.circleMarker([lat, lon], {
             radius: 5 + Math.log(nbPrinters) * 5,
