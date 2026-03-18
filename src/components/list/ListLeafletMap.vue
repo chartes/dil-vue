@@ -175,17 +175,33 @@ export default {
           const nbPrinters = city.persons?.length || 1;
           console.log("city", city)
 
+          const hasDicotopo = !!city.city_dicotopo_item_id;
+
           const popupHtml = `
   <a href="" class="city-link" data-city="${city.city_dil}">
-   <i class="fa fa-open-in-new" style="color: red;"></i>
-${city.city_label} (${city.city_dept_label})
+    <span class="city-link-icon">📍</span>
+    ${city.city_label}${city.city_dept_label ? ` (${city.city_dept_label})` : ''}
   </a>
   <br/>
-  ${nbPrinters} imprimeur(s) - lithographe(s)<br/>
-  <span>
-  <img src="${logoDicotopo}" alt="Logo Dicotopo" width="25px">
-  <a href="https://dicotopo.cths.fr/places/${city.dicotopo_item_id}" target="_blank">Accéder à Dicotopo</a>
-  </span>
+  ${nbPrinters} imprimeur(s) - lithographe(s)
+  ${
+              hasDicotopo
+                  ? `
+        <br/>
+        <span class="dicotopo-link-wrapper">
+          <img src="${logoDicotopo}" alt="Logo Dicotopo" width="18" class="dicotopo-logo">
+          <a
+            href="https://dicotopo.cths.fr/places/${city.city_dicotopo_item_id}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="dicotopo-link"
+          >
+            Accéder à Dicotopo
+          </a>
+        </span>
+      `
+                  : ''
+          }
 `;
 
           const marker = L.circleMarker([lat, lon], {

@@ -113,6 +113,8 @@ export default {
     filterType: {type: String, required: true},
     reset: {type: Boolean, default: false},
     initialSelectedIds: {type: Array, default: () => []},
+    initialExtraSearch: {type: String, default: ''},
+    initialDateFilter: {type: [String, Object], default: ''},
     showIndexLink: {type: Boolean, default: false},
     indexUrl: {type: String, default: ''},
     activateResetBtn: {type: Boolean, default: false},
@@ -167,61 +169,89 @@ export default {
     }
   },
   watch: {
-  initialSelectedIds: {
-    immediate: true,
-    deep: true,
-    handler(newVal) {
-      const nextTerms = Array.isArray(newVal) ? [...newVal] : [];
+    initialSelectedIds: {
+      immediate: true,
+      deep: true,
+      handler(newVal) {
+        const nextTerms = Array.isArray(newVal) ? [...newVal] : [];
 
-      const same =
-        JSON.stringify(this.selectedTerms.map(t => t.id_dil || t.id || t.label)) ===
-        JSON.stringify(nextTerms.map(t => t.id_dil || t.id || t.label));
+        const same =
+            JSON.stringify(this.selectedTerms.map(t => t.id_dil || t.id || t.label)) ===
+            JSON.stringify(nextTerms.map(t => t.id_dil || t.id || t.label));
 
-      if (same) return;
+        if (same) return;
 
-      this.isSyncingFromParent = true;
-      this.selectedTerms = nextTerms;
+        this.isSyncingFromParent = true;
+        this.selectedTerms = nextTerms;
 
-      this.$nextTick(() => {
-        this.isSyncingFromParent = false;
-      });
-    }
-  },
+        this.$nextTick(() => {
+          this.isSyncingFromParent = false;
+        });
+      }
+    },
 
-  selectedTerms: {
-    deep: true,
-    handler(newValue) {
-      if (this.isSyncingFromParent) return;
+    initialExtraSearch: {
+      immediate: true,
+      handler(newVal) {
+        this.personSearchQuery = newVal || '';
+      }
+    },
 
-      this.$emit('update:selectedTerms', {
-        type: this.filterType,
-        terms: newValue,
-      });
+    initialDateFilter: {
+      immediate: true,
+      deep: true,
+      handler(newVal) {
+        if (!newVal) {
+          this.selectedDate = '';
+          this.exactMatch = false;
+          return;
+        }
+
+        if (typeof newVal === 'string') {
+          this.selectedDate = newVal;
+          this.exactMatch = false;
+          return;
+        }
+
+        this.selectedDate = newVal.date || '';
+        this.exactMatch = !!newVal.exact;
+      }
+    },
+
+    selectedTerms: {
+      deep: true,
+      handler(newValue) {
+        if (this.isSyncingFromParent) return;
+
+        this.$emit('update:selectedTerms', {
+          type: this.filterType,
+          terms: newValue,
+        });
+      },
+    },
+
+    reset(newVal) {
+      if (newVal) this.selectedTerms = [];
+    },
+
+    selectedDate: {
+      handler(newVal) {
+        this.$emit('update:selectedDate', {
+          type: this.filterType,
+          date: newVal,
+        });
+      },
+    },
+
+    exactMatch: {
+      handler(newVal) {
+        this.$emit('update:exactMatch', {
+          type: this.filterType,
+          exact: newVal,
+        });
+      },
     },
   },
-
-  reset(newVal) {
-    if (newVal) this.selectedTerms = [];
-  },
-
-  selectedDate: {
-    handler(newVal) {
-      this.$emit('update:selectedDate', {
-        type: this.filterType,
-        date: newVal,
-      });
-    },
-  },
-
-  exactMatch: {
-    handler(newVal) {
-      this.$emit('update:exactMatch', {
-        type: this.filterType,
-        exact: newVal,
-      });
-    },
-  },
-},
   methods: {
     onResetAll() {
       this.selectedTerms = [];

@@ -26,6 +26,8 @@
                 filterType="places"
                 :activateResetBtn="facetResetBtn"
                 :initialSelectedIds="selectedFacets.places"
+                :initialExtraSearch="searchExtraInfo"
+                :initialDateFilter="selectedFacets.date"
                 @update:selectedTerms="onUpdatePlaces"
                 @update:dateFilter="onUpdateDate"
                 @update:extraSearch="onExtraSearchChange"
@@ -283,11 +285,12 @@ export default {
       fetchController: null,
       requestSeq: 0,
       shouldScrollToResults: false,
+      isRestoringState: false,
 
     }
   },
   computed: {
-    ...mapState(['apiUrl']),
+    ...mapState(['apiUrl', 'listViewState']),
     pageCount() {
       return Math.max(1, Math.ceil(this.totalItems / this.itemsPerPage))
     },
@@ -303,6 +306,8 @@ export default {
   },
   watch: {
     showFacets() {
+      this.persistListViewState();
+
       this.$nextTick(() => {
         if (this.$refs.leaflet?.map) {
           this.$refs.leaflet.map.invalidateSize()
@@ -311,6 +316,8 @@ export default {
     },
 
     showMap(val) {
+      this.persistListViewState();
+
       if (!val) return
       this.$nextTick(() => {
         setTimeout(() => {
@@ -322,31 +329,58 @@ export default {
       })
     },
 
+    page() {
+      this.persistListViewState();
+    },
+
+    pageInput() {
+      this.persistListViewState();
+    },
+
+    itemsPerPage() {
+      this.persistListViewState();
+    },
+
+    searchHeadInfo(val) {
+      this.facetResetBtn = val !== ''
+      this.persistListViewState()
+    },
+
+    searchExtraInfo() {
+      this.persistListViewState();
+    },
+
     'selectedFacets.places': {
       deep: true,
       handler() {
-        this.onFiltersChanged({refreshMap: true})
+        this.persistListViewState();
+
+        if (this.isRestoringState) return;
+        this.onFiltersChanged({refreshMap: true});
       }
     },
 
     'selectedFacets.date': {
       deep: true,
       handler() {
-        this.onFiltersChanged({refreshMap: true})
+        this.persistListViewState();
+
+        if (this.isRestoringState) return;
+        this.onFiltersChanged({refreshMap: true});
       }
     }
   },
-  mounted() {
-    this.showFacets = false
+  async mounted() {
+    const restored = await this.restoreListViewState();
 
-    if (this.$route.query.map === 'open') {
-      this.showMap = true
-      setTimeout(() => {
-        this.showMapContent = true
-      }, 300)
+    if (!restored) {
+      this.showFacets = false;
     }
 
-    this.fetchImprimeurs()
+    this.applyRouteStateOverrides();
+    this.persistListViewState();
+
+    await this.fetchImprimeurs();
   },
   beforeUnmount() {
     if (this.searchDebounce) {
@@ -358,6 +392,14 @@ export default {
       return `${word}${count > 1 ? (pluralForm ?? 's') : ''}`
     },
 
+    applyRouteStateOverrides() {
+      const forceMapOpen = this.$route.query.map_open === 'true';
+
+      if (forceMapOpen) {
+        this.showMap = true;
+        this.showMapContent = true;
+      }
+    },
     formatIdentity(item) {
       const lastname = item?.lastname || ''
       const firstnames = item?.firstnames || ''
@@ -394,7 +436,7 @@ export default {
             const end = this.formatDateShort(place.date_end)
 
             if (start && end) {
-              return `${city} (${start} / ${end})`
+              return `${city} (${start} - ${end})`
             }
 
             if (start) {
@@ -483,12 +525,19 @@ export default {
     },
 
     onResetAll() {
-      this.searchExtraInfo = ''
-      this.searchHeadInfo = ''
+      this.searchExtraInfo = '';
+      this.searchHeadInfo = '';
+      this.page = 1;
+      this.pageInput = 1;
+      this.itemsPerPage = 50;
+      this.showMap = false;
+      this.showMapContent = false;
       this.selectedFacets = {
         places: [],
         date: ''
-      }
+      };
+
+      this.persistListViewState();
     },
 
     async onItemsPerPageChange() {
@@ -650,7 +699,58 @@ export default {
       this.searchDebounce = setTimeout(() => {
         this.fetchImprimeurs()
       }, 300)
-    }
+    },
+    buildListViewState() {
+      return {
+        page: this.page,
+        pageInput: this.pageInput,
+        itemsPerPage: this.itemsPerPage,
+        searchHeadInfo: this.searchHeadInfo,
+        searchExtraInfo: this.searchExtraInfo,
+        showFacets: this.showFacets,
+        showMap: this.showMap,
+        selectedFacets: {
+          places: this.selectedFacets.places || [],
+          date: this.selectedFacets.date || ''
+        }
+      };
+    },
+
+    persistListViewState() {
+      if (this.isRestoringState) return;
+      this.$store.commit('SET_LIST_VIEW_STATE', this.buildListViewState());
+    },
+
+    async restoreListViewState() {
+      const saved = this.listViewState;
+      if (!saved) return false;
+
+      this.isRestoringState = true;
+
+      this.page = saved.page || 1;
+      this.pageInput = saved.pageInput || saved.page || 1;
+      this.itemsPerPage = saved.itemsPerPage || 50;
+      this.searchHeadInfo = saved.searchHeadInfo || '';
+      this.searchExtraInfo = saved.searchExtraInfo || '';
+      this.showFacets = !!saved.showFacets;
+      this.showMap = !!saved.showMap;
+      this.selectedFacets = {
+        places: saved.selectedFacets?.places || [],
+        date: saved.selectedFacets?.date || ''
+      };
+
+      if (this.showMap) {
+        this.showMapContent = true;
+      }
+
+      await this.$nextTick();
+      this.isRestoringState = false;
+      return true;
+    },
+
+    clearPersistedListViewState() {
+      this.$store.commit('CLEAR_LIST_VIEW_STATE');
+    },
   }
 }
 </script>
