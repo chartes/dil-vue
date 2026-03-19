@@ -14,7 +14,7 @@
         <img
           :src="resolveImageURL(img)"
           :alt="img.label"
-          class="carousel__slide"
+          class="carousel-image"
           @click="openImage(img)"
           @error="hideImage(img)"
         />
@@ -400,7 +400,7 @@ li.carousel__slide img {
   cursor: pointer;
 }
 
-.carousel__slide {
+.carousel-image {
   width: 100%;
   height: 500px;
   object-fit: contain;
@@ -456,5 +456,34 @@ li.carousel__slide img {
     height: 55vh;
     min-height: 360px;
   }
+}
+
+:deep(.carousel-image) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  border-bottom: 9px solid transparent;
+  padding-bottom: 20px;
+}
+
+
+
+:deep(.carousel__slide img:hover) {
+  transform: scale(0.82);
+}
+
+:deep(.carousel__slide.carousel__slide--active img) {
+  transform: scale(1);
+}
+
+:deep(.carousel__slide.carousel__slide--active img:hover) {
+  transform: scale(1.05);
+}
+
+:deep(.carousel__slide--active) {
+  border-bottom: 9px solid var(--red-pompein);
 }
 </style>

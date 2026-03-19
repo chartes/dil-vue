@@ -54,7 +54,7 @@
           </template>
         </v-text-field>-->
 
-        <MetricsBar/>
+        <MetricsBar :animate="false"/>
 
 
       </v-col>

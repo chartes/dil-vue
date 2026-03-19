@@ -71,8 +71,8 @@
                 @click="togglePatent(i)"
             >
               <div class="patent-title-header">
-  {{ getPatentLabel(patent) }} — {{ patent.city_label }}
-</div>
+                {{ getPatentLabel(patent) }} — {{ patent.city_label }}
+              </div>
               <div class="d-flex align-center card-sub-container">
                 <div class="patent-meta">
                   {{ formatDate(patent.date_start) }}
@@ -201,9 +201,9 @@ export default {
       }
     },
     getPatentLabel(patent) {
-  const year = this.parseYear(patent?.date_start);
-  return year !== null && year >= 1870 ? 'Activité' : 'Brevet';
-},
+      const year = this.parseYear(patent?.date_start);
+      return year !== null && year >= 1870 ? 'Activité' : 'Brevet';
+    },
     togglePersonCard() {
       this.personExpanded = !this.personExpanded;
     },
@@ -611,20 +611,21 @@ export default {
   }
 }
 
-
 @media (max-width: 960px) {
-
   .person-card,
   .patent-card {
     padding: 18px !important;
   }
 
-  .card-title {
-    font-size: 1.45rem;
+  .card-title,
+  .patent-title,
+  .patent-title-header {
+    font-size: 1rem !important;
+    line-height: 1.25 !important;
   }
 
   .card-subtitle {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   .patent-title {
@@ -632,11 +633,9 @@ export default {
     align-items: flex-start !important;
     gap: 0.55rem;
     margin-top: 0;
-    font-size: 1.35rem;
   }
 
   .patent-title-header {
-    font-size: 1.35rem;
     width: 100%;
   }
 
@@ -648,7 +647,7 @@ export default {
   }
 
   .patent-meta {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     white-space: normal;
     text-align: left;
     line-height: 1.35;
@@ -660,7 +659,7 @@ export default {
   }
 
   .section-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin: 1.5rem 0 0.35rem;
   }
 
@@ -672,7 +671,7 @@ export default {
   }
 
   .list-subheader {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .person-toggle-hint {
@@ -682,51 +681,42 @@ export default {
   }
 
   .person-toggle-text {
-    font-size: 0.82rem;
-    white-space: normal;
-    text-align: right;
+    display: none;
   }
 }
 
 @media (max-width: 800px) {
-  .card-title {
-    font-size: 1.25rem;
-    line-height: 1.25 !important;
+  .person-card,
+  .patent-card {
+    padding: 10px !important;
+  }
+
+  .card-title,
+  .patent-title,
+  .patent-title-header {
+    font-size: 1rem !important;
+    line-height: 1.2 !important;
   }
 
   .card-subtitle {
-    font-size: 1rem;
-  }
-
-  .person-card,
-  .patent-card {
-    padding: 2px !important;
-  }
-
-  .patent-title,
-  .patent-title-header {
-    font-size: 1.15rem;
+    font-size: 0.95rem;
   }
 
   .patent-meta {
-    font-size: 0.98rem;
+    font-size: 0.9rem;
   }
 
   .section-title {
-    font-size: 1.05rem;
+    font-size: 1rem;
   }
 
   .section-text,
   .card-text {
-    font-size: 0.96rem;
+    font-size: 0.95rem;
   }
 
   .list-subheader {
-    font-size: 0.98rem;
-  }
-
-  .person-toggle-text {
-    font-size: 0.76rem;
+    font-size: 0.95rem;
   }
 
   .person-toggle-icon,

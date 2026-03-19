@@ -23,12 +23,21 @@
 
 
 <script>
-import {mapState} from "vuex";
-import {th} from "vuetify/locale";
+import { mapState } from "vuex";
 
 export default {
   name: 'MetricsBar',
-  data () {
+  props: {
+    animate: {
+      type: Boolean,
+      default: true
+    },
+    animationDuration: {
+      type: Number,
+      default: 1200
+    }
+  },
+  data() {
     return {
       totalPersons: 0,
       totalPatents: 0,
@@ -39,42 +48,51 @@ export default {
     ...mapState(['apiUrl']),
   },
   methods: {
-  async fetchMetrics() {
-    try {
-      const response = await fetch(`${this.apiUrl}/infos`);
-      if (!response.ok) throw new Error('Network error');
-      const data = await response.json();
-      console.log('Fetched metrics:', data);
-      this.animateCount('totalPersons', data.total_persons);
-      this.animateCount('totalPatents', data.total_patents);
-      this.animateCount('totalEffectivePatents', data.total_effective_patents);
-    } catch (error) {
-      console.error('Error fetching metrics:', error);
-    }
-  },
+    async fetchMetrics() {
+      try {
+        const response = await fetch(`${this.apiUrl}/infos`);
+        if (!response.ok) throw new Error('Network error');
 
-  animateCount(key, target) {
-    const duration = 600;
-    const start = 0;
-    const startTime = performance.now();
+        const data = await response.json();
 
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      this[key] = Math.floor(progress * target);
+        this.setMetric('totalPersons', data.total_persons);
+        this.setMetric('totalPatents', data.total_patents);
+        this.setMetric('totalEffectivePatents', data.total_effective_patents);
+      } catch (error) {
+        console.error('Error fetching metrics:', error);
+      }
+    },
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
+    setMetric(key, target) {
+      if (this.animate) {
+        this.animateCount(key, target);
       } else {
         this[key] = target;
       }
-    };
+    },
 
-    requestAnimationFrame(animate);
-  }
-},
-  mounted () {
-    this.fetchMetrics()
+    animateCount(key, target) {
+      const duration = this.animationDuration;
+      const start = 0;
+      const startTime = performance.now();
+
+      const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        this[key] = Math.floor(start + (target - start) * progress);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          this[key] = target;
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }
+  },
+  mounted() {
+    this.fetchMetrics();
   },
 }
 </script>

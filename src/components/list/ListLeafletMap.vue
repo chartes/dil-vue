@@ -16,7 +16,9 @@ export default {
     apiBase: String,
     cityQuery: Array,
     date: String,
-    exact: Boolean
+    exact: Boolean,
+    searchHeadInfo: String,
+    searchExtraInfo: String
   },
   emits: ['selectCity'],
   data() {
@@ -24,36 +26,50 @@ export default {
       map: null,
       clusterGroup: null,
       isReady: false,
-      lastFetchKey: null
+      lastFetchKey: null,
+      fetchController: null,
+      requestSeq: 0
     };
   },
   mounted() {
-    this.$nextTick(() => {
-      this.initMap();
-      this.fetchCities(
-          {
-            patent_city_query: this.cityQuery,
-            patent_date_start: this.date,
-            exact_patent_date_start: this.exact
-          }
-      ).then(() => {
-            this.isReady = true;
-          }
-      );
+  window.addEventListener("click", this.initMapLinks);
+
+  this.$nextTick(async () => {
+    this.initMap();
+
+    const initialFilters = {
+      patent_city_query: this.cityQuery,
+      patent_date_start: this.date,
+      exact_patent_date_start: this.exact,
+      search_head_info: this.searchHeadInfo,
+      search_extra_info: this.searchExtraInfo
+    };
+
+    this.lastFetchKey = JSON.stringify({
+      cityQuery: this.cityQuery || [],
+      date: this.date || '',
+      exact: !!this.exact,
+      searchHeadInfo: this.searchHeadInfo || '',
+      searchExtraInfo: this.searchExtraInfo || ''
     });
-    window.addEventListener("click", this.initMapLinks);
-  },
+
+    await this.fetchCities(initialFilters);
+    this.isReady = true;
+  });
+},
   unmounted() {
     window.removeEventListener("click", this.initMapLinks);
   },
   methods: {
     updateMap() {
-      if (!this.map) return;
+      if (!this.map || !this.clusterGroup) return;
 
       const nextKey = JSON.stringify({
         cityQuery: this.cityQuery || [],
         date: this.date || '',
-        exact: !!this.exact
+        exact: !!this.exact,
+        searchHeadInfo: this.searchHeadInfo || '',
+        searchExtraInfo: this.searchExtraInfo || ''
       });
 
       if (nextKey === this.lastFetchKey) return;
@@ -62,49 +78,51 @@ export default {
       this.fetchCities({
         patent_city_query: this.cityQuery,
         patent_date_start: this.date,
-        exact_patent_date_start: this.exact
+        exact_patent_date_start: this.exact,
+        search_head_info: this.searchHeadInfo,
+        search_extra_info: this.searchExtraInfo
       });
     },
     initMap() {
       this.map = L.map(this.$refs.mapContainer, {
-    center: [46.5, 2.5],
-    zoom: 6,
-    minZoom:6,
-    maxZoom: 15,
-    zoomSnap: 1,
-    zoomDelta: 1,
-    attributionControl: false,
+        center: [46.5, 2.5],
+        zoom: 6,
+        minZoom: 6,
+        maxZoom: 15,
+        zoomSnap: 1,
+        zoomDelta: 1,
+        attributionControl: false,
         maxBoundsViscosity: 0.8
-  });
+      });
 
-  this.map.setMaxBounds([
-  [55, -10],
-  [20, 15]
-]);
+      this.map.setMaxBounds([
+        [55, -10],
+        [20, 15]
+      ]);
 
-  this.map.createPane('IGN');
-  this.map.getPane('IGN').style.zIndex = 250;
+      this.map.createPane('IGN');
+      this.map.getPane('IGN').style.zIndex = 250;
 
-  const etatMajor = L.tileLayer(
-    'https://data.geopf.fr/wmts?' +
-    'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0' +
-    '&LAYER={ignLayer}' +
-    '&STYLE={style}' +
-    '&FORMAT={format}' +
-    '&TILEMATRIXSET=PM' +
-    '&TILEMATRIX={z}' +
-    '&TILEROW={y}' +
-    '&TILECOL={x}',
-    {
-      ignLayer: 'GEOGRAPHICALGRIDSYSTEMS.ETATMAJOR40',
-      style: 'normal',
-      format: 'image/jpeg',
-      pane: 'IGN',
-      opacity: 1
-    }
-  );
+      const etatMajor = L.tileLayer(
+          'https://data.geopf.fr/wmts?' +
+          'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0' +
+          '&LAYER={ignLayer}' +
+          '&STYLE={style}' +
+          '&FORMAT={format}' +
+          '&TILEMATRIXSET=PM' +
+          '&TILEMATRIX={z}' +
+          '&TILEROW={y}' +
+          '&TILECOL={x}',
+          {
+            ignLayer: 'GEOGRAPHICALGRIDSYSTEMS.ETATMAJOR40',
+            style: 'normal',
+            format: 'image/jpeg',
+            pane: 'IGN',
+            opacity: 1
+          }
+      );
 
-  etatMajor.addTo(this.map);
+      etatMajor.addTo(this.map);
 
 
       this.clusterGroup = L.markerClusterGroup({
@@ -155,6 +173,13 @@ export default {
     },
 
     async fetchCities(filters = {}) {
+      const currentSeq = ++this.requestSeq;
+
+      if (this.fetchController) {
+        this.fetchController.abort();
+      }
+      this.fetchController = new AbortController();
+
       try {
         const url = new URL(`${this.apiBase}/map/places`);
 
@@ -168,12 +193,31 @@ export default {
           url.searchParams.append("patent_date_start", filters.patent_date_start);
         }
 
-        if (filters.exact_patent_date_start) {
-          url.searchParams.append("exact_patent_date_start", "true");
+        url.searchParams.append(
+            "exact_patent_date_start",
+            filters.exact_patent_date_start ? "true" : "false"
+        );
+
+        if (filters.search_head_info) {
+          url.searchParams.append("search_head_info", filters.search_head_info);
         }
 
-        const res = await fetch(url.toString());
+        if (filters.search_extra_info) {
+          url.searchParams.append("search_extra_info", filters.search_extra_info);
+        }
+
+        const res = await fetch(url.toString(), {
+          signal: this.fetchController.signal
+        });
+
+        if (!res.ok) {
+          throw new Error(`Erreur API carte: ${res.status}`);
+        }
+
         const cities = await res.json();
+
+        if (currentSeq !== this.requestSeq) return;
+        if (!this.clusterGroup) return;
 
         this.clusterGroup.clearLayers();
 
@@ -185,36 +229,34 @@ export default {
           if (Math.abs(lat) < Math.abs(lon)) [lat, lon] = [lon, lat];
 
           const nbPrinters = city.persons?.length || 1;
-          console.log("city", city)
-
           const hasDicotopo = !!city.city_dicotopo_item_id;
 
           const popupHtml = `
-  <a href="" class="city-link" data-city="${city.city_dil}">
-    <span class="city-link-icon">📍</span>
-    ${city.city_label}${city.city_dept_label ? ` (${city.city_dept_label})` : ''}
-  </a>
-  <br/>
-  ${nbPrinters} imprimeur(s) - lithographe(s)
-  ${
+        <a href="" class="city-link" data-city="${city.city_dil}">
+          <span class="city-link-icon">📍</span>
+          ${city.city_label}${city.city_dept_label ? ` (${city.city_dept_label})` : ''}
+        </a>
+        <br/>
+        ${nbPrinters} imprimeur(s) - lithographe(s)
+        ${
               hasDicotopo
                   ? `
-        <br/>
-        <span class="dicotopo-link-wrapper">
-          <img src="${logoDicotopo}" alt="Logo Dicotopo" width="18" class="dicotopo-logo">
-          <a
-            href="https://dicotopo.cths.fr/places/${city.city_dicotopo_item_id}"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="dicotopo-link"
-          >
-            Accéder à Dicotopo
-          </a>
-        </span>
-      `
+              <br/>
+              <span class="dicotopo-link-wrapper">
+                <img src="${logoDicotopo}" alt="Logo Dicotopo" width="18" class="dicotopo-logo">
+                <a
+                  href="https://dicotopo.cths.fr/places/${city.city_dicotopo_item_id}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="dicotopo-link"
+                >
+                  Accéder à Dicotopo
+                </a>
+              </span>
+            `
                   : ''
           }
-`;
+      `;
 
           const marker = L.circleMarker([lat, lon], {
             radius: 5 + Math.log(nbPrinters) * 5,
@@ -228,31 +270,29 @@ export default {
           marker.bindPopup(popupHtml);
           this.clusterGroup.addLayer(marker);
         });
-
       } catch (err) {
-        console.error("Erreur lors du chargement des villes :", err);
+        if (err.name !== 'AbortError') {
+          console.error("Erreur lors du chargement des villes :", err);
+        }
       }
-    }
+    },
 
   },
   watch: {
-    cityQuery: {
-      handler() {
-        if (this.map) this.updateMap();
-      },
-      immediate: true
+    cityQuery() {
+      if (this.map) this.updateMap()
     },
-    date: {
-      handler() {
-        if (this.map) this.updateMap();
-      },
-      immediate: true
+    date() {
+      if (this.map) this.updateMap()
     },
-    exact: {
-      handler() {
-        if (this.map) this.updateMap();
-      },
-      immediate: true
+    exact() {
+      if (this.map) this.updateMap()
+    },
+    searchHeadInfo() {
+      if (this.map) this.updateMap()
+    },
+    searchExtraInfo() {
+      if (this.map) this.updateMap()
     }
   },
 };

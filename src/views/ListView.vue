@@ -97,6 +97,8 @@
                     :cityQuery="mapCityQuery"
                     :date="mapDate"
                     :exact="mapExact"
+                    :searchHeadInfo="searchHeadInfo"
+                    :searchExtraInfo="searchExtraInfo"
                     @selectCity="onCitySelected"
                 />
               </div>
@@ -324,7 +326,7 @@ export default {
           if (this.$refs.leaflet?.map) {
             this.$refs.leaflet.map.invalidateSize()
           }
-          this.refreshMapCities()
+          //this.refreshMapCities()
         }, 200)
       })
     },
@@ -347,7 +349,7 @@ export default {
     },
 
     searchExtraInfo() {
-      this.persistListViewState();
+      this.persistListViewState()
     },
 
     'selectedFacets.places': {
@@ -461,11 +463,7 @@ export default {
       this.scheduleFetch()
     },
 
-    onFiltersChanged({refreshMap = true} = {}) {
-      if (refreshMap) {
-        this.refreshMapCities()
-      }
-
+    onFiltersChanged() {
       if (this.page !== 1) {
         this.page = 1
         this.pageInput = 1
@@ -576,7 +574,6 @@ export default {
       } else {
         this.selectedFacets.date.exact = !!payload.exact
       }
-      this.refreshMapCities()
     },
 
     async onCitySelected(cityId) {
@@ -609,15 +606,15 @@ export default {
       this.showMap = !this.showMap
 
       if (this.showMap) {
-        setTimeout(() => {
-          this.showMapContent = true
-          this.$nextTick(() => {
+        this.showMapContent = true
+
+        this.$nextTick(() => {
+          setTimeout(() => {
             if (this.$refs.leaflet?.map) {
               this.$refs.leaflet.map.invalidateSize()
             }
-            this.refreshMapCities()
-          })
-        }, 300)
+          }, 300)
+        })
       } else {
         this.showMapContent = false
       }
