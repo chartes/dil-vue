@@ -9,8 +9,9 @@
           v-bind="props"
           class="panel-card"
           elevation="8"
+          @click="handlePanelClick(panel)"
       >
-        <router-link :to="panel.router" class="panel-card-link">
+        <div class="panel-card-link">
           <div
               class="image-wrapper"
               :style="getImageStyle(panel, isMobile ? false : isHovering)"
@@ -18,7 +19,7 @@
           <div class="overlay" :class="{ active: isMobile || isHovering }">
             <p class="panel-card-label">{{ panel.label }}</p>
           </div>
-        </router-link>
+        </div>
       </v-card>
     </v-hover>
   </div>
@@ -33,25 +34,33 @@ export default {
         {
           image: new URL('@/assets/images/carrousel_imgs/art-litho.png', import.meta.url).href,
           label: 'Consulter',
-          router: {path: '/list'},
+          route: '/list',
+          openMap: false,
           position: '85%',
           zoom: '1'
         },
         {
           image: new URL('@/assets/images/carrousel_imgs/lautrec.jpg', import.meta.url).href,
           label: "Carte interactive",
-          router: {path: '/list', query: {map: "open"}},
+          route: '/list',
+          openMap: true,
           position: '77%',
           zoom: '1'
         },
         {
           image: new URL('@/assets/images/carrousel_imgs/bnf_simple.jpg', import.meta.url).href,
           label: "À propos",
-          router: {path: '/information', query: {section: "À propos"}},
+          route: '/information',
+          openMap: false,
           position: 'center',
           zoom: '1'
         }
       ]
+    }
+  },
+  computed: {
+    isMobile() {
+      return window.innerWidth <= 960
     }
   },
   methods: {
@@ -65,13 +74,16 @@ export default {
       }
     },
 
-  },
-  computed: {
-    isMobile() {
-      return window.innerWidth <= 960
+    handlePanelClick(panel) {
+      if (panel.openMap) {
+        this.$store.commit('SET_FORCE_OPEN_MAP', true)
+      } else {
+        this.$store.commit('SET_FORCE_OPEN_MAP', false)
+      }
+
+      this.$router.push(panel.route)
     }
   }
-
 }
 
 </script>
@@ -217,9 +229,15 @@ export default {
 }
 
 
-
 .panel-card:hover::after {
   clip-path: inset(0 0 0 0);
+}
+
+.panel-card-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 @keyframes panelBorderHint {

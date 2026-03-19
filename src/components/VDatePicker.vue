@@ -5,15 +5,15 @@
       <span class="title">Date d'activité</span>
     </span>
     <v-menu
-    v-model="menu"
-    offset-y
-     offset="8"
-    :close-on-content-click="false"
-    :return-value.sync="menu"
-    location="bottom start"
-    content-class="date-picker-menu-overlay"
-     z-index="12000"
->
+        v-model="menu"
+        offset-y
+        offset="8"
+        :close-on-content-click="false"
+        :return-value.sync="menu"
+        location="bottom start"
+        content-class="date-picker-menu-overlay"
+        z-index="12000"
+    >
 
 
       <template #activator="{ props }">
@@ -69,15 +69,15 @@
             @update:model-value="onMonthSelect"
         />-->
 
-       <!-- <v-date-picker-month
-            v-if="step === 'date'"
-            :v-model="day"
-            :min="minDate"
-            :max="maxDate"
-            :month="month"
-            :year="year"
-            @update:model-value="onDaySelect"
-        />-->
+        <!-- <v-date-picker-month
+             v-if="step === 'date'"
+             :v-model="day"
+             :min="minDate"
+             :max="maxDate"
+             :month="month"
+             :year="year"
+             @update:model-value="onDaySelect"
+         />-->
 
         <!--<v-card-actions>
           <v-btn text @click="goBack" v-if="step !== 'year'">
@@ -130,7 +130,9 @@ export default {
     }
 
   },
+
   watch: {
+    /*
     modelValue(val) {
       if (val) {
         const dateParts = val.split('-')
@@ -143,6 +145,23 @@ export default {
         this.month = null
         this.day = null
         this.step = 'year'
+      }
+    },*/
+    modelValue: {
+      immediate: true,
+      handler(val) {
+        if (val) {
+          const dateParts = String(val).split('-')
+          this.year = dateParts[0] ? parseInt(dateParts[0], 10) : null
+          this.month = dateParts[1] ? parseInt(dateParts[1], 10) : null
+          this.day = dateParts[2] ? parseInt(dateParts[2], 10) : null
+          this.step = this.day ? 'date' : this.month ? 'month' : 'year'
+        } else {
+          this.year = null
+          this.month = null
+          this.day = null
+          this.step = 'year'
+        }
       }
     },
     exactDate(val) {
@@ -237,7 +256,6 @@ export default {
 .date-picker-container {
   margin-top: 20px;
 }
-
 
 
 .cursor-pointer {

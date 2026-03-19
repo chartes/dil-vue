@@ -67,33 +67,45 @@ export default {
     },
     initMap() {
       this.map = L.map(this.$refs.mapContainer, {
-        zoomSnap: 1,
-        zoomDelta: 1,
-        center: [46.5, 2.5],
-        zoom: 4,
-        minZoom: 5,
-        maxZoom: 15,
-        attributionControl: false
-      });
+    center: [46.5, 2.5],
+    zoom: 6,
+    minZoom:6,
+    maxZoom: 15,
+    zoomSnap: 1,
+    zoomDelta: 1,
+    attributionControl: false,
+        maxBoundsViscosity: 0.8
+  });
 
-      this.map.setMaxBounds([
-        [41, -5],
-        [51, 10]
-      ]);
-      this.map.createPane('OSM');
-      this.map.getPane('OSM').style.zIndex = 250;
+  this.map.setMaxBounds([
+  [55, -10],
+  [20, 15]
+]);
 
-      const osm = L.tileLayer(
-          'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-          {
-            attribution: '&copy; OpenStreetMap & CartoDB',
-            subdomains: 'abcd',
-            maxZoom: 19,
-            pane: 'OSM'
-          }
-      );
+  this.map.createPane('IGN');
+  this.map.getPane('IGN').style.zIndex = 250;
 
-      osm.addTo(this.map);
+  const etatMajor = L.tileLayer(
+    'https://data.geopf.fr/wmts?' +
+    'SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0' +
+    '&LAYER={ignLayer}' +
+    '&STYLE={style}' +
+    '&FORMAT={format}' +
+    '&TILEMATRIXSET=PM' +
+    '&TILEMATRIX={z}' +
+    '&TILEROW={y}' +
+    '&TILECOL={x}',
+    {
+      ignLayer: 'GEOGRAPHICALGRIDSYSTEMS.ETATMAJOR40',
+      style: 'normal',
+      format: 'image/jpeg',
+      pane: 'IGN',
+      opacity: 1
+    }
+  );
+
+  etatMajor.addTo(this.map);
+
 
       this.clusterGroup = L.markerClusterGroup({
         showCoverageOnHover: false,
@@ -253,6 +265,7 @@ export default {
   border: 1px solid #EEEEEE;
   border-top: 1px solid #ccc;
   border-radius: 0px 0px 20px 20px;
+  background-color: #FFFFFFFF;
 }
 
 :deep(.leaflet-popup-content a.city-link) {

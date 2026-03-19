@@ -82,6 +82,7 @@
     <p v-if="isLoading">Chargement des données...</p>
     <VDatePicker
         ref="datePicker"
+        :model-value="selectedDate"
         @update:dateMeta="onUpdateDate"
     />
     <div v-if="hasActiveFilters || activateResetBtn" class="reset-global-container">

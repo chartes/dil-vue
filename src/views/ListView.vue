@@ -290,7 +290,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['apiUrl', 'listViewState']),
+    ...mapState(['apiUrl', 'listViewState', 'forceOpenMap']),
     pageCount() {
       return Math.max(1, Math.ceil(this.totalItems / this.itemsPerPage))
     },
@@ -377,7 +377,7 @@ export default {
       this.showFacets = false;
     }
 
-    this.applyRouteStateOverrides();
+    this.applyStoreStateOverrides();
     this.persistListViewState();
 
     await this.fetchImprimeurs();
@@ -387,17 +387,17 @@ export default {
       clearTimeout(this.searchDebounce)
     }
   },
+
   methods: {
     pluralize(word, count, pluralForm = null) {
       return `${word}${count > 1 ? (pluralForm ?? 's') : ''}`
     },
 
-    applyRouteStateOverrides() {
-      const forceMapOpen = this.$route.query.map_open === 'true';
-
-      if (forceMapOpen) {
+    applyStoreStateOverrides() {
+      if (this.forceOpenMap) {
         this.showMap = true;
         this.showMapContent = true;
+        this.$store.commit('SET_FORCE_OPEN_MAP', false);
       }
     },
     formatIdentity(item) {
@@ -708,7 +708,6 @@ export default {
         searchHeadInfo: this.searchHeadInfo,
         searchExtraInfo: this.searchExtraInfo,
         showFacets: this.showFacets,
-        showMap: this.showMap,
         selectedFacets: {
           places: this.selectedFacets.places || [],
           date: this.selectedFacets.date || ''
@@ -733,15 +732,15 @@ export default {
       this.searchHeadInfo = saved.searchHeadInfo || '';
       this.searchExtraInfo = saved.searchExtraInfo || '';
       this.showFacets = !!saved.showFacets;
-      this.showMap = !!saved.showMap;
+
       this.selectedFacets = {
         places: saved.selectedFacets?.places || [],
         date: saved.selectedFacets?.date || ''
       };
 
-      if (this.showMap) {
-        this.showMapContent = true;
-      }
+      // toujours fermée par défaut au retour
+      this.showMap = false;
+      this.showMapContent = false;
 
       await this.$nextTick();
       this.isRestoringState = false;
@@ -937,8 +936,9 @@ export default {
 .show-map-container {
   position: relative;
   z-index: 1;
-  height: 60vh;
+  height: 70vh;
   margin-bottom: 20px;
+  margin-top: -20px;
   overflow: hidden;
   border: 1px solid #eee;
   border-radius: 0 0 20px 20px;

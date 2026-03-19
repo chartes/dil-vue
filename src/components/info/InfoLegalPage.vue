@@ -60,15 +60,27 @@
     <h1 class="title-h1">Crédits photographiques</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">Les sources images et des bannières des pages du site Dictionnaire des imprimeurs lithographes du XIXe siècle (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
-        <ul>
-        <li>Détail, Henri de Toulouse-Lautrec, « La Lithographie [dit Jane Avril chez l’imprimeur lithographe]», L’estampe originale : revue mensuelle des arts d’impression publiée par Le Journal des Artistes, direction André Marty (1857-19??), 30 mars 1893,
-BnF, département des Estampes et photographie, RÉSERVE AA-6 (TOULOUSE-LAUTREC, Henri de)</li>
-          <li>Détail, Gavarni, « L'atelier du lithographe», in: La Caricature morale, politique et littéraire du 11 octobre 1840, BnF, Réserve des livres rares, RES FOL-LC2-2828, Z-1643-1646</li>
-          <li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding, Master Printer of Copper Plates, Stirling, Eneas Mackay, 1910, p. 40. © INHA</li>
+      <p class="paragraph">Les sources images et des bannières des pages du site Dictionnaire des imprimeurs
+        lithographes du XIXe siècle (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
+      <ul>
+        <li>Détail, Henri de Toulouse-Lautrec, « La Lithographie [dit Jane Avril chez l’imprimeur lithographe]»,
+          L’estampe originale : revue mensuelle des arts d’impression publiée par Le Journal des Artistes, direction
+          André Marty (1857-19??), 30 mars 1893,
+          BnF, département des Estampes et photographie, RÉSERVE AA-6 (TOULOUSE-LAUTREC, Henri de)
+        </li>
+        <li>Détail, Gavarni, « L'atelier du lithographe», in: La Caricature morale, politique et littéraire du 11
+          octobre 1840, BnF, Réserve des livres rares, RES FOL-LC2-2828, Z-1643-1646
+        </li>
+        <li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding,
+          Master Printer of Copper Plates, Stirling, Eneas Mackay, 1910, p. 40. © INHA
+        </li>
       </ul>
       <br>
-      <p class="paragraph">Les icônes (Material Design Icons, licence GPL) ainsi que l'icône DIL présente dans la barre de navigation sont libres de droits.</p>
+      <p class="paragraph">Le fond de carte de l'état-major (1820-1866) est disponible via le portail <a target="_blank"
+                                                                                                         href="https://www.geoportail.gouv.fr/donnees/carte-de-letat-major-1820-1866">Géoportail</a>
+        de l'IGN.</p>
+      <p class="paragraph">Les icônes (Material Design Icons, licence GPL) ainsi que l'icône DIL présente dans la barre
+        de navigation sont libres de droits.</p>
     </div>
 
     <p class="paragraph">Cette page est susceptible d'être modifiée et mise à jour à tout moment sans préavis.</p>
