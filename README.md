@@ -9,8 +9,8 @@
 [![package - eslint](https://img.shields.io/github/package-json/dependency-version/chartes/DoTS-vue-generic/dev/eslint/dev?logo=eslint&logoColor=white)](https://www.npmjs.com/package/eslint)
 
 
-[![package - Bulma](https://img.shields.io/github/package-json/dependency-version/chartes/DoTS-vue-generic/bulma/dev?logo=bulma&logoColor=white)](https://www.npmjs.com/package/bulma)
-[![package - Mirador](https://img.shields.io/github/package-json/dependency-version/chartes/DoTS-vue-generic/mirador/dev)](https://www.npmjs.com/package/mirador)
+[![package - Vuetify](https://img.shields.io/github/package-json/dependency-version/chartes/dil-vue/vuetify/dev?logo=bulma&logoColor=white)](https://www.npmjs.com/package/vuetify)
+[![package - Tify](https://img.shields.io/github/package-json/dependency-version/chartes/dil-vue/tify/dev)](https://www.npmjs.com/package/tify)
 
 
 ## Project setup
