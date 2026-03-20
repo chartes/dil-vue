@@ -132,7 +132,7 @@ export default {
   position: relative;
 }
 
-/* Barre de progression globale (top) */
+
 .reading-progress {
   position: sticky;
   top: 0;
@@ -142,14 +142,13 @@ export default {
   z-index: 10;
 }
 
-/* Menu */
 .menu-col {
   background-color: #f7f7f7;
   padding: 20px;
   border-right: 2px solid var(--red-pompein, #e6ddd6);
   min-height: 100%;
   position: sticky;
-  top: 70px; /* colle le menu au scroll sur desktop */
+  top: 70px;
   align-self: flex-start;
 }
 
@@ -180,7 +179,6 @@ export default {
   background-color: rgba(123, 12, 18, 0.05);
 }
 
-/* Mini indicateur de progression dans l'item actif */
 .menu-progress {
   position: absolute;
   bottom: 0;
@@ -215,7 +213,7 @@ export default {
   padding-left: calc(5% - 10px);
 }
 
-/* Texte par défaut */
+
 .section-content p {
   font-size: 1rem;
   margin-bottom: 16px;

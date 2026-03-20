@@ -773,7 +773,7 @@ export default {
 }
 
 /* =========================
-   Bouton filtres
+   Bouton facets
 ========================= */
 
 .results-toolbar-top {
@@ -829,7 +829,7 @@ export default {
 }
 
 /* =========================
-   Sidebar filtres
+   Sidebar filters
 ========================= */
 
 .facet-sidebar {
@@ -1119,7 +1119,7 @@ export default {
 }
 
 /* =========================
-   Contrôles haut / bas
+    Pagination / Controls
 ========================= */
 
 .footer-controls {
@@ -1156,7 +1156,7 @@ export default {
 }
 
 /* =========================
-   Input recherche nom
+   Input search name
 ========================= */
 
 .search-head-info-input-large {
@@ -1251,7 +1251,7 @@ export default {
 }
 
 /* =========================
-   Animation visuelle input
+   animation hint search field
 ========================= */
 
 .search-head-info-hint {
@@ -1313,7 +1313,7 @@ export default {
 }
 
 /* =========================
-   Responsive tablette / mobile
+   Responsive mobile
 ========================= */
 
 @media (max-width: 960px) {
@@ -1459,7 +1459,7 @@ export default {
 }
 
 /* =========================
-   Responsive petit mobile
+   Responsive smaller mobile
 ========================= */
 
 @media (max-width: 700px) {
