@@ -33,8 +33,7 @@
                 class="card-subtitle person-card-subtitle-clickable"
                 @click="togglePersonCard"
             >
-              Né <span v-if="person.birth_date">le {{ formatDate(person.birth_date) }}</span>
-              <span v-if="person.birth_city_label"> à {{ person.birth_city_label }}</span>
+              {{ formatBirthLabel(person.birth_date, person.birth_city_label) }}
             </v-card-subtitle>
 
             <v-expand-transition>
@@ -277,10 +276,71 @@ export default {
       }
       return Object.fromEntries(Object.entries(grouped).filter(([_, v]) => v.length));
     },
+    formatBirthLabel(dateStr, cityLabel) {
+      let result = "Né";
+
+      if (dateStr) {
+        const raw = dateStr.trim();
+        const isApprox = raw.startsWith("~");
+        const clean = isApprox ? raw.slice(1) : raw;
+
+        // AAAA-MM-JJ
+        if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
+          result += isApprox
+              ? ` vers le ${this.formatDate(dateStr)}`
+              : ` le ${this.formatDate(dateStr)}`;
+        }
+        // AAAA-MM ou AAAA
+        else if (/^\d{4}-\d{2}$/.test(clean) || /^\d{4}$/.test(clean)) {
+          result += isApprox
+              ? ` vers ${this.formatDate(dateStr)}`
+              : ` en ${this.formatDate(dateStr)}`;
+        } else {
+          result += ` ${this.formatDate(dateStr)}`;
+        }
+      }
+
+      if (cityLabel) {
+        result += ` à ${cityLabel}`;
+      }
+
+      return result;
+    },
     formatDate(dateStr) {
-      if (!dateStr) return 'date inconnue';
-      const date = new Date(dateStr);
-      return date.toLocaleDateString('fr-FR', {day: 'numeric', month: 'long', year: 'numeric'});
+      if (!dateStr) return "date inconnue";
+
+      const raw = dateStr.trim();
+      const clean = raw.startsWith("~") ? raw.slice(1) : raw;
+
+      const months = [
+        "janvier", "février", "mars", "avril", "mai", "juin",
+        "juillet", "août", "septembre", "octobre", "novembre", "décembre"
+      ];
+
+      let match = clean.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) {
+        const [, year, month, day] = match;
+        const monthIndex = parseInt(month, 10) - 1;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          return `${parseInt(day, 10)} ${months[monthIndex]} ${year}`;
+        }
+      }
+
+      match = clean.match(/^(\d{4})-(\d{2})$/);
+      if (match) {
+        const [, year, month] = match;
+        const monthIndex = parseInt(month, 10) - 1;
+        if (monthIndex >= 0 && monthIndex < 12) {
+          return `${months[monthIndex]} ${year}`;
+        }
+      }
+
+      match = clean.match(/^(\d{4})$/);
+      if (match) {
+        return clean;
+      }
+
+      return "date invalide";
     },
   }
 }
