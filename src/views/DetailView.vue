@@ -128,9 +128,10 @@
                         <v-list-item v-for="relation in group" :key="relation._id_dil">
                           <v-list-item-content>
                             <v-list-item-title>
-                       <span @click.stop="goToPerson(relation._id_dil)" class="link-person">
-                          {{ relation.firstnames }} {{ relation.lastname }}
-                        </span>
+                       <span @click.stop="goToPerson(relation._id_dil)" class="link-person d-inline-flex align-center">
+  <v-icon size="16" class="mr-1 link-icon">mdi-open-in-new</v-icon>
+  {{ relation.firstnames }} {{ relation.lastname }}
+</span>
                             </v-list-item-title>
                           </v-list-item-content>
                         </v-list-item>
