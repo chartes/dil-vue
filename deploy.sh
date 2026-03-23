@@ -31,7 +31,7 @@ if [ "$dev" = true ]; then
   SERVER="dev.chartes.psl.eu"
 else
   echo "Deploying VueJS app to prod server..."
-  SERVER="chartes.psl.eu"
+  SERVER="dh.chartes.psl.eu"
 fi
 
 echo "Deploying VueJS app to server..."

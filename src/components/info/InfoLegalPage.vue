@@ -39,7 +39,7 @@
     <h1 class="title-h1">Propriété intellectuelle du site et de ses contenus</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">Sauf mention contraire, les contenus du site (https://dil.chartes.psl.eu) et les données
+      <p class="paragraph">Sauf mention contraire, les contenus du site « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) et les données
         accessibles via ses API sont partagés sous licence ouverte Creative Commons CC BY-NC-SA 4.0.</p>
     </div>
 
@@ -47,7 +47,7 @@
     <hr>
     <div class="sub-section">
       <p class="paragraph">L'éditeur met tout en œuvre pour que les informations disponibles sur le site
-        (https://dil.chartes.psl.eu) soient aussi disponibles, exactes et à jour que possible, et se réserve le droit de
+        « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) soient aussi disponibles, exactes et à jour que possible, et se réserve le droit de
         modifier et de corriger leur contenu à tout moment et sans préavis.</p>
       <p class="paragraph">Cependant, l'éditeur ne peut garantir la disponibilité, l'exactitude ou l'exhaustivité des
         informations présentées. L'utilisation des informations disponibles ou fournies sur ce site web relève de la
@@ -57,11 +57,15 @@
         responsable de tout dommage, de quelque nature que ce soit, résultant de l'interprétation ou de l'utilisation
         des informations disponibles sur le site ou sur des sites tiers.</p>
     </div>
+    <h1 class="title-h1">Crédits de l'application</h1>
+    <hr>
+    <div class="sub-section">
+      <p class="paragraph">L’application « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) a été développée par la Mission projets numériques de l’École nationale des chartes - PSL (Vincent Jolivet et Lucas Terriel), sous la coordination d’Élisabeth Parinet.</p>
+    </div>
     <h1 class="title-h1">Crédits photographiques</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">Les sources images et des bannières des pages du site Dictionnaire des imprimeurs
-        lithographes du XIXe siècle (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
+      <p class="paragraph">Les sources images et des bannières des pages du site « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
       <ul>
         <li>Détail, Henri de Toulouse-Lautrec, « La Lithographie [dit Jane Avril chez l’imprimeur lithographe]»,
           L’estampe originale : revue mensuelle des arts d’impression publiée par Le Journal des Artistes, direction
@@ -71,9 +75,9 @@
         <li>Détail, Gavarni, « L'atelier du lithographe», in: La Caricature morale, politique et littéraire du 11
           octobre 1840, BnF, Réserve des livres rares, RES FOL-LC2-2828, Z-1643-1646
         </li>
-        <li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding,
+        <!--<li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding,
           Master Printer of Copper Plates, Stirling, Eneas Mackay, 1910, p. 40. © INHA
-        </li>
+        </li>-->
       </ul>
       <br>
       <p class="paragraph">Le fond de carte de l'état-major (1820-1866) est disponible via le portail <a target="_blank"
