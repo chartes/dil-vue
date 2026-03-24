@@ -60,7 +60,7 @@
     <h1 class="title-h1">Crédits de l'application</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">L’application « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) a été développée par la Mission projets numériques de l’École nationale des chartes - PSL (Vincent Jolivet et Lucas Terriel), sous la coordination d’Élisabeth Parinet.</p>
+      <p class="paragraph">L’application « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) a été développée par la Mission projets numériques de l’École nationale des chartes – PSL (Vincent Jolivet et Lucas Terriel), sous la coordination d'Élisabeth Parinet.</p>
     </div>
     <h1 class="title-h1">Crédits photographiques</h1>
     <hr>
