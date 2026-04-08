@@ -39,7 +39,8 @@
     <h1 class="title-h1">Propriété intellectuelle du site et de ses contenus</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">Sauf mention contraire, les contenus du site « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) et les données
+      <p class="paragraph">Sauf mention contraire, les contenus du site « Dictionnaire des imprimeurs-lithographes du
+        XIXe siècle » (DIL, dil.chartes.psl.eu) et les données
         accessibles via ses API sont partagés sous licence ouverte Creative Commons CC BY-NC-SA 4.0.</p>
     </div>
 
@@ -47,7 +48,8 @@
     <hr>
     <div class="sub-section">
       <p class="paragraph">L'éditeur met tout en œuvre pour que les informations disponibles sur le site
-        « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) soient aussi disponibles, exactes et à jour que possible, et se réserve le droit de
+        « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) soient aussi disponibles,
+        exactes et à jour que possible, et se réserve le droit de
         modifier et de corriger leur contenu à tout moment et sans préavis.</p>
       <p class="paragraph">Cependant, l'éditeur ne peut garantir la disponibilité, l'exactitude ou l'exhaustivité des
         informations présentées. L'utilisation des informations disponibles ou fournies sur ce site web relève de la
@@ -60,25 +62,41 @@
     <h1 class="title-h1">Crédits de l'application</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">L’application « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) a été développée par la Mission projets numériques de l’École nationale des chartes – PSL (Vincent Jolivet et Lucas Terriel), sous la coordination d'Élisabeth Parinet.</p>
+      <p class="paragraph">L’application « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL,
+        dil.chartes.psl.eu) a été développée par la Mission projets numériques de l’École nationale des chartes – PSL
+        (Vincent Jolivet et Lucas Terriel), sous la coordination d'Élisabeth Parinet.</p>
     </div>
     <h1 class="title-h1">Crédits photographiques</h1>
     <hr>
     <div class="sub-section">
-      <p class="paragraph">Les sources images et des bannières des pages du site « Dictionnaire des imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
+      <p class="paragraph">Les sources images et des bannières des pages du site « Dictionnaire des
+        imprimeurs-lithographes du XIXe siècle » (DIL, dil.chartes.psl.eu) sont les suivantes :</p>
       <ul>
-        <li>Détail, Henri de Toulouse-Lautrec, « La Lithographie [dit Jane Avril chez l’imprimeur lithographe]»,
-          L’estampe originale : revue mensuelle des arts d’impression publiée par Le Journal des Artistes, direction
-          André Marty (1857-19??), 30 mars 1893,
-          BnF, département des Estampes et photographie, RÉSERVE AA-6 (TOULOUSE-LAUTREC, Henri de)
+        <li>
+          <p class="paragraph">Aloys Senefelder, <i>L’Art de la lithographie</i>, planche IX (détail), Treuttel et
+            Würtz, 1819,
+            Bibliothèque nationale de France, disponible sur <a
+                href="https://gallica.bnf.fr/ark:/12148/bpt6k130475f/f293.item"
+                target="_blank" class="link-ul">BnF-Gallica</a></p>
         </li>
-        <li>Détail, Gavarni, « L'atelier du lithographe», in: La Caricature morale, politique et littéraire du 11
-          octobre 1840, BnF, Réserve des livres rares, RES FOL-LC2-2828, Z-1643-1646
+
+        <li><p class="paragraph">
+          Henri de Toulouse-Lautrec, « La Lithographie [dit Jane Avril chez l’imprimeur lithographe] » (détail),
+          <i>L’Estampe originale : revue mensuelle des arts d’impression</i>, 30 mars 1893,
+          Bibliothèque nationale de France, disponible sur <a
+                href="https://essentiels.bnf.fr/fr/image/9fbc5a6b-8d80-4eb3-9c87-5d16ad234c84-lithographie-dit-jane-avril-chez-imprimeur-lithographe"
+                target="_blank" class="link-ul">BnF-Essentiels</a>
+          </p>
         </li>
-        <!--<li>Détail, Robert Walker Macbeth, The Trial Proof, 1886, eau-forte, dans Martin Hardie, Frederick Goulding,
-          Master Printer of Copper Plates, Stirling, Eneas Mackay, 1910, p. 40. © INHA
-        </li>-->
+
+        <li><p class="paragraph">
+          Gavarni, « L’atelier du lithographe » (détail), <i>La Caricature morale, politique et littéraire</i>, 11
+          octobre 1840, Bibliothèque nationale de France, disponible sur <a
+                href="https://gallica.bnf.fr/ark:/12148/bpt6k10517164/f5.item"
+                target="_blank" class="link-ul">BnF-Gallica</a></p>
+        </li>
       </ul>
+
       <br>
       <p class="paragraph">Le fond de carte de l'état-major (1820-1866) est disponible via le portail <a target="_blank"
                                                                                                          href="https://www.geoportail.gouv.fr/donnees/carte-de-letat-major-1820-1866">Géoportail</a>
@@ -89,7 +107,7 @@
 
     <p class="paragraph">Cette page est susceptible d'être modifiée et mise à jour à tout moment sans préavis.</p>
 
-    <p class="paragraph">Dernière mise à jour de la page : 29/10/2025.</p>
+    <p class="paragraph">Dernière mise à jour de la page : 08/04/2026.</p>
   </div>
 </template>
 <script>

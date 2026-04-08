@@ -226,6 +226,8 @@ export default {
   text-decoration: underline;
 }
 
+
+
 @media (max-width: 960px) {
   .menu-col {
     position: static;
