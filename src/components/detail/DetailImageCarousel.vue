@@ -1,46 +1,46 @@
 <template>
   <div>
     <Carousel
-      :itemsToShow="itemsToShow"
-      :breakpoints="carouselBreakpoints"
-      :wrapAround="true"
-      :transition="500"
-      class="slick-container"
+        :itemsToShow="itemsToShow"
+        :breakpoints="carouselBreakpoints"
+        :wrapAround="true"
+        :transition="500"
+        class="slick-container"
     >
       <Slide
-        v-for="(img, idx) in visibleImages"
-        :key="img._id_dil || img.img_name || img.iiif_url || idx"
+          v-for="(img, idx) in visibleImages"
+          :key="img._id_dil || img.img_name || img.iiif_url || idx"
       >
         <img
-          :src="resolveImageURL(img)"
-          :alt="img.label"
-          class="carousel-image"
-          @click="openImage(img)"
-          @error="hideImage(img)"
+            :src="resolveImageURL(img)"
+            :alt="normalizeImageLabel(img.label)"
+            class="carousel-image"
+            @click="openImage(img)"
+            @error="hideImage(img)"
         />
 
         <div class="text-center mt-2 caption">
           <template v-if="img.reference_url && img.reference_url !== 'unknown_url'">
             <a
-              class="link_label_img_carousel"
-              :href="img.reference_url"
-              target="_blank"
-              rel="noopener noreferrer"
-              @click.stop
+                class="link_label_img_carousel"
+                :href="img.reference_url"
+                target="_blank"
+                rel="noopener noreferrer"
+                @click.stop
             >
-              {{ img.label }}
+              {{ normalizeImageLabel(img.label) }}
             </a>
           </template>
           <template v-else>
-            {{ img.label }}
+            {{ normalizeImageLabel(img.label) }}
           </template>
         </div>
       </Slide>
 
       <template #addons>
         <div class="carousel-controls">
-          <Navigation v-if="visibleImages.length > 1" />
-          <Pagination v-if="visibleImages.length > 1" />
+          <Navigation v-if="visibleImages.length > 1"/>
+          <Pagination v-if="visibleImages.length > 1"/>
         </div>
       </template>
     </Carousel>
@@ -55,10 +55,6 @@
 
         <v-card-text class="text-center">
           <div ref="tifyContainer" class="tify-container"></div>
-
-          <div class="mt-4" v-if="selectedImage">
-            <p class="image-label">{{ selectedImage.label }}</p>
-          </div>
         </v-card-text>
       </v-card>
     </v-dialog>
@@ -66,7 +62,7 @@
 </template>
 
 <script>
-import { Carousel, Slide, Navigation, Pagination } from 'vue3-carousel'
+import {Carousel, Slide, Navigation, Pagination} from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
 
 import Tify from 'tify'
@@ -85,11 +81,16 @@ export default {
       type: Array,
       required: true,
     },
+    printerName: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
       dialog: false,
-      selectedImage: null,
+      selectedImageIndex: null,
       hiddenImageKeys: new Set(),
       apiDBBase: this.$store.state.adminUrl.replace(/\/admin\/?$/, ''),
       tifyInstance: null,
@@ -104,14 +105,24 @@ export default {
         return !!url && !this.hiddenImageKeys.has(key)
       })
     },
+    selectedImage() {
+      if (
+          this.selectedImageIndex == null ||
+          this.selectedImageIndex < 0 ||
+          this.selectedImageIndex >= this.visibleImages.length
+      ) {
+        return null
+      }
+      return this.visibleImages[this.selectedImageIndex]
+    },
     itemsToShow() {
       return this.visibleImages.length < 3 ? this.visibleImages.length || 1 : 3
     },
     carouselBreakpoints() {
       return {
-        300: { itemsToShow: 1, itemsToScroll: 1 },
-        700: { itemsToShow: 2, itemsToScroll: 1 },
-        1024: { itemsToShow: 3, itemsToScroll: 1 },
+        300: {itemsToShow: 1, itemsToScroll: 1},
+        700: {itemsToShow: 2, itemsToScroll: 1},
+        1024: {itemsToShow: 3, itemsToScroll: 1},
       }
     },
   },
@@ -122,6 +133,43 @@ export default {
   methods: {
     getImageKey(img, idx = 0) {
       return img?._id_dil || img?.img_name || img?.iiif_url || `${img?.label || 'img'}-${idx}`
+    },
+
+    normalizeImageLabel(label, fallback = 'Sans titre') {
+      if (label === null || label === undefined) return fallback
+
+      const clean = String(label).trim()
+
+      if (!clean) return fallback
+
+      if (clean.toLowerCase() === 'pas de titre') {
+        return fallback
+      }
+
+      return clean
+    },
+
+    goToImage(index) {
+      if (
+          index == null ||
+          index < 0 ||
+          index >= this.visibleImages.length ||
+          !this.tifyInstance
+      ) {
+        return
+      }
+
+      this.selectedImageIndex = index
+      this.tifyInstance.setPage(index + 1)
+      this.tifyInstance.setView(null)
+    },
+
+    goToPreviousImage() {
+      this.goToImage(this.selectedImageIndex - 1)
+    },
+
+    goToNextImage() {
+      this.goToImage(this.selectedImageIndex + 1)
     },
 
     resolveImageURL(img) {
@@ -141,15 +189,15 @@ export default {
     },
 
     openImage(img) {
-      this.selectedImage = img
-      this.dialog = true
-
       const startIndex = this.visibleImages.findIndex(
           (item) => this.getImageKey(item) === this.getImageKey(img)
       )
 
+      this.selectedImageIndex = startIndex >= 0 ? startIndex : 0
+      this.dialog = true
+
       this.$nextTick(() => {
-        this.mountTifyForImages(startIndex >= 0 ? startIndex : 0)
+        this.mountTifyForImages(this.selectedImageIndex)
       })
     },
 
@@ -157,7 +205,7 @@ export default {
       if (!isOpen) {
         this.destroyTify()
         this.revokeManifestUrl()
-        this.selectedImage = null
+        this.selectedImageIndex = null
       }
     },
 
@@ -179,6 +227,10 @@ export default {
       }
     },
 
+    hasValidReferenceUrl(img) {
+      return !!img?.reference_url && img.reference_url !== 'unknown_url'
+    },
+
     inferIiifServiceId(url) {
       if (!url) return null
 
@@ -197,12 +249,13 @@ export default {
         id: manifestId,
         type: 'Manifest',
         label: {
-          fr: ['Images de l’imprimeur'],
+          fr: ['Images de l’imprimeur lithographe :' + (this.printerName ? ` ${this.printerName}` : '')],
         },
         items: images.map((img, index) => {
           const imageUrl = this.resolveImageURL(img)
-          const label = img?.label || `Image ${index + 1}`
+          const label = this.normalizeImageLabel(img?.label)
           const serviceId = this.inferIiifServiceId(img?.iiif_url)
+          const hasReference = this.hasValidReferenceUrl(img)
 
           const canvasId = `urn:uuid:canvas-${index}-${Date.now()}`
           const pageId = `urn:uuid:page-${index}-${Date.now()}`
@@ -224,7 +277,7 @@ export default {
             ]
           }
 
-          return {
+          const canvas = {
             id: canvasId,
             type: 'Canvas',
             width: 3000,
@@ -248,9 +301,33 @@ export default {
               },
             ],
           }
+
+          if (hasReference) {
+            canvas.metadata = [
+              {
+                label: {fr: ['Référence']},
+                value: {
+                  fr: [`<a href="${img.reference_url}" target="_blank" rel="noopener noreferrer">${img.reference_url}</a>`],
+                },
+              },
+            ]
+
+            canvas.homepage = [
+              {
+                id: img.reference_url,
+                type: 'Text',
+                label: {fr: ['Voir la référence']},
+                format: 'text/html',
+              },
+            ]
+          }
+
+          return canvas
         }),
       }
     },
+
+
     mountTifyForImages(startIndex = 0) {
       this.destroyTify()
       this.revokeManifestUrl()
@@ -263,13 +340,13 @@ export default {
 
       this.tifyInstance = new Tify({
         manifestUrl: this.manifestObjectUrl,
+        view: 'info',
       })
 
       this.tifyInstance.mount(this.$refs.tifyContainer)
 
       this.tifyInstance.ready.then(() => {
         this.tifyInstance.setPage(startIndex + 1)
-        this.tifyInstance.setView(null)
       })
     }
   }
@@ -468,7 +545,6 @@ li.carousel__slide img {
   border-bottom: 9px solid transparent;
   padding-bottom: 20px;
 }
-
 
 
 :deep(.carousel__slide img:hover) {

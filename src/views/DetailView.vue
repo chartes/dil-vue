@@ -19,12 +19,13 @@
               <span>{{ person.firstnames }} {{ person.lastname }}</span>
 
               <div class="person-toggle-hint">
+
+                <span class="person-toggle-text">
+    {{ personExpanded ? 'Replier les informations' : 'Voir les informations' }}
+  </span>
                 <v-icon class="person-toggle-icon">
                   {{ personExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}
                 </v-icon>
-                <span class="person-toggle-text">
-    {{ personExpanded ? 'Réduire les informations' : 'Voir les informations' }}
-  </span>
               </div>
             </v-card-title>
 
@@ -141,7 +142,10 @@
 
                   <div v-if="imagesByPatent[patent._id_dil]?.length">
                     <h2 class="section-title section-title-center">Galerie</h2>
-                    <ImageCarousel :images="imagesByPatent[patent._id_dil]"/>
+                    <ImageCarousel
+                        :images="imagesByPatent[patent._id_dil]"
+                        :printerName="personDisplayName"
+                    />
                   </div>
                 </v-card-text>
               </div>
@@ -182,6 +186,16 @@ export default {
   },
   computed: {
     ...mapState(['apiUrl']),
+    personDisplayName() {
+      if (!this.person) return ''
+
+      const parts = [this.person.firstnames, this.person.lastname]
+          .filter(value => value !== null && value !== undefined)
+          .map(value => String(value).trim())
+          .filter(Boolean)
+
+      return parts.join(' ')
+    },
   },
   watch: {
     '$route.params.id': {
@@ -200,6 +214,7 @@ export default {
         this.expandedPatents.push(i);
       }
     },
+
     getPatentLabel(patent) {
       const year = this.parseYear(patent?.date_start);
       return year !== null && year >= 1870 ? 'Activité' : 'Brevet';
@@ -572,7 +587,7 @@ export default {
 }
 
 .person-toggle-text {
-  font-size: 0.95rem;
+  font-size: 1.25rem;
   line-height: 1.1;
   color: #777;
   font-style: italic;
