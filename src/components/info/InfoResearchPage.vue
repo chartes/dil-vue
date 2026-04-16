@@ -7,7 +7,7 @@
       <br>
       <p class="paragraph">
         La liste alphabétique des imprimeurs lithographes s’affiche par défaut en consultation. Elle est filtrable par
-        nom et/ou prénom, afin de retrouver rapidement un imprimeur.
+        nom, afin de retrouver rapidement un imprimeur.
       </p>
       <p class="paragraph">
         Chaque item peut être déplié pour afficher :
