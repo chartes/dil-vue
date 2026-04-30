@@ -49,7 +49,7 @@
                 {{ term.label }}
                 <span v-if="term.department_label_fr" class="term-department">({{ term.department_label_fr }})</span>
               </div>
-              <div class="term-patents" v-if="term.total_patents_if_selected">
+              <div class="term-patents" v-if="term.total_persons_if_selected">
                 {{ term.total_persons_if_selected }} imprimeur{{ term.total_persons_if_selected > 1 ? 's' : '' }}
               </div>
             </li>
@@ -289,18 +289,40 @@ export default {
       try {
         this.isLoading = true;
 
-        const selectedIds = this.selectedTerms.map(term => term.id || term.id_dil);
-        const selectedParams = selectedIds.map(id => `selected=${id}`).join('&');
-        const url = `${this.apiUrl}/places/autocomplete?q=${this.searchQuery}&${selectedParams}`;
+        const selectedIds = this.selectedTerms.map(term => term.id_dil || term.id);
 
-        const response = await fetch(url);
+        const url = new URL(`${this.apiUrl}/places/autocomplete`);
+
+        if (this.searchQuery) {
+          url.searchParams.append('q', this.searchQuery);
+        }
+
+        selectedIds.forEach(id => {
+          url.searchParams.append('selected', id);
+        });
+
+        if (this.selectedDate) {
+          url.searchParams.append('patent_date_start', this.selectedDate);
+          url.searchParams.append('exact_patent_date_start', this.exactMatch ? 'true' : 'false');
+        }
+
+        if (this.personSearchQuery) {
+          url.searchParams.append('search_extra_info', this.personSearchQuery);
+        }
+
+        const response = await fetch(url.toString());
+
+        if (!response.ok) {
+          throw new Error(`Erreur API autocomplete: ${response.status}`);
+        }
+
         const data = await response.json();
 
         this.terms = data;
         this.groupTerms();
-        this.isLoading = false;
       } catch (error) {
         console.error('Erreur lors de la récupération des termes :', error);
+      } finally {
         this.isLoading = false;
       }
     },

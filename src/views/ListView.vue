@@ -297,7 +297,9 @@ export default {
       return Math.max(1, Math.ceil(this.totalItems / this.itemsPerPage))
     },
     mapCityQuery() {
-      return this.selectedFacets.places.map(p => p.id || p.id_dil)
+      return this.selectedFacets.places
+          .map(p => p.id_dil || p.id)
+          .filter(Boolean);
     },
     mapDate() {
       return this.selectedFacets.date?.date || ''
@@ -660,8 +662,11 @@ export default {
         }
         if (this.selectedFacets.places.length > 0) {
           this.selectedFacets.places.forEach(term => {
-            params.append('patent_city_query', term.id_dil)
-          })
+            const cityId = term.id_dil || term.id;
+            if (cityId) {
+              params.append('patent_city_query', cityId);
+            }
+          });
         }
 
         const res = await fetch(`${this.apiUrl}/persons?${params.toString()}`, {
