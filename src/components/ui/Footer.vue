@@ -8,7 +8,7 @@
             <v-img
               :src="partners[0].src"
               alt="Logo ENC"
-              height="80"
+              height="60"
               contain
               class="mx-auto mx-md-0 img-partner"
             />
@@ -58,12 +58,12 @@ export default {
     return {
       partners: [
         {
-          src: new URL('@/assets/images/logos/Logo_ENC_PSL.svg', import.meta.url).href,
-          url: 'https://www.enc.sorbonne.fr/',
+          src: new URL('@/assets/images/logos/LOGO_ENDC_PSL_LAST.svg', import.meta.url).href,
+          url: 'https://www.chartes.psl.eu/',
         },
         {
           src: new URL('@/assets/images/logos/Logo-CJM.png', import.meta.url).href,
-          url: 'https://www.labexcap.fr/',
+          url: 'https://www.chartes.psl.eu/recherche/le-centre-jean-mabillon',
         },
       ],
     };
